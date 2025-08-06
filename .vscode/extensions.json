@@ -1,0 +1,60 @@
+{
+  "recommendations": [
+    // Core development
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    
+    // React Native development
+    "msjsdiag.vscode-react-native",
+    "rodrigovallades.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-json",
+    
+    // Go development
+    "golang.go",
+    "ms-vscode.vscode-go",
+    
+    // Git and version control
+    "eamodio.gitlens",
+    "donjayamanne.githistory",
+    
+    // Code quality and productivity
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "ms-vsliveshare.vsliveshare",
+    
+    // File and project management
+    "ms-vscode.vscode-file-watcher",
+    "alefragnani.project-manager",
+    "christian-kohler.path-intellisense",
+    
+    // Markdown and documentation
+    "yzhang.markdown-all-in-one",
+    "shd101wyy.markdown-preview-enhanced",
+    
+    // Testing
+    "ms-vscode.test-adapter-converter",
+    "hbenl.vscode-test-explorer",
+    
+    // Docker (if needed later)
+    "ms-azuretools.vscode-docker",
+    
+    // Theme and appearance
+    "pkief.material-icon-theme",
+    "zhuangtongfa.material-theme",
+    
+    // Utility
+    "ms-vscode.vscode-npm-script",
+    "christian-kohler.npm-intellisense",
+    "ms-vscode.references-view",
+    "ms-vscode.vscode-folder-source-actions"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify",
+    "ms-vscode.jscs"
+  ]
+}
