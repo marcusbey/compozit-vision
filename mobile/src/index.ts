@@ -5,17 +5,8 @@
  * easy access to all components, themes, and utilities.
  */
 
-// Re-export everything from components
+// Re-export everything from components and theme
 export * from './components';
-
-// Re-export styles and utilities
-export * from './styles';
-
-// Re-export types
-export * from './types';
-
-// Default export for the entire design system
-export { default as DesignSystem } from './components';
 
 // Test component for development
 export { DesignSystemTest } from './components/__tests__/DesignSystemTest';
