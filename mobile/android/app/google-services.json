@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "219002130447",
+    "project_id": "compozit-3b609",
+    "storage_bucket": "compozit-3b609.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:219002130447:android:6a5e82b7f62920a172937a",
+        "android_client_info": {
+          "package_name": "com.company.compozitapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoshxDWl5-eN-H2GoHeN2qiJkpV5Txz9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
