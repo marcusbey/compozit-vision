@@ -25,6 +25,7 @@ import PhotoCaptureScreen from '../screens/PhotoCapture/PhotoCaptureScreen';
 import ProcessingScreen from '../screens/Processing/ProcessingScreen';
 import ResultsScreen from '../screens/Results/ResultsScreen';
 import ProjectSettingsScreen from '../screens/ProjectSettings/ProjectSettingsScreen';
+import BuyCreditsScreen from '../screens/BuyCredits/BuyCreditsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -193,6 +194,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Processing" component={ProcessingScreen} />
         <Stack.Screen name="Results" component={ResultsScreen} />
         <Stack.Screen name="ProjectSettings" component={ProjectSettingsScreen} />
+        <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} />
         
         {/* Main app screens */}
         <Stack.Screen name="MyProjects" component={MyProjectsScreen} />
