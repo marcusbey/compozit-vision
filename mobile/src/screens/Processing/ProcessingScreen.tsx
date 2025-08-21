@@ -25,6 +25,7 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
   const progressAnim = new Animated.Value(0);
   
   const { projectName, roomType, selectedStyle, budgetRange, selectedItems, capturedImage } = route.params;
+  const { user } = useUserStore();
 
   const processingSteps = [
     'Analyzing your space...',
@@ -36,6 +37,15 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
   ];
 
   useEffect(() => {
+    // Pré-vérification des crédits avant de démarrer la progression
+    if (!user || (user.nbToken ?? 0) <= 0) {
+      navigation.replace('BuyCredits', {
+        returnScreen: 'Processing',
+        returnParams: route.params,
+      });
+      return;
+    }
+
     const interval = setInterval(() => {
       setProgress(prev => {
         const newProgress = prev + Math.random() * 15 + 5;
@@ -56,8 +66,11 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
                 capturedImage,
               });
             } else {
-              // Not enough tokens, navigate back or show error
-              navigation.goBack();
+              // Tokens insuffisants -> rediriger vers l'achat de crédits
+              navigation.replace('BuyCredits', {
+                returnScreen: 'Processing',
+                returnParams: route.params,
+              });
             }
           }, 1000);
           return 100;

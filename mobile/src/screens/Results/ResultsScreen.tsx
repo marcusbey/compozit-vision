@@ -28,6 +28,22 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
   const { user } = useUserStore();
 
   const handleNextDesign = () => {
+    // Vérifier l'authentification
+    if (!user?.id) {
+      navigation.navigate('Auth');
+      return;
+    }
+
+    // Vérifier les crédits disponibles avant de lancer la régénération
+    const tokens = user?.nbToken ?? 0;
+    if (tokens <= 0) {
+      navigation.navigate('BuyCredits', {
+        returnScreen: 'Processing',
+        returnParams: route.params,
+      });
+      return;
+    }
+
     // Générer un nouveau design
     navigation.navigate('Processing', route.params);
   };
