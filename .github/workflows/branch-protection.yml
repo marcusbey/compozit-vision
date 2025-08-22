@@ -1,0 +1,328 @@
+name: Branch Protection & Integration Pipeline
+
+on:
+  push:
+    branches:
+      - 'feature/enhanced-ai-processing-*'
+      - 'feature/style-reference-*'
+      - 'feature/furniture-carousel*'
+      - 'feature/custom-prompt*'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  NODE_VERSION: '18'
+  GO_VERSION: '1.21'
+
+jobs:
+  # Individual Agent Testing
+  agent-core-tests:
+    if: contains(github.ref, 'enhanced-ai-processing-core')
+    runs-on: ubuntu-latest
+    name: "🤖 Agent 1: AI Core Tests"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Run AI Core Unit Tests
+        run: |
+          cd mobile
+          npm run test:unit -- --testPathPattern=ai --coverage --coverageThreshold='{"global":{"lines":80}}'
+      
+      - name: Run AI Performance Tests
+        run: |
+          cd mobile
+          npm run test:performance:ai
+      
+      - name: Validate AI Interfaces
+        run: |
+          cd mobile
+          npm run validate:interfaces:ai
+
+  agent-style-tests:
+    if: contains(github.ref, 'style-reference-selection')
+    runs-on: ubuntu-latest
+    name: "🎨 Agent 2: Style Tests"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Run Style Unit Tests
+        run: |
+          cd mobile
+          npm run test:unit -- --testPathPattern=style --coverage --coverageThreshold='{"global":{"lines":80}}'
+      
+      - name: Run Style UI Tests
+        run: |
+          cd mobile
+          npm run test:ui:style
+      
+      - name: Validate Style Interfaces
+        run: |
+          cd mobile
+          npm run validate:interfaces:style
+
+  agent-carousel-tests:
+    if: contains(github.ref, 'furniture-carousel')
+    runs-on: ubuntu-latest
+    name: "🛋️ Agent 3: Carousel Tests"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Run Carousel Unit Tests
+        run: |
+          cd mobile
+          npm run test:unit -- --testPathPattern=carousel --coverage --coverageThreshold='{"global":{"lines":80}}'
+      
+      - name: Run Carousel Performance Tests
+        run: |
+          cd mobile
+          npm run test:performance:carousel
+      
+      - name: Validate Carousel Interfaces
+        run: |
+          cd mobile
+          npm run validate:interfaces:carousel
+
+  agent-prompt-tests:
+    if: contains(github.ref, 'custom-prompt')
+    runs-on: ubuntu-latest
+    name: "💬 Agent 4: Prompt Tests"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Run Prompt Unit Tests
+        run: |
+          cd mobile
+          npm run test:unit -- --testPathPattern=prompt --coverage --coverageThreshold='{"global":{"lines":80}}'
+      
+      - name: Run NLP Tests
+        run: |
+          cd mobile
+          npm run test:nlp
+      
+      - name: Validate Prompt Interfaces
+        run: |
+          cd mobile
+          npm run validate:interfaces:prompt
+
+  # Cross-Integration Testing
+  integration-tests:
+    needs: [agent-core-tests, agent-style-tests, agent-carousel-tests, agent-prompt-tests]
+    runs-on: ubuntu-latest
+    name: "🔗 Cross-Agent Integration Tests"
+    if: always() && (needs.agent-core-tests.result == 'success' || needs.agent-style-tests.result == 'success' || needs.agent-carousel-tests.result == 'success' || needs.agent-prompt-tests.result == 'success')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Test AI-Style Integration
+        run: |
+          cd mobile
+          npm run test:integration:ai-style
+      
+      - name: Test Style-Carousel Integration
+        run: |
+          cd mobile
+          npm run test:integration:style-carousel
+      
+      - name: Test Prompt-AI Integration
+        run: |
+          cd mobile
+          npm run test:integration:prompt-ai
+      
+      - name: Test End-to-End Flow
+        run: |
+          cd mobile
+          npm run test:e2e:enhanced-processing
+
+  # Conflict Detection
+  conflict-detection:
+    runs-on: ubuntu-latest
+    name: "⚠️ Conflict Detection"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check File Ownership Conflicts
+        run: |
+          # Check for violations of file ownership matrix
+          ./scripts/check-file-ownership.sh
+      
+      - name: Check Interface Breaking Changes
+        run: |
+          # Detect breaking changes in published interfaces
+          ./scripts/check-interface-changes.sh
+      
+      - name: Check Dependency Conflicts
+        run: |
+          # Detect circular or conflicting dependencies
+          ./scripts/check-dependency-conflicts.sh
+
+  # Performance Monitoring
+  performance-monitoring:
+    runs-on: ubuntu-latest
+    name: "📊 Performance Monitoring"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Memory Usage Analysis
+        run: |
+          cd mobile
+          npm run analyze:memory
+      
+      - name: Bundle Size Analysis
+        run: |
+          cd mobile
+          npm run analyze:bundle
+      
+      - name: Performance Regression Detection
+        run: |
+          cd mobile
+          npm run test:performance:regression
+
+  # Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    name: "🔒 Security Scan"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          cd mobile
+          npm ci
+      
+      - name: Run Security Audit
+        run: |
+          cd mobile
+          npm audit --audit-level high
+      
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          languages: javascript, typescript
+
+  # Quality Gates
+  quality-gates:
+    needs: [integration-tests, conflict-detection, performance-monitoring, security-scan]
+    runs-on: ubuntu-latest
+    name: "✅ Quality Gates"
+    if: always()
+    steps:
+      - name: Check All Quality Gates
+        run: |
+          # Fail if any critical checks failed
+          if [[ "${{ needs.integration-tests.result }}" != "success" ]]; then
+            echo "❌ Integration tests failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.conflict-detection.result }}" != "success" ]]; then
+            echo "❌ Conflict detection failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.performance-monitoring.result }}" != "success" ]]; then
+            echo "❌ Performance monitoring failed"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.security-scan.result }}" != "success" ]]; then
+            echo "❌ Security scan failed"
+            exit 1
+          fi
+          
+          echo "✅ All quality gates passed"
+
+  # Auto-merge for Integration Branch
+  auto-merge:
+    needs: [quality-gates]
+    runs-on: ubuntu-latest
+    name: "🚀 Auto-merge to Integration"
+    if: success() && github.event_name == 'push' && contains(github.ref, 'feature/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Create Integration PR
+        run: |
+          # Create PR to integration branch
+          gh pr create \
+            --title "Auto-merge: ${{ github.ref_name }}" \
+            --body "Automated merge after all quality gates passed" \
+            --base integration/enhanced-ai-processing \
+            --head ${{ github.ref_name }} \
+            --assignee ${{ github.actor }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
