@@ -59,3 +59,6 @@ export interface NavigationProps {
   navigation: any;
   route: any;
 }
+
+// Re-export AI processing types for easy access
+export * from './aiProcessing';
