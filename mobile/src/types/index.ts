@@ -59,3 +59,5 @@ export interface NavigationProps {
   navigation: any;
   route: any;
 }
+
+export * from './furniture';
