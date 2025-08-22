@@ -62,3 +62,4 @@ export interface NavigationProps {
 
 // Re-export AI processing types for easy access
 export * from './aiProcessing';
+export * from './furniture';
