@@ -9,6 +9,7 @@ import {
   GenerationStatus,
   RoomType
 } from '../types/aiProcessing';
+import { useUserStore } from '../stores/userStore';
 
 // Base configuration
 const AI_SERVICE_BASE_URL = process.env.EXPO_PUBLIC_AI_SERVICE_URL || 'http://localhost:8080';
@@ -191,10 +192,18 @@ export class SpaceAnalysisService {
   }
 
   /**
-   * Generate enhanced design
+   * Generate enhanced design with credit consumption
    */
-  async generateEnhancedDesign(request: EnhancedGenerationRequest): Promise<EnhancedGenerationResult> {
+  async generateEnhancedDesign(request: EnhancedGenerationRequest, consumeCredits: boolean = true): Promise<EnhancedGenerationResult> {
     try {
+      // Check credits if needed
+      if (consumeCredits) {
+        const creditsAvailable = await this.checkCreditsAvailable();
+        if (!creditsAvailable) {
+          throw new Error('Insufficient credits. Please purchase more credits to continue.');
+        }
+      }
+
       const response = await fetch(`${this.apiUrl}/generate/enhanced`, {
         method: 'POST',
         headers: {
@@ -209,6 +218,12 @@ export class SpaceAnalysisService {
       }
 
       const result = await response.json();
+      
+      // Consume credit after successful generation
+      if (consumeCredits && result.data) {
+        await this.consumeCredit();
+      }
+      
       return result.data as EnhancedGenerationResult;
     } catch (error) {
       console.error('Enhanced generation error:', error);
@@ -389,6 +404,83 @@ export class SpaceAnalysisService {
     } catch (error) {
       console.error('Room type suggestion error:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Check if user has available credits
+   */
+  async checkCreditsAvailable(): Promise<boolean> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User authentication required');
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('credits_remaining')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error checking credits:', profileError);
+        return false;
+      }
+
+      return (profile?.credits_remaining ?? 0) > 0;
+    } catch (error) {
+      console.error('Credit check error:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Consume a credit for AI processing
+   */
+  async consumeCredit(): Promise<boolean> {
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('User authentication required');
+      }
+
+      // Get current credits
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('credits_remaining')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('Error getting user profile:', profileError);
+        return false;
+      }
+
+      if (profile.credits_remaining <= 0) {
+        console.error('No credits remaining');
+        return false;
+      }
+
+      // Update credits
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          credits_remaining: profile.credits_remaining - 1,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('Error consuming credit:', updateError);
+        return false;
+      }
+
+      console.log(`✅ Credit consumed. Remaining: ${profile.credits_remaining - 1}`);
+      return true;
+    } catch (error) {
+      console.error('Consume credit error:', error);
+      return false;
     }
   }
 
