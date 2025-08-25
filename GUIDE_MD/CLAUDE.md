@@ -406,23 +406,79 @@ Brief description of changes
 
 ## Testing Requirements
 
+### 🔒 **MANDATORY TESTING RULES - NEVER SKIP**
+
+#### Pre-Implementation Rules
+- [ ] **Before writing ANY feature**: Write test file first (TDD approach)
+- [ ] **Each screen**: Must have corresponding test file in `__tests__` folder
+- [ ] **Each component**: Must have unit tests with minimum 80% coverage
+- [ ] **Each service/utility**: Must have comprehensive test suite
+
+#### During Implementation Rules
+- [ ] **After each feature**: Run `npm test` to ensure nothing breaks
+- [ ] **After each screen**: Run component-specific tests
+- [ ] **After any navigation change**: Run E2E flow tests
+- [ ] **After any API integration**: Run integration tests
+
+#### Pre-Commit Rules (MANDATORY)
+- [ ] **Always run**: `npm test` - All tests must pass
+- [ ] **Always run**: `npm run build` - Build must succeed
+- [ ] **Always run**: `npm run lint` - No linting errors
+- [ ] **Always run**: `npm run type-check` - No TypeScript errors
+- [ ] **Critical paths**: Run E2E tests for user journey
+- [ ] **Integration**: Test authentication and payment flows
+
+#### Post-Feature Rules
+- [ ] **End-to-End Testing**: Complete user journey from onboarding to results
+- [ ] **Integration Testing**: All external services (Supabase, Stripe, etc.)
+- [ ] **Regression Testing**: Ensure existing features still work
+- [ ] **Performance Testing**: Screen load times, animation smoothness
+
 ### 1. Test Coverage Standards
 
-- **Unit Tests**: Minimum 80% coverage
-- **Integration Tests**: All API endpoints
-- **E2E Tests**: Critical user journeys
+- **Unit Tests**: Minimum 80% coverage (ENFORCED)
+- **Integration Tests**: 100% API endpoints coverage
+- **E2E Tests**: All critical user journeys
 - **Performance Tests**: Image processing, API response times
+- **Visual Tests**: Screenshot regression for all screens
 
 ### 2. Testing Pyramid
 
 ```
          /\
-        /E2E\        5%
+        /E2E\        5%  (User Journey Tests)
        /------\
-      /  Integ  \    15%
+      /  Integ  \    15% (API & Service Tests)  
      /----------\
-    /    Unit    \   80%
+    /    Unit    \   80% (Component & Logic Tests)
    /--------------\
+```
+
+### 3. Mandatory Test Files Structure
+
+```
+src/
+├── __tests__/                    # Root test directory
+│   ├── setup.ts                 # Test configuration
+│   ├── mocks/                   # Mock data and services
+│   └── e2e/                     # End-to-end tests
+├── screens/
+│   ├── Onboarding/
+│   │   ├── OnboardingScreen1.tsx
+│   │   ├── __tests__/
+│   │   │   ├── OnboardingScreen1.test.tsx    # MANDATORY
+│   │   │   ├── OnboardingScreen2.test.tsx    # MANDATORY
+│   │   │   └── OnboardingScreen3.test.tsx    # MANDATORY
+│   ├── Paywall/
+│   │   ├── PaywallScreen.tsx
+│   │   └── __tests__/
+│   │       └── PaywallScreen.test.tsx        # MANDATORY
+└── services/
+    ├── supabase.ts
+    └── __tests__/
+        ├── supabase.test.ts                  # MANDATORY
+        ├── stripe.test.ts                    # MANDATORY
+        └── userStore.test.ts                 # MANDATORY
 ```
 
 ### 3. Test Structure
@@ -471,20 +527,121 @@ func TestUserService_GetUser(t *testing.T) {
 }
 ```
 
-### 4. Testing Commands
+### 4. Mandatory Testing Commands (NEVER SKIP)
 
+#### Development Testing
 ```bash
-# Run all tests before committing
-npm run test:unit
-npm run test:integration
-npm run test:e2e
+# Before ANY commit
+npm test                    # All unit and integration tests
+npm run build              # Ensure build succeeds  
+npm run lint               # Fix all linting errors
+npm run type-check         # Fix all TypeScript errors
 
-# Go tests
-go test ./...
-go test -cover ./...
+# After implementing new screen
+npm test -- OnboardingScreen1.test.tsx
+npm test -- PaywallScreen.test.tsx
 
-# Pre-push hook
-npm run test:all && npm run lint
+# After API changes
+npm run test:integration   # Test all API endpoints
+npm run test:auth         # Test authentication flow
+npm run test:stripe       # Test payment integration
+
+# Complete testing suite
+npm run test:all          # All tests including E2E
+npm run test:coverage     # Verify 80% coverage minimum
+npm run test:e2e          # End-to-end user journey
+```
+
+#### CI/CD Pipeline Commands
+```bash
+# Pre-commit hooks (automatic)
+npm run pre-commit        # Runs lint, type-check, and tests
+npm run pre-push          # Runs full test suite
+
+# Manual quality checks
+npm run test:watch        # Watch mode during development
+npm run test:debug        # Debug failing tests
+npm run test:visual       # Screenshot regression tests
+```
+
+#### Platform-Specific Testing
+```bash
+# React Native Testing
+npx jest --coverage                    # Unit tests with coverage
+npx detox test                        # E2E mobile testing
+npm run test:ios                      # iOS-specific tests
+npm run test:android                  # Android-specific tests
+
+# Backend Testing (Go)
+go test ./... -v                      # All Go tests
+go test -cover ./...                  # Go coverage
+go test -race ./...                   # Race condition detection
+```
+
+### 5. Test Quality Standards
+
+#### Unit Test Requirements
+```typescript
+// ✅ MANDATORY: Each test must include
+describe('ComponentName', () => {
+  // Setup and cleanup
+  beforeEach(() => { /* setup */ });
+  afterEach(() => { /* cleanup */ });
+
+  // Props testing
+  it('should render with default props', () => {});
+  it('should handle prop changes', () => {});
+  
+  // User interaction testing  
+  it('should handle button press', () => {});
+  it('should validate input', () => {});
+  
+  // State management testing
+  it('should update state correctly', () => {});
+  it('should handle error states', () => {});
+  
+  // Navigation testing
+  it('should navigate to correct screen', () => {});
+  
+  // Accessibility testing
+  it('should have proper accessibility labels', () => {});
+});
+```
+
+#### Integration Test Requirements
+```typescript
+// ✅ MANDATORY: Service integration tests
+describe('AuthenticationService', () => {
+  it('should authenticate with Supabase', async () => {
+    // Test real authentication flow
+  });
+  
+  it('should handle authentication errors', async () => {
+    // Test error scenarios
+  });
+  
+  it('should maintain session state', async () => {
+    // Test session persistence  
+  });
+});
+```
+
+#### E2E Test Requirements
+```typescript
+// ✅ MANDATORY: Complete user journey
+describe('User Journey', () => {
+  it('should complete onboarding flow', async () => {
+    // Test: Onboarding1 → Onboarding2 → Onboarding3
+  });
+  
+  it('should handle paywall selection', async () => {
+    // Test: Paywall → Plan selection → Payment
+  });
+  
+  it('should complete design generation', async () => {
+    // Test: Photo → Descriptions → Furniture → Budget → Auth → Results
+  });
+});
 ```
 
 ## AI Agent Specialization
