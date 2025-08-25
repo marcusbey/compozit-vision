@@ -25,6 +25,7 @@ import { ProgressIndicator } from '../../components/FurnitureCarousel/ProgressIn
 // Import services
 import { spaceAnalysisService } from '../../services/spaceAnalysis';
 import { SpaceAnalysisService, FURNITURE_CATEGORIES } from '../../services/furniture/SpaceAnalysisService';
+import { useUserStore } from '../../stores/userStore';
 
 // Import types
 import { 
@@ -73,6 +74,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
 }) => {
   const { imageUri, projectId } = route.params;
   const { isMobile, isTablet, scalingFactor, spacing } = useResponsiveDesign();
+  const { user, consumeToken } = useUserStore();
   
   const [state, setState] = useState<ProcessingState>({
     step: 'space_analysis',
@@ -176,10 +178,33 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
     return baseAmbiances;
   }, [state.selectedStyles]);
 
-  // Initialize space analysis
+  // Initialize space analysis and check credits
   useEffect(() => {
+    // Check credits on screen load
+    if (!user || (user.nbToken ?? 0) <= 0) {
+      Alert.alert(
+        'No Credits Available',
+        'You need credits to use enhanced AI processing. Purchase credits to continue.',
+        [
+          {
+            text: 'Buy Credits',
+            onPress: () => navigation.navigate('BuyCredits', {
+              returnScreen: 'EnhancedAIProcessing',
+              returnParams: route.params,
+            }),
+          },
+          {
+            text: 'Go Back',
+            style: 'cancel',
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+      return;
+    }
+    
     analyzeSpace();
-  }, [imageUri]);
+  }, [imageUri, user]);
 
   const analyzeSpace = async () => {
     setState(prev => ({ ...prev, isLoading: true, error: undefined }));
@@ -271,6 +296,25 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
   }, []);
 
   const generateEnhancedDesign = async () => {
+    // Check credits before starting generation
+    if (!user || (user.nbToken ?? 0) <= 0) {
+      Alert.alert(
+        'No Credits Available',
+        'You need credits to generate a design. Purchase credits to continue.',
+        [
+          {
+            text: 'Buy Credits',
+            onPress: () => navigation.navigate('BuyCredits', {
+              returnScreen: 'EnhancedAIProcessing',
+              returnParams: route.params,
+            }),
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+      return;
+    }
+
     setState(prev => ({ ...prev, step: 'generating', isLoading: true }));
     
     try {
@@ -287,7 +331,8 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         outputFormat: 'high_resolution',
       };
 
-      const result = await spaceAnalysisService.generateEnhancedDesign(request);
+      // The spaceAnalysisService will now handle credit consumption automatically
+      const result = await spaceAnalysisService.generateEnhancedDesign(request, true);
 
       setState(prev => ({
         ...prev,
@@ -351,6 +396,12 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         <Text style={[styles.progressText, { fontSize: 14 * scalingFactor }]}>
           {getStepTitle()}
         </Text>
+        {/* Credit display */}
+        <View style={styles.creditsContainer}>
+          <Text style={[styles.creditsText, { fontSize: 12 * scalingFactor }]}>
+            Credits: {user?.nbToken ?? 0}
+          </Text>
+        </View>
       </View>
       {imageUri && (
         <Image 
@@ -619,6 +670,18 @@ const styles = StyleSheet.create({
   progressText: {
     fontFamily: theme.fonts.medium,
     color: theme.colors.textSecondary,
+  },
+  creditsContainer: {
+    marginTop: theme.spacing.xs,
+    backgroundColor: theme.colors.primaryLight,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.sm,
+    alignSelf: 'flex-start',
+  },
+  creditsText: {
+    fontFamily: theme.fonts.medium,
+    color: theme.colors.primary,
   },
   thumbnailImage: {
     borderRadius: theme.borderRadius.md,

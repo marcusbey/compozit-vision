@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+// import { SvgUri } from 'react-native-svg'; // Commented out for now
+
+import { AssetManager, StyleType, StyleMetadata } from '../../assets';
 
 const { width } = Dimensions.get('window');
 
@@ -23,32 +26,16 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
   const [selectedStyle, setSelectedStyle] = useState('');
   const { projectName, roomType } = route.params;
 
-  const styles_data = [
-    {
-      id: 'modern',
-      name: 'Modern',
-      subtitle: 'Clean lines, minimalist',
-      description: 'Sleek and contemporary design with clean lines and neutral colors',
-    },
-    {
-      id: 'classic',
-      name: 'Classic',
-      subtitle: 'Timeless elegance',
-      description: 'Traditional design with elegant furniture and warm tones',
-    },
-    {
-      id: 'eclectic',
-      name: 'Eclectic',
-      subtitle: 'Mix of styles',
-      description: 'Creative blend of different design elements and periods',
-    },
-    {
-      id: 'minimalist',
-      name: 'Minimalist',
-      subtitle: 'Less is more',
-      description: 'Simple, uncluttered spaces with essential elements only',
-    },
-  ];
+  // Get enhanced style data with illustrations
+  const styles_data = AssetManager.getAllStyles().slice(0, 4).map(({ style, metadata }) => ({
+    id: style,
+    name: metadata.name,
+    subtitle: metadata.mood,
+    description: metadata.description,
+    illustration: metadata.illustration,
+    colorPalette: metadata.colorPalette,
+    keyFeatures: metadata.keyFeatures,
+  }));
 
   const handleContinue = () => {
     if (selectedStyle) {
@@ -77,17 +64,44 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
         onPress={() => setSelectedStyle(style.id)}
         activeOpacity={0.8}
       >
-        {/* Image placeholder avec design représentatif */}
+        {/* Enhanced illustration */}
         <View style={[
           styles.styleImageContainer,
           isSelected && styles.styleImageContainerSelected
         ]}>
           <LinearGradient
-            colors={getStyleGradient(style.id)}
+            colors={style.colorPalette?.slice(0, 2) || ['#f8f9fa', '#e9ecef']}
             style={styles.styleImageGradient}
           >
-            {renderStyleIllustration(style.id, isSelected)}
+            {style.illustration ? (
+              <View style={styles.illustrationWrapper}>
+                {/* Style illustration placeholder */}
+                <Ionicons 
+                  name="home" 
+                  size={48} 
+                  color={isSelected ? '#4facfe' : '#666'} 
+                />
+              </View>
+            ) : (
+              renderStyleIllustration(style.id, isSelected)
+            )}
           </LinearGradient>
+          
+          {/* Color palette preview */}
+          {style.colorPalette && (
+            <View style={styles.colorPalettePreview}>
+              {style.colorPalette.slice(0, 4).map((color, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.colorSwatch,
+                    { backgroundColor: color },
+                    isSelected && styles.colorSwatchSelected,
+                  ]}
+                />
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Contenu de la carte */}
@@ -501,6 +515,33 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginLeft: 10,
+  },
+  // Enhanced illustration styles
+  illustrationWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  colorPalettePreview: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 12,
+    padding: 4,
+  },
+  colorSwatch: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginHorizontal: 1,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  colorSwatchSelected: {
+    borderColor: '#4facfe',
+    borderWidth: 2,
   },
 });
 

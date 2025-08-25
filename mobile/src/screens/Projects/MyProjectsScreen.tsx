@@ -12,8 +12,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { firestore } from '../../config/firebase';
+import { supabase } from '../../services/supabase';
 import { useUserStore } from '../../stores/userStore';
 
 const { width } = Dimensions.get('window');
@@ -28,31 +27,59 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
   const { user } = useUserStore();
 
   useEffect(() => {
-    if (!user?.id || !firestore) return;
-    const q = query(
-      collection(firestore, 'users', user.id, 'projects'),
-      orderBy('updatedAt', 'desc')
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items = snapshot.docs.map((d) => {
-        const data: any = d.data();
-        return {
-          id: d.id,
-          name: data.name || 'Untitled Project',
-          roomType: data.roomType || 'living',
-          style: data.style || 'modern',
-          budgetRange: data.budgetRange || [0, 0],
-          selectedItems: data.selectedItems || [],
-          capturedImage: data.capturedImage || null,
-          status: data.status || 'completed',
-          progress: data.progress ?? 100,
-          subtitle: data.subtitle || `${(data.roomType || 'Room')} • ${(data.style || 'Style')}`,
-          updatedAt: data.updatedAt || null,
-        };
-      });
-      setProjects(items);
-    });
-    return unsubscribe;
+    if (!user?.id) return;
+    
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching projects:', error);
+          return;
+        }
+
+        const items = (data || []).map((project: any) => ({
+          id: project.id,
+          name: project.name || 'Untitled Project',
+          roomType: project.room_type || 'living',
+          style: project.style_preferences?.[0] || 'modern',
+          budgetRange: [project.budget_min || 0, project.budget_max || 0],
+          selectedItems: [], // Will be populated from designs
+          capturedImage: project.original_images?.[0]?.url || null,
+          status: project.status || 'completed',
+          progress: project.status === 'completed' ? 100 : 50,
+          subtitle: `${project.room_type || 'Room'} • ${project.style_preferences?.[0] || 'Style'}`,
+          updatedAt: project.updated_at,
+        }));
+        
+        setProjects(items);
+      } catch (error) {
+        console.error('Error in fetchProjects:', error);
+      }
+    };
+
+    fetchProjects();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('projects')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'projects',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchProjects(); // Refresh data when changes occur
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, [user?.id]);
 
   const handleProjectPress = (project: any) => {

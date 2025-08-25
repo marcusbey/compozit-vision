@@ -12,8 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
-import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { firestore } from '../../config/firebase';
+import { supabase } from '../../services/supabase';
 import { useUserStore } from '../../stores/userStore';
 const { width, height } = Dimensions.get('window');
 
@@ -60,32 +59,42 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
         return;
       }
 
-      if (!firestore) {
-        console.warn('Firestore non disponible, navigation vers MyProjects');
-        navigation.navigate('MyProjects');
-        return;
-      }
-
-      const projectsCol = collection(firestore, 'users', user.id, 'projects');
+      const now = new Date().toISOString();
       const payload: any = {
+        user_id: user.id,
         name: projectName,
-        roomType,
-        style: selectedStyle,
-        budgetRange,
-        selectedItems,
-        capturedImage: capturedImage ?? null,
+        room_type: roomType,
+        style_preferences: [selectedStyle],
+        budget_min: budgetRange?.[0],
+        budget_max: budgetRange?.[1],
+        original_images: capturedImage ? [{ url: capturedImage }] : [],
         status: 'completed',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        updated_at: now,
       };
 
       if (route.params?.projectId) {
         // Mettre à jour le projet existant
-        const ref = doc(firestore, 'users', user.id, 'projects', route.params.projectId);
-        await updateDoc(ref, payload);
+        const { error } = await supabase
+          .from('projects')
+          .update(payload)
+          .eq('id', route.params.projectId)
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Erreur lors de la mise à jour du projet:', error);
+          return;
+        }
       } else {
         // Créer un nouveau projet
-        await addDoc(projectsCol, payload);
+        payload.created_at = now;
+        const { error } = await supabase
+          .from('projects')
+          .insert(payload);
+        
+        if (error) {
+          console.error('Erreur lors de la création du projet:', error);
+          return;
+        }
       }
 
       navigation.navigate('MyProjects');

@@ -28,6 +28,8 @@ import Animated, {
 import { StyleReference, RoomType } from '../../types/aiProcessing';
 import { spaceAnalysisService } from '../../services/spaceAnalysis';
 import { colors } from '../../theme/colors';
+import { AssetManager, StyleType } from '../../assets';
+import EnhancedStyleCard from './EnhancedStyleCard';
 
 interface StyleGridProps {
   roomType?: RoomType;
@@ -219,91 +221,17 @@ const StyleGrid: React.FC<StyleGridProps> = ({
 
   const renderStyleItem = (style: StyleReference, index: number) => {
     const isSelected = selectedIds.includes(style.id);
-    const imageUri = STYLE_IMAGES[style.slug] || STYLE_IMAGES.modern;
     
     return (
-      <Animated.View
+      <EnhancedStyleCard
         key={style.id}
-        entering={FadeInUp.delay(index * 100).duration(600)}
-        style={[
-          gridItemStyle,
-          index % 2 === 1 && { marginLeft: 20 }, // Add margin for right column
-        ]}
-      >
-        <TouchableOpacity
-          onPress={() => handleStyleSelect(style)}
-          activeOpacity={0.9}
-          style={[
-            styles_sheet.itemContainer,
-            isSelected && styles_sheet.itemSelected,
-          ]}
-          accessible={true}
-          accessibilityLabel={`${style.name} style reference`}
-          accessibilityHint={`Tap to ${isSelected ? 'deselect' : 'select'} this style`}
-          accessibilityRole="button"
-          accessibilityState={{ selected: isSelected }}
-        >
-          {/* Image with gradient overlay */}
-          <View style={styles_sheet.imageContainer}>
-            <Image
-              source={{ uri: imageUri }}
-              style={styles_sheet.image}
-              resizeMode="cover"
-            />
-            
-            {/* Gradient overlay */}
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.7)']}
-              style={styles_sheet.imageOverlay}
-            />
-            
-            {/* Selection indicator */}
-            {isSelected && (
-              <Animated.View 
-                entering={FadeInRight.duration(300)}
-                style={styles_sheet.selectionBadge}
-              >
-                <BlurView intensity={80} style={styles_sheet.selectionBadgeBlur}>
-                  <Ionicons name="checkmark-circle" size={24} color={colors.primary[400]} />
-                </BlurView>
-              </Animated.View>
-            )}
-          </View>
-
-          {/* Content */}
-          <View style={styles_sheet.content}>
-            <Text style={[
-              styles_sheet.title,
-              isSelected && styles_sheet.titleSelected,
-            ]} numberOfLines={1}>
-              {style.name}
-            </Text>
-            <Text style={[
-              styles_sheet.description,
-              isSelected && styles_sheet.descriptionSelected,
-            ]} numberOfLines={2}>
-              {style.description}
-            </Text>
-            
-            {/* Tags */}
-            <View style={styles_sheet.tags}>
-              {style.characteristicTags.slice(0, 2).map((tag, tagIndex) => (
-                <View key={tagIndex} style={[
-                  styles_sheet.tag,
-                  isSelected && styles_sheet.tagSelected,
-                ]}>
-                  <Text style={[
-                    styles_sheet.tagText,
-                    isSelected && styles_sheet.tagTextSelected,
-                  ]}>
-                    {tag}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
+        style={style}
+        isSelected={isSelected}
+        onSelect={handleStyleSelect}
+        index={index}
+        size="medium"
+        showMetadata={true}
+      />
     );
   };
 
@@ -380,14 +308,7 @@ const StyleGrid: React.FC<StyleGridProps> = ({
           }
         }}
         refreshControl={
-          Platform.OS === 'ios' ? 
-          require('react-native').RefreshControl && (
-            <require('react-native').RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor={colors.primary[400]}
-            />
-          ) : undefined
+          Platform.OS === 'ios' ? undefined : undefined
         }
       >
         <View style={styles_sheet.grid}>

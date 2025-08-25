@@ -13,8 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
-import { collection, addDoc, doc, updateDoc, serverTimestamp, deleteDoc } from 'firebase/firestore';
-import { firestore } from '../../config/firebase';
+import { supabase } from '../../services/supabase';
 import { useUserStore } from '../../stores/userStore';
 
 interface ProjectSettingsScreenProps {
@@ -79,9 +78,18 @@ const ProjectSettingsScreen: React.FC<ProjectSettingsScreenProps> = ({ navigatio
 
       if (!yesNo) return;
 
-      if (!user?.id || !firestore) return;
-      const ref = doc(firestore, 'users', user.id, 'projects', projectId);
-      await deleteDoc(ref);
+      if (!user?.id) return;
+      
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error deleting project:', error);
+        return;
+      }
 
       // Aller vers la liste des projets après suppression
       navigation.navigate('MyProjects');
@@ -98,24 +106,45 @@ const ProjectSettingsScreen: React.FC<ProjectSettingsScreenProps> = ({ navigatio
 
   const handleSave = async () => {
     try {
-      if (!user?.id || !firestore) return;
+      if (!user?.id) return;
 
       const payload: any = {
         name,
-        roomType,
-        style: selectedStyle, // on conserve la valeur existante
-        budgetRange,
-        selectedItems,
-        capturedImage: capturedImage ?? null,
-        updatedAt: serverTimestamp(),
+        room_type: roomType,
+        style_preferences: selectedStyle ? [selectedStyle] : [],
+        budget_min: budgetRange[0],
+        budget_max: budgetRange[1],
+        original_images: capturedImage ? [{ url: capturedImage }] : [],
+        updated_at: new Date().toISOString(),
       };
 
       if (projectId) {
-        const ref = doc(firestore, 'users', user.id, 'projects', projectId);
-        await updateDoc(ref, payload);
+        const { error } = await supabase
+          .from('projects')
+          .update(payload)
+          .eq('id', projectId)
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error updating project:', error);
+          return;
+        }
       } else {
-        const colRef = collection(firestore, 'users', user.id, 'projects');
-        await addDoc(colRef, { ...payload, status: 'completed', createdAt: serverTimestamp() });
+        const { data, error } = await supabase
+          .from('projects')
+          .insert({
+            ...payload,
+            user_id: user.id,
+            status: 'completed',
+            created_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Error creating project:', error);
+          return;
+        }
       }
 
       // Retourner vers Results avec les paramètres à jour

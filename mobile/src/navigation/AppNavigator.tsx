@@ -111,13 +111,13 @@ const AppNavigator = () => {
         console.log('No saved auth state found');
       }
 
-      // Initialize Firebase auth listener
+      // Initialize Supabase auth listener
       const unsubscribe = initializeAuth();
       
       // Déterminer la route initiale
       await determineInitialRoute();
       
-      // Wait for Firebase auth to initialize
+      // Wait for Supabase auth to initialize
       const timer = setTimeout(() => {
         setIsAuthReady(true);
       }, 2000);
