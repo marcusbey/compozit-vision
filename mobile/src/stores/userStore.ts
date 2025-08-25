@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import { auth, firestore, isFirestoreAvailable } from '../config/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { supabase } from '../services/supabase'; // Now using real Supabase service
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UserState {
@@ -51,79 +49,88 @@ export const useUserStore = create<UserState>((set, get) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      
-      let user: User;
-      
-      if (isFirestoreAvailable()) {
-        try {
-          // Récupérer les données utilisateur depuis Firestore
-          const userDoc = await getDoc(doc(firestore, 'users', firebaseUser.uid));
-          
-          if (userDoc.exists()) {
-            // Utilisateur existant - récupérer depuis Firestore
-            user = {
-              id: firebaseUser.uid,
-              ...userDoc.data()
-            } as User;
-            console.log('Données utilisateur récupérées depuis Firestore');
-          } else {
-            // Pas de données Firestore, créer un utilisateur par défaut
-            user = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              fullName: firebaseUser.displayName || email.split('@')[0],
-              avatarUrl: firebaseUser.photoURL || undefined,
-              preferences: {},
-              nbToken: 10,
-              currentPlan: 'free',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            };
-          }
-        } catch (error) {
-          console.warn('Erreur Firestore, fallback vers AsyncStorage:', error);
-          // Fallback vers AsyncStorage
-          const userData = await AsyncStorage.getItem(`user_${firebaseUser.uid}`);
-          user = userData ? JSON.parse(userData) : {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || '',
-            fullName: firebaseUser.displayName || email.split('@')[0],
-            avatarUrl: firebaseUser.photoURL || undefined,
+      // Sign in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // Get user profile from Supabase
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.warn('Profile not found, creating default profile');
+          // Create default profile if it doesn't exist
+          const defaultProfile = {
+            id: data.user.id,
+            email: data.user.email || '',
+            full_name: data.user.email?.split('@')[0] || '',
+            avatar_url: null,
+            subscription_tier: 'free',
+            subscription_status: 'active',
+            credits_remaining: 3,
             preferences: {},
-            nbToken: 10,
-            currentPlan: 'free',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           };
+
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([defaultProfile]);
+
+          if (insertError) {
+            console.error('Error creating profile:', insertError);
+            
+            // Handle database setup issues during login
+            if (insertError.message?.includes('relation "profiles" does not exist')) {
+              throw new Error('Database setup incomplete. Please run the Supabase schema first.');
+            }
+          }
+
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            fullName: defaultProfile.full_name,
+            avatarUrl: null,
+            preferences: {},
+            nbToken: 3,
+            currentPlan: 'free',
+            createdAt: defaultProfile.created_at,
+            updatedAt: defaultProfile.updated_at,
+          };
+
+          set({ user, isAuthenticated: true, error: null });
+        } else {
+          // Use existing profile
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            fullName: profile.full_name || '',
+            avatarUrl: profile.avatar_url,
+            preferences: profile.preferences || {},
+            nbToken: profile.credits_remaining || 0,
+            currentPlan: profile.subscription_tier || 'free',
+            createdAt: profile.created_at,
+            updatedAt: profile.updated_at,
+          };
+
+          set({ user, isAuthenticated: true, error: null });
         }
-      } else {
-        // Firestore non disponible, utiliser AsyncStorage
-        const userData = await AsyncStorage.getItem(`user_${firebaseUser.uid}`);
-        user = userData ? JSON.parse(userData) : {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          fullName: firebaseUser.displayName || email.split('@')[0],
-          avatarUrl: firebaseUser.photoURL || undefined,
-          preferences: {},
-          nbToken: 10,
-          currentPlan: 'free',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
       }
       
-      set({ 
-        user, 
-        isAuthenticated: true,
-        error: null 
-      });
-      
-      console.log('Connexion Firebase réussie pour:', email);
+      console.log('✅ Supabase login successful for:', email);
     } catch (error: any) {
-      console.error('Erreur de connexion Firebase:', error);
-      set({ error: 'Email ou mot de passe incorrect' });
+      console.error('❌ Supabase login error:', error);
+      set({ error: error.message || 'Email ou mot de passe incorrect' });
     } finally {
       set({ isLoading: false });
     }
@@ -132,20 +139,31 @@ export const useUserStore = create<UserState>((set, get) => ({
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      await signOut(auth);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
       set({ 
         user: null, 
         isAuthenticated: false,
         error: null 
       });
-      console.log('Firebase logout successful');
       
-      // Navigate to Auth screen after logout
-      // This will be handled by the navigation logic
+      // Clear local storage
+      await AsyncStorage.multiRemove([
+        'userAuthState',
+        'userProfile',
+        'userProjects',
+        'userPreferences'
+      ]);
+      
+      console.log('✅ Supabase logout successful');
       return true;
     } catch (error: any) {
-      console.error('Firebase logout error:', error);
-      set({ error: 'Logout failed' });
+      console.error('❌ Supabase logout error:', error);
+      set({ error: error.message || 'Logout failed' });
       return false;
     } finally {
       set({ isLoading: false });
@@ -156,52 +174,81 @@ export const useUserStore = create<UserState>((set, get) => ({
   register: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-      
-      const user: User = {
-        id: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        fullName: email.split('@')[0],
-        avatarUrl: firebaseUser.photoURL || null,
-        preferences: {},
-        nbToken: 50, // Tokens de départ pour nouveaux utilisateurs
-        currentPlan: 'free',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      
-      // Sauvegarder les données utilisateur dans Firestore uniquement
-      await setDoc(doc(firestore, 'users', firebaseUser.uid), {
-        email: user.email,
-        fullName: user.fullName,
-        avatarUrl: user.avatarUrl,
-        preferences: user.preferences,
-        nbToken: user.nbToken,
-        currentPlan: user.currentPlan,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
       });
-      console.log('Données utilisateur sauvegardées dans Firestore');
-      
-      set({ 
-        user, 
-        isAuthenticated: true,
-        error: null 
-      });
-      
-      console.log('Inscription Firebase réussie pour:', email);
-      console.log('Données utilisateur sauvegardées dans Firestore avec', user.nbToken, 'tokens');
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // Create user profile in Supabase
+        const profile = {
+          id: data.user.id,
+          email: data.user.email || '',
+          full_name: email.split('@')[0],
+          avatar_url: null,
+          subscription_tier: 'free',
+          subscription_status: 'active',
+          credits_remaining: 3, // Free tier gets 3 credits
+          preferences: {},
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([profile]);
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          
+          // Handle specific database errors
+          if (profileError.message?.includes('relation "profiles" does not exist')) {
+            throw new Error('Database setup incomplete. Please run the Supabase schema first.');
+          } else if (profileError.message?.includes('duplicate key')) {
+            throw new Error('User profile already exists');
+          } else {
+            throw new Error(`Failed to create user profile: ${profileError.message}`);
+          }
+        }
+
+        const user: User = {
+          id: data.user.id,
+          email: data.user.email || '',
+          fullName: profile.full_name,
+          avatarUrl: null,
+          preferences: {},
+          nbToken: 3,
+          currentPlan: 'free',
+          createdAt: profile.created_at,
+          updatedAt: profile.updated_at,
+        };
+
+        set({ 
+          user, 
+          isAuthenticated: true,
+          error: null 
+        });
+
+        console.log('✅ Supabase registration successful for:', email);
+        console.log('✅ User profile created with', user.nbToken, 'credits');
+      }
     } catch (error: any) {
-      console.error('Erreur d\'inscription Firebase:', error);
+      console.error('❌ Supabase registration error:', error);
       let errorMessage = 'Erreur lors de la création du compte';
       
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.message?.includes('already registered')) {
         errorMessage = 'Cette adresse email est déjà utilisée';
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error.message?.includes('Password should be at least 6 characters')) {
         errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.message?.includes('Invalid email')) {
         errorMessage = 'Adresse email invalide';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       set({ error: errorMessage });
@@ -219,20 +266,28 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     try {
-      // Mettre à jour dans Firestore uniquement
-      await updateDoc(doc(firestore, 'users', user.id), {
-        nbToken: newTokenCount,
-        updatedAt: new Date().toISOString(),
-      });
-      console.log('Tokens mis à jour dans Firestore:', newTokenCount);
+      // Update in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          credits_remaining: newTokenCount,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
-      // Mettre à jour le state local
+      if (error) {
+        throw error;
+      }
+
+      console.log('✅ Tokens updated in Supabase:', newTokenCount);
+
+      // Update local state
       set((state) => ({
         user: state.user ? { ...state.user, nbToken: newTokenCount } : null
       }));
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des tokens:', error);
-      set({ error: 'Erreur lors de la mise à jour des tokens' });
+    } catch (error: any) {
+      console.error('❌ Error updating tokens:', error);
+      set({ error: error.message || 'Erreur lors de la mise à jour des tokens' });
     }
   },
 
@@ -255,15 +310,23 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     try {
-      // Mettre à jour dans Firestore
-      await updateDoc(doc(firestore, 'users', user.id), {
-        currentPlan: newPlan,
-        nbToken: newTokens,
-        updatedAt: new Date().toISOString(),
-      });
-      console.log('Plan utilisateur mis à jour dans Firestore:', newPlan);
+      // Update in Supabase
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          subscription_tier: newPlan,
+          credits_remaining: newTokens,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
 
-      // Mettre à jour le state local
+      if (error) {
+        throw error;
+      }
+
+      console.log('✅ User plan updated in Supabase:', newPlan);
+
+      // Update local state
       set((state) => ({
         user: state.user ? { 
           ...state.user, 
@@ -271,9 +334,9 @@ export const useUserStore = create<UserState>((set, get) => ({
           nbToken: newTokens 
         } : null
       }));
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du plan:', error);
-      set({ error: 'Erreur lors de la mise à jour du plan' });
+    } catch (error: any) {
+      console.error('❌ Error updating user plan:', error);
+      set({ error: error.message || 'Erreur lors de la mise à jour du plan' });
       throw error;
     }
   },
@@ -282,27 +345,76 @@ export const useUserStore = create<UserState>((set, get) => ({
   initializeAuth: () => {
     set({ isLoading: true });
     
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('🔥 Firebase Auth State Changed:', firebaseUser ? 'User logged in' : 'User logged out');
+    // Listen to Supabase auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔥 Supabase Auth State Changed:', event, session?.user?.email || 'No user');
       
-      if (firebaseUser) {
-        // Utilisateur connecté - récupérer ses données
+      if (session?.user) {
+        // User is logged in - fetch their data
         try {
-          console.log('📡 Fetching user data from Firestore...');
-          const userDoc = await getDoc(doc(firestore, 'users', firebaseUser.uid));
+          console.log('📡 Fetching user profile from Supabase...');
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
+          if (profileError || !profile) {
+            console.warn('Profile not found, creating default profile');
+            // Create default profile if it doesn't exist
+            const defaultProfile = {
+              id: session.user.id,
+              email: session.user.email || '',
+              full_name: session.user.email?.split('@')[0] || '',
+              avatar_url: null,
+              subscription_tier: 'free',
+              subscription_status: 'active',
+              credits_remaining: 3,
+              preferences: {},
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            };
+
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert([defaultProfile]);
+
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+              throw insertError;
+            }
+
             const user: User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              fullName: userData.fullName || firebaseUser.email?.split('@')[0] || '',
-              avatarUrl: userData.avatarUrl || null,
-              preferences: userData.preferences || {},
-              nbToken: userData.nbToken || 50,
-              currentPlan: userData.currentPlan || 'free',
-              createdAt: userData.createdAt || new Date().toISOString(),
-              updatedAt: userData.updatedAt || new Date().toISOString(),
+              id: session.user.id,
+              email: session.user.email || '',
+              fullName: defaultProfile.full_name,
+              avatarUrl: null,
+              preferences: {},
+              nbToken: 3,
+              currentPlan: 'free',
+              createdAt: defaultProfile.created_at,
+              updatedAt: defaultProfile.updated_at,
+            };
+            
+            set({ 
+              user, 
+              isAuthenticated: true, 
+              isLoading: false, 
+              error: null 
+            });
+            console.log('✅ New user profile created:', user.email);
+          } else {
+            // Use existing profile
+            const user: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              fullName: profile.full_name || '',
+              avatarUrl: profile.avatar_url,
+              preferences: profile.preferences || {},
+              nbToken: profile.credits_remaining || 0,
+              currentPlan: profile.subscription_tier || 'free',
+              createdAt: profile.created_at,
+              updatedAt: profile.updated_at,
             };
             
             set({ 
@@ -312,68 +424,29 @@ export const useUserStore = create<UserState>((set, get) => ({
               error: null 
             });
             console.log('✅ User automatically logged in:', user.email);
-            
-            // Save auth state to AsyncStorage for persistence
-            await AsyncStorage.setItem('userAuthState', JSON.stringify({
-              isAuthenticated: true,
-              userId: user.id,
-              email: user.email
-            }));
-            
-          } else {
-            // Document utilisateur n'existe pas, créer un nouveau
-            const user: User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email || '',
-              fullName: firebaseUser.email?.split('@')[0] || '',
-              avatarUrl: null,
-              preferences: {},
-              nbToken: 50,
-              currentPlan: 'free',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            };
-
-            await setDoc(doc(firestore, 'users', firebaseUser.uid), {
-              email: user.email,
-              fullName: user.fullName,
-              avatarUrl: user.avatarUrl,
-              preferences: user.preferences,
-              nbToken: user.nbToken,
-              currentPlan: user.currentPlan,
-              createdAt: user.createdAt,
-              updatedAt: user.updatedAt,
-            });
-
-            set({ 
-              user, 
-              isAuthenticated: true, 
-              isLoading: false, 
-              error: null 
-            });
-            console.log('✅ New user created automatically:', user.email);
-            
-            // Save auth state to AsyncStorage
-            await AsyncStorage.setItem('userAuthState', JSON.stringify({
-              isAuthenticated: true,
-              userId: user.id,
-              email: user.email
-            }));
           }
-        } catch (error) {
+          
+          // Save auth state to AsyncStorage for persistence
+          await AsyncStorage.setItem('userAuthState', JSON.stringify({
+            isAuthenticated: true,
+            userId: session.user.id,
+            email: session.user.email
+          }));
+          
+        } catch (error: any) {
           console.error('❌ Error fetching user data:', error);
           set({ 
             user: null, 
             isAuthenticated: false, 
             isLoading: false, 
-            error: 'Erreur lors de la connexion automatique' 
+            error: error.message || 'Erreur lors de la connexion automatique' 
           });
           
           // Clear auth state from AsyncStorage
           await AsyncStorage.removeItem('userAuthState');
         }
       } else {
-        // Utilisateur non connecté
+        // User is not logged in
         set({ 
           user: null, 
           isAuthenticated: false, 
@@ -387,8 +460,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       }
     });
 
-    // Retourner la fonction de désabonnement (optionnel)
-    return unsubscribe;
+    // Return unsubscribe function
+    return () => subscription.unsubscribe();
   },
 
   // Consommer un token pour une action IA

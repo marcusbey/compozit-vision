@@ -7,6 +7,13 @@ export interface User {
   preferences?: Record<string, any>;
   nbToken: number;
   currentPlan: string;
+  
+  // CRITICAL FIX: Add Stripe integration fields
+  stripe_customer_id?: string;
+  subscription_status?: 'active' | 'inactive' | 'cancelled' | 'past_due';
+  current_period_end?: string;
+  subscription_id?: string;
+  
   createdAt: string;
   updatedAt: string;
 }
