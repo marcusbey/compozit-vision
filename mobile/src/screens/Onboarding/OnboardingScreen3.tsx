@@ -12,12 +12,13 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingScreen3Props {
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
 const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack }) => {
@@ -55,7 +56,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding2')} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
           <View style={styles.progressContainer}>
@@ -194,7 +195,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={onNext}
+            onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('paywall')}
             activeOpacity={0.8}
           >
             <LinearGradient

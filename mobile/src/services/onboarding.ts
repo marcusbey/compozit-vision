@@ -138,6 +138,32 @@ export class OnboardingService {
   }
 
   /**
+   * Check if user has completed onboarding
+   */
+  static async hasCompletedOnboarding(): Promise<boolean> {
+    try {
+      const onboardingState = await this.getOnboardingState();
+      return onboardingState.completedOnboarding;
+    } catch (error) {
+      console.error('Error checking completed onboarding:', error);
+      // If there's any error, assume not completed for safety
+      return false;
+    }
+  }
+
+  /**
+   * Get saved journey data (alias for getUserJourney)
+   */
+  static async getSavedJourney(): Promise<UserJourneyData | null> {
+    try {
+      return await this.getUserJourney();
+    } catch (error) {
+      console.error('Error getting saved journey:', error);
+      return null;
+    }
+  }
+
+  /**
    * Mark onboarding as skipped
    */
   static async skipOnboarding(): Promise<void> {

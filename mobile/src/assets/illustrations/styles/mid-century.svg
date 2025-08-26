@@ -1,0 +1,56 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Mid-Century Modern Style Illustration -->
+  <defs>
+    <linearGradient id="midCenturyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#midCenturyGradient)" stroke="#F97316" stroke-width="2"/>
+  
+  <!-- Classic mid-century sofa with angled legs -->
+  <rect x="28" y="50" width="58" height="25" rx="4" fill="#FFFFFF" opacity="0.9"/>
+  <rect x="28" y="70" width="58" height="5" rx="2" fill="#FEF3C7"/>
+  
+  <!-- Distinctive angled legs -->
+  <line x1="35" y1="75" x2="32" y2="85" stroke="#D97706" stroke-width="4"/>
+  <line x1="50" y1="75" x2="47" y2="85" stroke="#D97706" stroke-width="4"/>
+  <line x1="70" y1="75" x2="73" y2="85" stroke="#D97706" stroke-width="4"/>
+  <line x1="79" y1="75" x2="82" y2="85" stroke="#D97706" stroke-width="4"/>
+  
+  <!-- Kidney-shaped coffee table -->
+  <path d="M45 80 Q40 78 42 83 Q50 87 62 85 Q70 83 68 78 Q60 76 52 78 Q48 79 45 80 Z" fill="#DBEAFE" opacity="0.8"/>
+  <line x1="50" y1="82" x2="48" y2="90" stroke="#1D4ED8" stroke-width="3"/>
+  <line x1="62" y1="81" x2="64" y2="89" stroke="#1D4ED8" stroke-width="3"/>
+  
+  <!-- Atomic age starburst -->
+  <circle cx="20" cy="30" r="3" fill="#FBBF24"/>
+  <line x1="20" y1="24" x2="20" y2="36" stroke="#F59E0B" stroke-width="1"/>
+  <line x1="14" y1="30" x2="26" y2="30" stroke="#F59E0B" stroke-width="1"/>
+  <line x1="16" y1="25" x2="24" y2="35" stroke="#F59E0B" stroke-width="1"/>
+  <line x1="24" y1="25" x2="16" y2="35" stroke="#F59E0B" stroke-width="1"/>
+  
+  <!-- Retro pendant light -->
+  <path d="M85 20 Q80 22 80 28 Q80 34 85 36 Q90 34 90 28 Q90 22 85 20" fill="#FFFFFF" opacity="0.8"/>
+  <line x1="85" y1="20" x2="85" y2="12" stroke="#F59E0B" stroke-width="2"/>
+  
+  <!-- Geometric wall art -->
+  <rect x="95" y="45" width="12" height="20" rx="2" fill="#FBBF24" opacity="0.6"/>
+  <circle cx="101" cy="50" r="3" fill="#DC2626" opacity="0.8"/>
+  <rect x="97" y="58" width="8" height="5" fill="#1D4ED8" opacity="0.7"/>
+  
+  <!-- Boomerang pattern -->
+  <path d="M15 65 Q20 62 25 65 Q20 68 15 65" fill="#F59E0B" opacity="0.6"/>
+  
+  <!-- Retro colors accent -->
+  <circle cx="95" cy="80" r="4" fill="#DC2626" opacity="0.7"/>
+  <rect x="12" y="85" width="6" height="6" rx="2" fill="#1D4ED8" opacity="0.6"/>
+  
+  <!-- Atomic elements -->
+  <circle cx="75" cy="25" r="1.5" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="80" cy="22" r="1" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="78" cy="28" r="1" fill="#FFFFFF" opacity="0.6"/>
+</svg>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../stores/userStore';
+import { useJourneyStore } from '../../stores/journeyStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 interface AuthScreenProps {
   navigation: any;
@@ -25,6 +27,12 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const { login, register, isLoading, error } = useUserStore();
+  const journeyStore = useJourneyStore();
+
+  // Set current step when screen mounts
+  useEffect(() => {
+    journeyStore.setCurrentStep(10, 'auth');
+  }, []);
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -63,8 +71,8 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
         return;
       }
 
-      // After successful auth, navigate to MyProjects
-      navigation.navigate('MyProjects');
+      // After successful auth, continue to processing to complete the journey
+      NavigationHelpers.navigateToScreen('processing');
     } catch (error: any) {
       console.error('Auth error:', error);
       Alert.alert('Authentication Failed', 'Invalid credentials. Please check your email and password.');

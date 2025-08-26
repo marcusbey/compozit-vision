@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,12 +15,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useUserStore } from '../../stores/userStore';
+import { useJourneyStore } from '../../stores/journeyStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width, height } = Dimensions.get('window');
 
 interface PhotoCaptureScreenProps {
-  navigation: any;
-  route: any;
+  navigation?: any;
+  route?: any;
 }
 
 const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, route }) => {
@@ -29,8 +31,14 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const cameraRef = useRef<CameraView>(null);
+  const journeyStore = useJourneyStore();
   
-  const { projectName, roomType, selectedStyle, budgetRange, selectedItems } = route.params;
+  const { projectName, roomType, selectedStyle, budgetRange, selectedItems } = route?.params || {};
+
+  // Set current step when screen mounts
+  useEffect(() => {
+    journeyStore.setCurrentStep(6, 'photocapture');
+  }, []);
 
 
   const handleTakePhoto = async () => {
@@ -73,12 +81,11 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
 
   const handleContinue = () => {
     if (capturedImage) {
-      // Check if user is already authenticated
-      const { isAuthenticated, user } = useUserStore.getState();
+      // After photo capture, go to descriptions screen (next step in journey)
+      console.log('📸 Photo captured, proceeding to descriptions');
       
-      if (isAuthenticated && user) {
-        // User is logged in, skip Auth and go directly to Processing
-        navigation.navigate('Processing', {
+      if (navigation?.navigate) {
+        navigation.navigate('descriptions', {
           projectName,
           roomType,
           selectedStyle,
@@ -87,15 +94,7 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
           capturedImage,
         });
       } else {
-        // User not logged in, go to Auth
-        navigation.navigate('Auth', {
-          projectName,
-          roomType,
-          selectedStyle,
-          budgetRange,
-          selectedItems,
-          capturedImage,
-        });
+        NavigationHelpers.navigateToScreen('descriptions');
       }
     }
   };
@@ -104,7 +103,11 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
     if (showCamera) {
       setShowCamera(false);
     } else {
-      navigation.goBack();
+      if (navigation?.goBack) {
+        navigation.goBack();
+      } else {
+        NavigationHelpers.goBack();
+      }
     }
   };
 

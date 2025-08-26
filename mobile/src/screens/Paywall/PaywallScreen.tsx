@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useContentStore } from '../../stores/contentStore';
 import { useJourneyStore } from '../../stores/journeyStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,10 +46,13 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
   const slideAnim = useRef(new Animated.Value(50)).current;
   
   // Database-driven content
-  const { subscriptionPlans, loadingPlans } = useContentStore();
+  const { subscriptionPlans, loadingPlans, loadSubscriptionPlans } = useContentStore();
   const journeyStore = useJourneyStore();
 
   useEffect(() => {
+    // Load subscription plans from database when component mounts
+    loadSubscriptionPlans();
+    
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -77,6 +81,27 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
     
     if (onSelectPlan) {
       onSelectPlan(planId);
+    } else {
+      // Navigate to checkout when no callback provided
+      NavigationHelpers.navigateToScreen('checkout');
+    }
+  };
+
+  const handleContinueWithFree = () => {
+    if (onContinueWithFree) {
+      onContinueWithFree();
+    } else {
+      // Navigate to photo capture for free users
+      NavigationHelpers.navigateToScreen('photoCapture');
+    }
+  };
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      // Navigate to the logical previous screen (onboarding3)
+      NavigationHelpers.navigateToScreen('onboarding3');
     }
   };
 
@@ -90,11 +115,9 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
       >
         {/* Header */}
         <View style={styles.header}>
-          {onBack && (
-            <TouchableOpacity onPress={onBack} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#ffffff" />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+          </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Choose Your Plan</Text>
             <Text style={styles.headerSubtitle}>Start with 3 free designs</Text>
@@ -135,6 +158,11 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
               {loadingPlans ? (
                 <View style={styles.loadingContainer}>
                   <Text style={styles.loadingText}>Loading plans...</Text>
+                </View>
+              ) : subscriptionPlans.length === 0 ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.loadingText}>No subscription plans available</Text>
+                  <Text style={styles.loadingText}>Check database connection</Text>
                 </View>
               ) : (
                 subscriptionPlans.map((plan) => (
@@ -230,7 +258,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
         >
           <TouchableOpacity
             style={styles.freeTrialButton}
-            onPress={onContinueWithFree}
+            onPress={handleContinueWithFree}
             activeOpacity={0.8}
           >
             <Text style={styles.freeTrialButtonText}>

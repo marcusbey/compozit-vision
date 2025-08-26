@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
 import { supabase } from '../../services/supabase';
 import { useUserStore } from '../../stores/userStore';
+import { useJourneyStore } from '../../stores/journeyStore';
 const { width, height } = Dimensions.get('window');
 
 interface ResultsScreenProps {
@@ -25,6 +26,12 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
   const [sliderValue, setSliderValue] = useState(0.5);
   const { projectName, roomType, selectedStyle, budgetRange, selectedItems, capturedImage } = route.params;
   const { user } = useUserStore();
+  const journeyStore = useJourneyStore();
+
+  // Set current step when screen mounts
+  useEffect(() => {
+    journeyStore.setCurrentStep(12, 'results');
+  }, []);
 
   const handleNextDesign = () => {
     // Vérifier l'authentification

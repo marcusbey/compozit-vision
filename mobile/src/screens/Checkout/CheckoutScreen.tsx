@@ -13,9 +13,14 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useStripe } from '@stripe/stripe-react-native';
+import { useJourneyStore } from '../../stores/journeyStore';
+import { useContentStore } from '../../stores/contentStore';
+import { useUserStore } from '../../stores/userStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 interface CheckoutScreenProps {
-  selectedPlan: {
+  selectedPlan?: {
     id: string;
     name: string;
     price: string;
@@ -23,25 +28,100 @@ interface CheckoutScreenProps {
     designs: string;
     features: string[];
   };
-  userEmail: string;
-  onBack: () => void;
-  onPaymentSuccess: (paymentDetails: any) => void;
-  onPaymentError: (error: string) => void;
+  userEmail?: string;
+  onBack?: () => void;
+  onPaymentSuccess?: (paymentDetails: any) => void;
+  onPaymentError?: (error: string) => void;
 }
 
 const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
-  selectedPlan,
-  userEmail,
+  selectedPlan: propSelectedPlan,
+  userEmail: propUserEmail,
   onBack,
   onPaymentSuccess,
   onPaymentError,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'stripe' | 'apple' | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
+  // Get data from stores if props not provided
+  const journeyStore = useJourneyStore();
+  const { subscriptionPlans } = useContentStore();
+  const { user } = useUserStore();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  
+  // Use props if available, otherwise get from stores
+  const selectedPlanId = journeyStore.subscription?.selectedPlanId;
+  const planFromStore = subscriptionPlans.find(p => p.id === selectedPlanId);
+  
+  const selectedPlan = propSelectedPlan || (planFromStore ? {
+    id: planFromStore.id,
+    name: planFromStore.display_name,
+    price: `$${planFromStore.price_amount}`,
+    period: planFromStore.billing_period,
+    designs: planFromStore.designs_included === -1 ? 'Unlimited designs' : `${planFromStore.designs_included} designs`,
+    features: [
+      planFromStore.description || 'Full access to AI design features',
+      'High-quality design generations',
+      planFromStore.id === 'basic' ? 'Standard support' : 'Priority support'
+    ]
+  } : null);
+  
+  const userEmail = propUserEmail || user?.email || '';
+
+  // Handle back navigation
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      NavigationHelpers.navigateToScreen('paywall');
+    }
+  };
+
+  // Handle payment success
+  const handlePaymentSuccess = (paymentDetails: any) => {
+    if (onPaymentSuccess) {
+      onPaymentSuccess(paymentDetails);
+    } else {
+      // Store subscription info in journey store (user still needs to authenticate later)
+      journeyStore.updateSubscription({
+        selectedPlanId: paymentDetails.planId,
+        planName: paymentDetails.planId,
+        planPrice: paymentDetails.amount,
+        billingCycle: paymentDetails.billingPeriod === 'annual' ? 'yearly' : 'monthly',
+        useFreeCredits: false,
+        selectedAt: new Date().toISOString(),
+      });
+      
+      // After payment success, start the user journey with photo capture
+      console.log('✅ Payment successful, starting user journey');
+      NavigationHelpers.navigateToScreen('photoCapture');
+    }
+  };
+
+  // Handle payment error
+  const handlePaymentError = (error: string) => {
+    if (onPaymentError) {
+      onPaymentError(error);
+    } else {
+      Alert.alert('Payment Error', error);
+    }
+  };
+
   useEffect(() => {
+    // If no plan is selected, redirect back to paywall
+    if (!selectedPlan) {
+      Alert.alert(
+        'No Plan Selected', 
+        'Please select a subscription plan first.',
+        [{ text: 'OK', onPress: handleBack }]
+      );
+      return;
+    }
+    
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -54,31 +134,131 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [selectedPlan]);
 
   const handleStripePayment = async () => {
+    if (!selectedPlan) {
+      Alert.alert('Error', 'No plan selected');
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      // TODO: Implement Stripe payment
-      // This would integrate with Stripe SDK
-      console.log('Processing Stripe payment for:', selectedPlan.id);
+      console.log('🔄 Initiating Stripe payment for:', selectedPlan.id);
+      console.log('💳 Billing period:', billingPeriod);
       
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // For now, simulate payment processing since backend isn't set up yet
+      // TODO: Replace with real Stripe integration when backend is ready
       
-      // For demo purposes, simulate success
+      Alert.alert(
+        'Payment Demo Mode',
+        `This would charge ${billingPeriod === 'annual' ? 
+          '$' + (getAnnualAmount() * 0.8).toFixed(0) + ' annually' : 
+          selectedPlan.price + ' monthly'} for ${selectedPlan.name} plan.\n\nBackend API needed for real payments.`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+            onPress: () => setIsProcessing(false)
+          },
+          {
+            text: 'Simulate Success',
+            style: 'default',
+            onPress: () => {
+              // Simulate successful payment
+              const paymentDetails = {
+                method: 'stripe',
+                planId: selectedPlan.id,
+                amount: billingPeriod === 'annual' ? 
+                  '$' + (getAnnualAmount() * 0.8).toFixed(0) : 
+                  selectedPlan.price,
+                billingPeriod: billingPeriod,
+                customerEmail: userEmail,
+                paymentId: `stripe_demo_${Date.now()}`,
+              };
+              
+              console.log('✅ Demo payment successful!', paymentDetails);
+              handlePaymentSuccess(paymentDetails);
+            }
+          }
+        ]
+      );
+      
+      // Real Stripe implementation (commented out until backend is ready)
+      /*
+      // Step 1: Create payment intent on backend
+      const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_BASE_URL}/create-payment-intent`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.id,
+          customerEmail: userEmail,
+          billingPeriod: billingPeriod,
+          amount: billingPeriod === 'annual' ? 
+            Math.round(getAnnualAmount() * 0.8 * 100) : 
+            Math.round(parseFloat(selectedPlan.price.replace('$', '')) * 100),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create payment intent');
+      }
+
+      const { clientSecret, customerId } = await response.json();
+      console.log('✅ Payment intent created');
+
+      // Step 2: Initialize payment sheet
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: 'Compozit Vision',
+        paymentIntentClientSecret: clientSecret,
+        customerId: customerId,
+        allowsDelayedPaymentMethods: true,
+        defaultBillingDetails: {
+          email: userEmail,
+        },
+        returnURL: 'compozit://payment-return',
+      });
+
+      if (initError) {
+        console.error('❌ Payment sheet init failed:', initError);
+        throw new Error(initError.message);
+      }
+
+      // Step 3: Present payment sheet
+      const { error: paymentError } = await presentPaymentSheet();
+
+      if (paymentError) {
+        if (paymentError.code === 'Canceled') {
+          console.log('ℹ️ Payment cancelled by user');
+          return;
+        }
+        console.error('❌ Payment failed:', paymentError);
+        throw new Error(paymentError.message);
+      }
+
+      // Step 4: Payment successful
+      console.log('✅ Payment successful!');
       const paymentDetails = {
         method: 'stripe',
         planId: selectedPlan.id,
-        amount: selectedPlan.price,
+        amount: billingPeriod === 'annual' ? 
+          '$' + (getAnnualAmount() * 0.8).toFixed(0) : 
+          selectedPlan.price,
+        billingPeriod: billingPeriod,
         customerEmail: userEmail,
         paymentId: `stripe_${Date.now()}`,
       };
       
-      onPaymentSuccess(paymentDetails);
+      handlePaymentSuccess(paymentDetails);
+      */
+      
     } catch (error: any) {
-      onPaymentError(error.message || 'Payment failed');
-    } finally {
+      console.error('❌ Stripe payment error:', error);
+      handlePaymentError(error.message || 'Payment setup needed. Please deploy the backend API first.');
       setIsProcessing(false);
     }
   };
@@ -107,9 +287,9 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
         paymentId: `apple_${Date.now()}`,
       };
       
-      onPaymentSuccess(paymentDetails);
+      handlePaymentSuccess(paymentDetails);
     } catch (error: any) {
-      onPaymentError(error.message || 'Apple Pay failed');
+      handlePaymentError(error.message || 'Apple Pay failed');
     } finally {
       setIsProcessing(false);
     }
@@ -137,7 +317,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton} testID="back-button">
+          <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Complete Purchase</Text>
@@ -189,10 +369,18 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
             <View style={styles.billingOptions}>
               <Text style={styles.sectionTitle}>Billing Options</Text>
               
-              <TouchableOpacity style={styles.billingOption}>
+              <TouchableOpacity 
+                style={styles.billingOption}
+                onPress={() => setBillingPeriod('monthly')}
+              >
                 <View style={styles.billingOptionLeft}>
-                  <View style={[styles.radioButton, { backgroundColor: '#4facfe' }]}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                  <View style={[
+                    styles.radioButton, 
+                    billingPeriod === 'monthly' ? { backgroundColor: '#4facfe' } : styles.radioButtonInactive
+                  ]}>
+                    {billingPeriod === 'monthly' && (
+                      <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    )}
                   </View>
                   <View>
                     <Text style={styles.billingOptionTitle}>Monthly</Text>
@@ -202,18 +390,28 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                 <Text style={styles.billingPrice}>{selectedPlan.price}/mo</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.billingOption} disabled>
+              <TouchableOpacity 
+                style={styles.billingOption}
+                onPress={() => setBillingPeriod('annual')}
+              >
                 <View style={styles.billingOptionLeft}>
-                  <View style={styles.radioButtonInactive} />
+                  <View style={[
+                    styles.radioButton, 
+                    billingPeriod === 'annual' ? { backgroundColor: '#4facfe' } : styles.radioButtonInactive
+                  ]}>
+                    {billingPeriod === 'annual' && (
+                      <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    )}
+                  </View>
                   <View>
-                    <Text style={styles.billingOptionTitleInactive}>Annual</Text>
+                    <Text style={styles.billingOptionTitle}>Annual</Text>
                     <Text style={styles.billingOptionDesc}>
-                      Save ${getAnnualSavings()}/year • Coming Soon
+                      Save ${getAnnualSavings()}/year • Best Value
                     </Text>
                   </View>
                 </View>
                 <View style={styles.annualPricing}>
-                  <Text style={styles.billingPriceInactive}>
+                  <Text style={styles.billingPrice}>
                     ${(getAnnualAmount() * 0.8 / 12).toFixed(0)}/mo
                   </Text>
                   <Text style={styles.savingsBadgeText}>Save 20%</Text>

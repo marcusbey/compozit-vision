@@ -1,0 +1,56 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bohemian Style Illustration -->
+  <defs>
+    <linearGradient id="bohemianGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C2D12;stop-opacity:1" />
+      <stop offset="25%" style="stop-color:#DC2626;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="75%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#bohemianGradient)" stroke="#E5E7EB" stroke-width="2"/>
+  
+  <!-- Low floor seating -->
+  <ellipse cx="50" cy="65" rx="25" ry="12" fill="#FFFFFF" opacity="0.7"/>
+  <ellipse cx="50" cy="68" rx="22" ry="8" fill="#FEF3C7" opacity="0.8"/>
+  
+  <!-- Colorful cushions -->
+  <circle cx="35" cy="60" r="8" fill="#DC2626" opacity="0.8"/>
+  <circle cx="50" cy="58" r="9" fill="#F59E0B" opacity="0.8"/>
+  <circle cx="65" cy="62" r="7" fill="#7C3AED" opacity="0.8"/>
+  
+  <!-- Moroccan coffee table -->
+  <ellipse cx="75" cy="78" rx="12" ry="5" fill="#92400E" opacity="0.7"/>
+  <circle cx="75" cy="76" r="8" fill="#FEF3C7" opacity="0.6"/>
+  <circle cx="75" cy="76" r="5" fill="#F59E0B" opacity="0.5"/>
+  
+  <!-- Hanging macrame -->
+  <line x1="20" y1="10" x2="20" y2="25" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+  <circle cx="20" cy="28" r="4" fill="#10B981" opacity="0.6"/>
+  <line x1="18" y1="32" x2="18" y2="40" stroke="#FFFFFF" stroke-width="1" opacity="0.5"/>
+  <line x1="22" y1="32" x2="22" y2="38" stroke="#FFFFFF" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Tapestry/wall hanging -->
+  <rect x="85" y="15" width="20" height="25" rx="2" fill="#FBBF24" opacity="0.6"/>
+  <rect x="87" y="17" width="5" height="21" fill="#DC2626" opacity="0.5"/>
+  <rect x="94" y="17" width="5" height="21" fill="#7C3AED" opacity="0.5"/>
+  <rect x="101" y="17" width="2" height="21" fill="#059669" opacity="0.5"/>
+  
+  <!-- Colorful patterns -->
+  <circle cx="15" cy="45" r="3" fill="#EF4444" opacity="0.6"/>
+  <polygon points="95,45 100,55 90,55" fill="#10B981" opacity="0.6"/>
+  <rect x="12" y="75" width="6" height="6" rx="1" fill="#8B5CF6" opacity="0.6"/>
+  
+  <!-- Brass/golden accents -->
+  <circle cx="85" cy="85" r="4" fill="#F59E0B" opacity="0.7"/>
+  <circle cx="25" cy="25" r="2" fill="#FBBF24" opacity="0.8"/>
+  
+  <!-- Plants and natural elements -->
+  <line x1="105" y1="85" x2="105" y2="70" stroke="#059669" stroke-width="3"/>
+  <circle cx="105" cy="68" r="5" fill="#10B981" opacity="0.6"/>
+  <path d="M100 68 Q102 65 104 68" fill="#059669" opacity="0.5"/>
+  <path d="M106 68 Q108 65 110 68" fill="#059669" opacity="0.5"/>
+</svg>

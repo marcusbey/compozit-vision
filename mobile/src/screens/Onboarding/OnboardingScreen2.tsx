@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useContentStore } from '../../stores/contentStore';
 import { useJourneyStore } from '../../stores/journeyStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,8 +28,8 @@ interface StyleOption {
 // Remove hardcoded styles - now using database-driven content
 
 interface OnboardingScreen2Props {
-  onNext: () => void;
-  onBack: () => void;
+  onNext?: () => void;
+  onBack?: () => void;
 }
 
 const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack }) => {
@@ -37,10 +38,13 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
   const slideAnim = useRef(new Animated.Value(50)).current;
   
   // Database-driven content
-  const { styles, loadingStyles } = useContentStore();
+  const { styles: styleCategories, loadingStyles, loadStyles } = useContentStore();
   const journeyStore = useJourneyStore();
 
   useEffect(() => {
+    // Load styles from database when component mounts
+    loadStyles();
+    
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -82,7 +86,7 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton} testID="back-button">
+          <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding1')} style={styles.backButton} testID="back-button">
             <Ionicons name="arrow-back" size={24} color="#ffffff" />
           </TouchableOpacity>
           <View style={styles.progressContainer}>
@@ -131,8 +135,13 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
                 <View style={styles.loadingContainer}>
                   <Text style={styles.loadingText}>Loading styles...</Text>
                 </View>
+              ) : styleCategories.length === 0 ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.loadingText}>No styles available</Text>
+                  <Text style={styles.loadingText}>Check database connection</Text>
+                </View>
               ) : (
-                styles.map((style) => {
+                styleCategories.map((style) => {
                   const isSelected = selectedStyles.includes(style.id);
                   return (
                     <TouchableOpacity
@@ -189,7 +198,7 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
               styles.nextButton,
               !canContinue && styles.nextButtonDisabled
             ]}
-            onPress={onNext}
+            onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding3')}
             activeOpacity={0.8}
             disabled={!canContinue}
           >

@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingScreen1Props {
-  onNext: () => void;
+  onNext?: () => void;
 }
 
 const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
@@ -145,7 +146,7 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
         >
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={onNext}
+            onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding2')}
             activeOpacity={0.8}
             testID="continue-button"
           >

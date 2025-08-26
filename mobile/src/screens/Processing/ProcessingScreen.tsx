@@ -11,12 +11,14 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../stores/userStore';
+import { useJourneyStore } from '../../stores/journeyStore';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 const { width } = Dimensions.get('window');
 
 interface ProcessingScreenProps {
-  navigation: any;
-  route: any;
+  navigation?: any;
+  route?: any;
 }
 
 const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }) => {
@@ -24,8 +26,18 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
   const [currentStep, setCurrentStep] = useState(0);
   const progressAnim = new Animated.Value(0);
   
-  const { projectName, roomType, selectedStyle, budgetRange, selectedItems, capturedImage } = route.params;
+  // Get data from stores if route params not provided
+  const journeyStore = useJourneyStore();
   const { user } = useUserStore();
+  
+  const { projectName, roomType, selectedStyle, budgetRange, selectedItems, capturedImage } = route?.params || {
+    projectName: journeyStore.projectName || 'My Project',
+    roomType: journeyStore.roomType || 'living_room',
+    selectedStyle: journeyStore.selectedStyle || 'modern',
+    budgetRange: journeyStore.budgetRange || '$1000-$5000',
+    selectedItems: journeyStore.selectedItems || [],
+    capturedImage: journeyStore.capturedImage || null
+  };
 
   const processingSteps = [
     'Analyzing your space...',
@@ -37,14 +49,13 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
   ];
 
   useEffect(() => {
-    // Pré-vérification des crédits avant de démarrer la progression
-    if (!user || (user.nbToken ?? 0) <= 0) {
-      navigation.replace('BuyCredits', {
-        returnScreen: 'Processing',
-        returnParams: route.params,
-      });
-      return;
-    }
+    // Set current step when screen mounts
+    journeyStore.setCurrentStep(11, 'processing');
+  }, []);
+
+  useEffect(() => {
+    // Skip credit check for subscription-based users
+    // If user doesn't have credits, they should have gone through paywall first
 
     const interval = setInterval(() => {
       setProgress(prev => {
@@ -52,11 +63,9 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
         if (newProgress >= 100) {
           clearInterval(interval);
           setTimeout(async () => {
-            // Consume a token for the generation
-            const { consumeToken } = useUserStore.getState();
-            const success = await consumeToken();
-            
-            if (success) {
+            // For subscription users, proceed directly to results
+            // Token consumption handled by subscription system
+            if (navigation?.navigate) {
               navigation.navigate('Results', {
                 projectName,
                 roomType,
@@ -66,11 +75,7 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
                 capturedImage,
               });
             } else {
-              // Tokens insuffisants -> rediriger vers l'achat de crédits
-              navigation.replace('BuyCredits', {
-                returnScreen: 'Processing',
-                returnParams: route.params,
-              });
+              NavigationHelpers.navigateToScreen('results');
             }
           }, 1000);
           return 100;
