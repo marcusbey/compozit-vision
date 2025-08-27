@@ -14,7 +14,85 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useContentStore } from '../../stores/contentStore';
 import { useJourneyStore } from '../../stores/journeyStore';
+import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
+
+// Design Tokens - Warm Color Palette
+const tokens = {
+  color: {
+    bgApp: '#FBF9F4',
+    bgSecondary: '#F5F1E8',
+    bgSurface: '#FEFEFE',
+    textPrimary: '#2D2B28',
+    textSecondary: '#8B7F73',
+    textMuted: '#B8AFA4',
+    textInverse: '#FEFEFE',
+    accent: '#2D2B28',
+    accentSoft: '#5A564F',
+    brand: '#D4A574',
+    brandLight: '#E8C097',
+    brandDark: '#B8935F',
+    warm: '#E8C097',
+    warmDark: '#D4A574',
+    success: '#7FB069',
+    warning: '#F2CC8F',
+    danger: '#E07A5F',
+    border: '#E6DDD1',
+    borderLight: '#E6DDD1',
+    borderWarm: '#D4C7B5',
+    scrim: 'rgba(45,43,40,0.45)',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+    xxxl: 32,
+  },
+  radius: {
+    sm: 6,
+    md: 8,
+    lg: 12,
+    xl: 16,
+    xxl: 20,
+    full: 9999,
+  },
+  shadow: {
+    sm: {
+      shadowColor: '#D4A574',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    md: {
+      shadowColor: '#D4A574',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.12,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    lg: {
+      shadowColor: '#D4A574',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 16,
+      elevation: 8,
+    },
+  },
+  typography: {
+    h1: { fontSize: 32, fontWeight: '700' as const, lineHeight: 40 },
+    h2: { fontSize: 28, fontWeight: '700' as const, lineHeight: 36 },
+    h3: { fontSize: 24, fontWeight: '600' as const, lineHeight: 32 },
+    h4: { fontSize: 20, fontWeight: '600' as const, lineHeight: 28 },
+    body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 },
+    bodySmall: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
+    caption: { fontSize: 12, fontWeight: '400' as const, lineHeight: 16 },
+    button: { fontSize: 16, fontWeight: '600' as const, lineHeight: 24 },
+  },
+};
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,6 +101,7 @@ interface PaywallScreenProps {
   onContinueWithFree?: () => void;
   onBack?: () => void;
 }
+
 
 interface PlanOption {
   id: string;
@@ -48,6 +127,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
   // Database-driven content
   const { subscriptionPlans, loadingPlans, loadSubscriptionPlans } = useContentStore();
   const journeyStore = useJourneyStore();
+  const { isAuthenticated, user } = useUserStore();
 
   useEffect(() => {
     // Load subscription plans from database when component mounts
@@ -68,7 +148,32 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
   }, []);
 
   const handleSelectPlan = (planId: string) => {
-    // Update journey store
+    // Mark paywall step as completed in journey
+    journeyStore.completeStep('paywall');
+    
+    // Route based on authentication state
+    if (isAuthenticated && user) {
+      // Authenticated user -> Direct to checkout
+      completePlanSelection(planId);
+    } else {
+      // Non-authenticated user -> Authentication first, then checkout
+      journeyStore.updateSubscription({ selectedPlanId: planId });
+      const selectedPlan = subscriptionPlans.find(p => p.id === planId);
+      if (selectedPlan) {
+        journeyStore.updateSubscription({
+          planName: selectedPlan.display_name,
+          planPrice: `$${selectedPlan.price_amount}`,
+          selectedAt: new Date().toISOString()
+        });
+      }
+      
+      // Navigate to auth with context that user is in paywall flow
+      NavigationHelpers.navigateToScreen('auth');
+    }
+  };
+
+  const completePlanSelection = (planId: string) => {
+    // Update journey store with selected plan
     const selectedPlan = subscriptionPlans.find(p => p.id === planId);
     if (selectedPlan) {
       journeyStore.updateSubscription({
@@ -79,6 +184,13 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
       });
     }
     
+    // Mark payment as required
+    journeyStore.updatePayment({
+      requiresPayment: true,
+      amount: selectedPlan ? selectedPlan.price_amount : 0,
+      currency: 'USD'
+    });
+    
     if (onSelectPlan) {
       onSelectPlan(planId);
     } else {
@@ -87,7 +199,20 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
     }
   };
 
+
   const handleContinueWithFree = () => {
+    // Mark that user chose free option
+    journeyStore.updateSubscription({
+      selectedPlanId: 'free',
+      planName: 'Free',
+      planPrice: '$0',
+      useFreeCredits: true,
+      selectedAt: new Date().toISOString()
+    });
+    
+    // Complete paywall step
+    journeyStore.completeStep('paywall');
+    
     if (onContinueWithFree) {
       onContinueWithFree();
     } else {
@@ -107,16 +232,13 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.wrapper}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+          <TouchableOpacity onPress={handleBack} style={styles.backButton} activeOpacity={0.9}>
+            <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>Choose Your Plan</Text>
@@ -143,7 +265,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
             {/* Free Credits Notice */}
             <View style={styles.freeCreditsContainer}>
               <View style={styles.creditsIcon}>
-                <Ionicons name="gift" size={24} color="#FFD700" />
+                <Ionicons name="gift" size={24} color={tokens.color.brand} />
               </View>
               <Text style={styles.freeCreditsText}>
                 You have <Text style={styles.creditsHighlight}>3 free designs</Text> to start
@@ -173,7 +295,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
                       plan.is_popular && styles.popularPlan
                     ]}
                     onPress={() => handleSelectPlan(plan.id)}
-                    activeOpacity={0.8}
+                    activeOpacity={0.9}
                   >
                     {plan.badge_text && (
                       <View style={styles.savingsBadge}>
@@ -196,30 +318,35 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
 
                     <View style={styles.featuresContainer}>
                       <View style={styles.featureItem}>
-                        <Ionicons name="checkmark-circle" size={20} color="#4facfe" />
+                        <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
                         <Text style={styles.featureText}>
                           {plan.description || 'Full access to AI design features'}
                         </Text>
                       </View>
                       <View style={styles.featureItem}>
-                        <Ionicons name="checkmark-circle" size={20} color="#4facfe" />
+                        <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
                         <Text style={styles.featureText}>
                           High-quality design generations
                         </Text>
                       </View>
                       <View style={styles.featureItem}>
-                        <Ionicons name="checkmark-circle" size={20} color="#4facfe" />
+                        <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
                         <Text style={styles.featureText}>
                           {plan.id === 'basic' ? 'Standard support' : 'Priority support'}
                         </Text>
                       </View>
                     </View>
 
-                    <View style={styles.selectButton}>
+                    <LinearGradient
+                      colors={[tokens.color.brandLight, tokens.color.brand]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.selectButton}
+                    >
                       <Text style={styles.selectButtonText}>
                         {plan.is_popular ? 'Choose Pro' : `Choose ${plan.display_name}`}
                       </Text>
-                    </View>
+                    </LinearGradient>
                   </TouchableOpacity>
                 ))
               )}
@@ -230,15 +357,15 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
               <Text style={styles.highlightTitle}>What you get with any plan:</Text>
               <View style={styles.highlightFeatures}>
                 <View style={styles.highlightFeature}>
-                  <Ionicons name="flash" size={20} color="#4facfe" />
+                  <Ionicons name="flash" size={20} color={tokens.color.accent} />
                   <Text style={styles.highlightText}>AI-powered design generation</Text>
                 </View>
                 <View style={styles.highlightFeature}>
-                  <Ionicons name="storefront" size={20} color="#4facfe" />
+                  <Ionicons name="storefront" size={20} color={tokens.color.accent} />
                   <Text style={styles.highlightText}>Real furniture with pricing</Text>
                 </View>
                 <View style={styles.highlightFeature}>
-                  <Ionicons name="download" size={20} color="#4facfe" />
+                  <Ionicons name="download" size={20} color={tokens.color.accent} />
                   <Text style={styles.highlightText}>High-resolution downloads</Text>
                 </View>
               </View>
@@ -257,20 +384,27 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
           ]}
         >
           <TouchableOpacity
-            style={styles.freeTrialButton}
             onPress={handleContinueWithFree}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
           >
-            <Text style={styles.freeTrialButtonText}>
-              Continue with 3 Free Designs
-            </Text>
+            <LinearGradient
+              colors={[tokens.color.bgSecondary, tokens.color.borderLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.freeTrialButton}
+            >
+              <Text style={styles.freeTrialButtonText}>
+                Continue with 3 Free Designs
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
           
           <Text style={styles.bottomText}>
             No credit card required • Upgrade anytime
           </Text>
         </Animated.View>
-      </LinearGradient>
+
+      </View>
     </SafeAreaView>
   );
 };
@@ -278,79 +412,80 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: tokens.color.bgApp,
   },
-  gradient: {
+  wrapper: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingTop: tokens.spacing.md,
+    paddingBottom: tokens.spacing.xl,
+    backgroundColor: tokens.color.bgApp,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: tokens.radius.full,
+    backgroundColor: tokens.color.bgSurface,
     justifyContent: 'center',
     alignItems: 'center',
+    ...tokens.shadow.sm,
   },
   headerContent: {
     flex: 1,
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 4,
+    ...tokens.typography.h3,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.xs,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#b8c6db',
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textSecondary,
   },
   scrollView: {
     flex: 1,
+    backgroundColor: tokens.color.bgApp,
   },
   content: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.xl,
   },
   freeCreditsContainer: {
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 30,
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.xl,
+    marginBottom: tokens.spacing.xxxl,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.2)',
+    borderColor: tokens.color.borderLight,
+    ...tokens.shadow.md,
   },
   creditsIcon: {
-    marginBottom: 8,
+    marginBottom: tokens.spacing.sm,
   },
   freeCreditsText: {
-    fontSize: 18,
-    color: '#ffffff',
-    fontWeight: '600',
+    ...tokens.typography.h4,
+    color: tokens.color.textPrimary,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: tokens.spacing.xs,
   },
   creditsHighlight: {
-    color: '#FFD700',
+    color: tokens.color.brand,
     fontWeight: '700',
   },
   freeCreditsSubtext: {
-    fontSize: 14,
-    color: '#b8c6db',
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
   },
   plansContainer: {
-    marginBottom: 30,
+    marginBottom: tokens.spacing.xxxl,
   },
   loadingContainer: {
     alignItems: 'center',
@@ -358,142 +493,294 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   loadingText: {
-    fontSize: 16,
-    color: '#8892b0',
+    ...tokens.typography.body,
+    color: tokens.color.textMuted,
     textAlign: 'center',
   },
   planCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.xl,
+    marginBottom: tokens.spacing.lg,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: tokens.color.border,
     position: 'relative',
+    ...tokens.shadow.md,
   },
   popularPlan: {
-    borderColor: '#4facfe',
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    borderColor: tokens.color.brand,
+    backgroundColor: tokens.color.bgSurface,
+    ...tokens.shadow.lg,
   },
   savingsBadge: {
     position: 'absolute',
     top: -8,
-    right: 16,
-    backgroundColor: '#4facfe',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    right: tokens.spacing.lg,
+    backgroundColor: tokens.color.brand,
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.xs,
+    borderRadius: tokens.radius.lg,
+    ...tokens.shadow.sm,
   },
   savingsText: {
-    fontSize: 12,
+    ...tokens.typography.caption,
     fontWeight: '600',
-    color: '#ffffff',
+    color: tokens.color.textInverse,
   },
   planHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: tokens.spacing.xl,
   },
   planName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 8,
+    ...tokens.typography.h3,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.sm,
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 4,
+    marginBottom: tokens.spacing.xs,
   },
   planPrice: {
-    fontSize: 32,
+    ...tokens.typography.h1,
+    color: tokens.color.brand,
     fontWeight: '700',
-    color: '#4facfe',
   },
   planPeriod: {
-    fontSize: 16,
-    color: '#b8c6db',
-    marginLeft: 4,
+    ...tokens.typography.body,
+    color: tokens.color.textSecondary,
+    marginLeft: tokens.spacing.xs,
   },
   planDesigns: {
-    fontSize: 16,
-    color: '#ffffff',
+    ...tokens.typography.body,
+    color: tokens.color.textPrimary,
     fontWeight: '500',
   },
   featuresContainer: {
-    marginBottom: 20,
+    marginBottom: tokens.spacing.xl,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: tokens.spacing.md,
   },
   featureText: {
-    fontSize: 15,
-    color: '#ffffff',
-    marginLeft: 12,
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textPrimary,
+    marginLeft: tokens.spacing.md,
     flex: 1,
   },
   selectButton: {
-    backgroundColor: '#4facfe',
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: tokens.spacing.lg,
+    borderRadius: tokens.radius.lg,
     alignItems: 'center',
+    ...tokens.shadow.md,
   },
   selectButtonText: {
-    fontSize: 16,
+    ...tokens.typography.button,
+    color: tokens.color.accent,
     fontWeight: '600',
-    color: '#ffffff',
   },
   highlightContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.xl,
+    borderWidth: 1,
+    borderColor: tokens.color.borderLight,
+    ...tokens.shadow.sm,
   },
   highlightTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 16,
+    ...tokens.typography.h4,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.lg,
     textAlign: 'center',
   },
   highlightFeatures: {
-    gap: 12,
+    gap: tokens.spacing.md,
   },
   highlightFeature: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   highlightText: {
-    fontSize: 15,
-    color: '#b8c6db',
-    marginLeft: 12,
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textSecondary,
+    marginLeft: tokens.spacing.md,
   },
   bottomContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: tokens.spacing.xl,
     paddingBottom: 40,
-    backgroundColor: 'rgba(26, 26, 46, 0.95)',
+    backgroundColor: tokens.color.bgApp,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: tokens.color.borderLight,
   },
   freeTrialButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginTop: 20,
-    marginBottom: 12,
+    paddingVertical: tokens.spacing.lg,
+    borderRadius: tokens.radius.lg,
+    marginTop: tokens.spacing.xl,
+    marginBottom: tokens.spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: tokens.color.borderWarm,
+    ...tokens.shadow.sm,
   },
   freeTrialButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    ...tokens.typography.button,
+    color: tokens.color.textPrimary,
     textAlign: 'center',
   },
   bottomText: {
-    fontSize: 13,
-    color: '#8892b0',
+    ...tokens.typography.caption,
+    color: tokens.color.textMuted,
     textAlign: 'center',
+  },
+  
+  // Authentication Modal Styles
+  authOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: tokens.color.scrim,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: tokens.spacing.xl,
+  },
+  authModal: {
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.radius.xxl,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: height * 0.85,
+    ...tokens.shadow.lg,
+  },
+  authHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: tokens.spacing.xl,
+    paddingTop: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.color.borderLight,
+  },
+  authTitle: {
+    ...tokens.typography.h4,
+    color: tokens.color.textPrimary,
+    flex: 1,
+    paddingRight: tokens.spacing.lg,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.color.bgSecondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authContent: {
+    flex: 1,
+    paddingHorizontal: tokens.spacing.xl,
+  },
+  socialAuthSection: {
+    paddingTop: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.lg,
+  },
+  socialAuthTitle: {
+    ...tokens.typography.body,
+    color: tokens.color.textSecondary,
+    textAlign: 'center',
+    marginBottom: tokens.spacing.lg,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: tokens.color.bgSurface,
+    borderWidth: 1.5,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.lg,
+    paddingVertical: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.md,
+    ...tokens.shadow.sm,
+  },
+  socialButtonText: {
+    ...tokens.typography.body,
+    color: tokens.color.textPrimary,
+    marginLeft: tokens.spacing.md,
+    fontWeight: '500',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: tokens.spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: tokens.color.borderLight,
+  },
+  dividerText: {
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textMuted,
+    paddingHorizontal: tokens.spacing.lg,
+  },
+  emailAuthSection: {
+    paddingBottom: tokens.spacing.xl,
+  },
+  inputLabel: {
+    ...tokens.typography.bodySmall,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.sm,
+    fontWeight: '500',
+  },
+  emailInput: {
+    backgroundColor: tokens.color.bgSecondary,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    borderRadius: tokens.radius.lg,
+    paddingVertical: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.lg,
+    ...tokens.typography.body,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.xl,
+  },
+  authButton: {
+    borderRadius: tokens.radius.lg,
+    overflow: 'hidden',
+    marginBottom: tokens.spacing.lg,
+    ...tokens.shadow.md,
+  },
+  authButtonDisabled: {
+    opacity: 0.6,
+  },
+  authButtonGradient: {
+    paddingVertical: tokens.spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authButtonText: {
+    ...tokens.typography.button,
+    color: tokens.color.accent,
+    fontWeight: '600',
+  },
+  toggleAuthMode: {
+    alignItems: 'center',
+    paddingVertical: tokens.spacing.md,
+  },
+  toggleAuthText: {
+    ...tokens.typography.bodySmall,
+    color: tokens.color.brand,
+    fontWeight: '500',
+  },
+  termsText: {
+    ...tokens.typography.caption,
+    color: tokens.color.textMuted,
+    textAlign: 'center',
+    lineHeight: 16,
+    paddingBottom: tokens.spacing.xl,
+    paddingHorizontal: tokens.spacing.md,
   },
 });
 

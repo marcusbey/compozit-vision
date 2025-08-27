@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../stores/userStore';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthScreenProps {
   navigation: any;
@@ -29,9 +30,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
   const { login, register, isLoading, error } = useUserStore();
   const journeyStore = useJourneyStore();
 
-  // Set current step when screen mounts
+  // Auth screen is not part of the main journey anymore
+  // Users are auto-created during Apple/Google payment
   useEffect(() => {
-    journeyStore.setCurrentStep(10, 'auth');
+    // Only show this screen for cross-platform login scenarios
+    console.log('Auth screen accessed - likely for cross-platform login');
   }, []);
 
   const handleAuth = async () => {
@@ -56,23 +59,42 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
         return;
       }
       
-      // Check if user exists and has enough tokens
+      // Check if user exists
       if (!user) {
         Alert.alert('Error', 'Authentication failed. Please try again.');
         return;
       }
       
-      if (user.nbToken <= 0) {
-        Alert.alert(
-          'Insufficient Credits', 
-          'You need at least 1 credit to generate a design. Please upgrade your plan.',
-          [{ text: 'OK' }]
-        );
-        return;
+      // Update journey with authentication info
+      journeyStore.updateAuthentication({
+        hasAccount: true,
+        email: user.email,
+        method: 'email',
+        registeredAt: isLogin ? undefined : new Date().toISOString()
+      });
+      
+      // Route based on user type and journey context
+      const journeyProgress = journeyStore.progress;
+      const isInPaywallFlow = journeyProgress.completedSteps.includes('paywall');
+      
+      if (isLogin && !isInPaywallFlow) {
+        // Existing user logging in directly → My Projects
+        NavigationHelpers.navigateToScreen('myProjects');
+      } else if (!isLogin || isInPaywallFlow) {
+        // New user signup OR user in paywall flow → Continue to checkout
+        if (user.nbToken <= 0) {
+          Alert.alert(
+            'Insufficient Credits', 
+            'You need credits to generate a design. Please select a plan.',
+            [{ text: 'OK', onPress: () => NavigationHelpers.navigateToScreen('paywall') }]
+          );
+          return;
+        }
+        NavigationHelpers.navigateToScreen('checkout');
+      } else {
+        // Default fallback
+        NavigationHelpers.navigateToScreen('myProjects');
       }
-
-      // After successful auth, continue to processing to complete the journey
-      NavigationHelpers.navigateToScreen('processing');
     } catch (error: any) {
       console.error('Auth error:', error);
       Alert.alert('Authentication Failed', 'Invalid credentials. Please check your email and password.');
@@ -80,13 +102,77 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
     }
   };
 
+  // Development bypass for testing
+  const handleDevelopmentBypass = () => {
+    Alert.alert(
+      'Development Mode', 
+      'Skip authentication for testing?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Skip Auth', 
+          onPress: () => {
+            // Create a mock user for development with proper UUID format
+            const generateUUID = () => {
+              return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+              });
+            };
+            
+            const mockUser = {
+              id: generateUUID(),
+              email: 'dev@compozit.com',
+              fullName: 'Development User',
+              avatarUrl: null,
+              preferences: {},
+              nbToken: 10,
+              currentPlan: 'pro',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+            
+            const { setUser } = useUserStore.getState();
+            setUser(mockUser);
+            
+            console.log('🚀 Development bypass: Mock user created');
+            NavigationHelpers.navigateToScreen('processing');
+          }
+        }
+      ]
+    );
+  };
+
+  // Reset welcome screen for testing
+  const handleResetWelcome = () => {
+    Alert.alert(
+      'Reset Welcome Screen', 
+      'This will clear the welcome flag and restart the app from the welcome screen.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Reset', 
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('hasSeenWelcome');
+              await AsyncStorage.clear(); // Clear all app data
+              console.log('✅ Welcome screen reset - app will restart from welcome');
+              Alert.alert('Success', 'Please reload the app to see the welcome screen');
+            } catch (error) {
+              console.error('Error resetting welcome:', error);
+              Alert.alert('Error', 'Failed to reset welcome screen');
+            }
+          }
+        }
+      ]
+    );
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.backgroundContainer}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
@@ -94,10 +180,10 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <LinearGradient
-                colors={['#4facfe', '#00f2fe']}
+                colors={['#E8C097', '#D4A574']}
                 style={styles.logoGradient}
               >
-                <Ionicons name="home" size={30} color="#ffffff" />
+                <Ionicons name="home" size={30} color="#2D2B28" />
               </LinearGradient>
             </View>
           </View>
@@ -117,11 +203,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
 
             <View style={styles.form}>
               <View style={styles.inputContainer}>
-                <Ionicons name="mail-outline" size={20} color="#b8c6db" style={styles.inputIcon} />
+                <Ionicons name="mail-outline" size={20} color="#8B7F73" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
-                  placeholderTextColor="#8892b0"
+                  placeholderTextColor="#B8AFA4"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -130,11 +216,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#b8c6db" style={styles.inputIcon} />
+                <Ionicons name="lock-closed-outline" size={20} color="#8B7F73" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Mot de passe"
-                  placeholderTextColor="#8892b0"
+                  placeholder="Password"
+                  placeholderTextColor="#B8AFA4"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -147,10 +233,10 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
                 disabled={isLoading}
               >
                 <LinearGradient
-                  colors={isLoading ? ['#666', '#666'] : ['#4facfe', '#00f2fe']}
+                  colors={isLoading ? ['#B8AFA4', '#B8AFA4'] : ['#E8C097', '#D4A574']}
                   style={styles.buttonGradient}
                   start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
                 >
                   <Text style={styles.buttonText}>
                     {isLoading ? 'LOADING...' : (isLogin ? 'SIGN IN' : 'CREATE ACCOUNT')}
@@ -167,6 +253,29 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
                 </Text>
               </TouchableOpacity>
 
+              {/* Development Bypass Button */}
+              {__DEV__ && (
+                <>
+                  <TouchableOpacity
+                    style={styles.devBypassButton}
+                    onPress={handleDevelopmentBypass}
+                  >
+                    <Text style={styles.devBypassText}>
+                      🚀 Skip Auth (Dev Mode)
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.devBypassButton, { backgroundColor: 'rgba(255, 0, 0, 0.2)', borderColor: 'rgba(255, 0, 0, 0.4)' }]}
+                    onPress={handleResetWelcome}
+                  >
+                    <Text style={[styles.devBypassText, { color: '#FF6B6B' }]}>
+                      🔄 Reset Welcome Screen
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              )}
+
             </View>
           </View>
 
@@ -176,7 +285,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
             </Text>
           </View>
         </KeyboardAvoidingView>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -184,10 +293,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
-  gradient: {
+  backgroundContainer: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
   },
   keyboardView: {
     flex: 1,
@@ -206,14 +316,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   content: {
     flex: 1,
@@ -224,13 +334,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     textAlign: 'center',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginBottom: 40,
     lineHeight: 22,
   },
@@ -240,13 +350,21 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
     paddingHorizontal: 20,
     paddingVertical: 15,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
   },
   inputIcon: {
     marginRight: 15,
@@ -254,21 +372,21 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#2D2B28',
     fontWeight: '500',
   },
   button: {
-    borderRadius: 30,
+    borderRadius: 999,
     overflow: 'hidden',
     marginTop: 20,
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonDisabled: {
     shadowOpacity: 0,
@@ -280,7 +398,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff',
+    color: '#2D2B28',
     fontSize: 18,
     fontWeight: '700',
     letterSpacing: 1,
@@ -290,7 +408,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   switchText: {
-    color: '#b8c6db',
+    color: '#8B7F73',
     fontSize: 14,
   },
   skipButton: {
@@ -299,19 +417,21 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   skipText: {
-    color: '#8892b0',
+    color: '#B8AFA4',
     fontSize: 16,
     fontWeight: '500',
   },
   errorText: {
-    color: '#ff6b6b',
+    color: '#E07A5F',
     fontSize: 14,
     marginBottom: 16,
     textAlign: 'center',
-    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+    backgroundColor: 'rgba(224, 122, 95, 0.1)',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(224, 122, 95, 0.2)',
   },
   footer: {
     alignItems: 'center',
@@ -319,8 +439,23 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: '#8892b0',
+    color: '#B8AFA4',
     textAlign: 'center',
+  },
+  devBypassButton: {
+    marginTop: 20,
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(212, 165, 116, 0.2)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 165, 116, 0.4)',
+  },
+  devBypassText: {
+    color: '#D4A574',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

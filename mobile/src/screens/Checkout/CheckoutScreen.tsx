@@ -19,6 +19,77 @@ import { useContentStore } from '../../stores/contentStore';
 import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
+// Design tokens - Updated with warm color scheme
+const tokens = {
+  color: {
+    bgApp: '#FBF9F4',
+    bgCard: '#FEFEFE', 
+    accent: '#2D2B28',
+    textPrimary: '#2D2B28',
+    textSecondary: '#8B7F73',
+    textTertiary: '#B8AFA4',
+    border: '#E6DDD1',
+    borderFocus: '#D4A574',
+    brand: '#D4A574',
+    brandLight: '#E8C097',
+    success: '#7FB069',
+    error: '#E07A5F',
+    warning: '#F2CC8F'
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24
+  },
+  fontSize: {
+    caption: 12,
+    body: 14,
+    callout: 16,
+    title3: 20,
+    title2: 22,
+    title1: 28,
+    largeTitle: 34
+  },
+  fontWeight: {
+    regular: '400' as const,
+    medium: '500' as const,
+    semibold: '600' as const,
+    bold: '700' as const
+  },
+  shadow: {
+    card: {
+      shadowColor: '#2D2B28',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4
+    },
+    button: {
+      shadowColor: '#D4A574', 
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 6
+    },
+    premium: {
+      shadowColor: '#D4A574',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 16,
+      elevation: 8
+    }
+  }
+};
+
 interface CheckoutScreenProps {
   selectedPlan?: {
     id: string;
@@ -82,23 +153,80 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
   };
 
   // Handle payment success
-  const handlePaymentSuccess = (paymentDetails: any) => {
+  const handlePaymentSuccess = async (paymentDetails: any) => {
     if (onPaymentSuccess) {
       onPaymentSuccess(paymentDetails);
     } else {
-      // Store subscription info in journey store (user still needs to authenticate later)
-      journeyStore.updateSubscription({
-        selectedPlanId: paymentDetails.planId,
-        planName: paymentDetails.planId,
-        planPrice: paymentDetails.amount,
-        billingCycle: paymentDetails.billingPeriod === 'annual' ? 'yearly' : 'monthly',
-        useFreeCredits: false,
-        selectedAt: new Date().toISOString(),
-      });
-      
-      // After payment success, start the user journey with photo capture
-      console.log('✅ Payment successful, starting user journey');
-      NavigationHelpers.navigateToScreen('photoCapture');
+      try {
+        // Auto-create user account from payment data
+        const userEmail = paymentDetails.customerEmail || paymentDetails.email;
+        const displayName = paymentDetails.customerName || userEmail?.split('@')[0] || 'User';
+        
+        // Create user account automatically
+        console.log('🔐 Auto-creating user account from payment data...');
+        
+        // Mock user creation for now (will be handled by backend after payment webhook)
+        const generateUUID = () => {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
+        };
+        
+        const mockUser = {
+          id: generateUUID(),
+          email: userEmail,
+          fullName: displayName,
+          avatarUrl: null,
+          preferences: {},
+          nbToken: paymentDetails.planId === 'basic' ? 10 : paymentDetails.planId === 'pro' ? 50 : 100,
+          currentPlan: paymentDetails.planId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        // Set user as authenticated
+        const { setUser } = useUserStore.getState();
+        setUser(mockUser);
+        
+        // Store subscription info in journey store
+        journeyStore.updateSubscription({
+          selectedPlanId: paymentDetails.planId,
+          planName: paymentDetails.planId,
+          planPrice: paymentDetails.amount,
+          billingCycle: paymentDetails.billingPeriod === 'annual' ? 'yearly' : 'monthly',
+          useFreeCredits: false,
+          selectedAt: new Date().toISOString(),
+        });
+        
+        // Mark payment as completed in journey
+        journeyStore.updatePayment({
+          requiresPayment: false,
+          paymentIntentId: paymentDetails.paymentId,
+          completedAt: new Date().toISOString(),
+          amount: parseInt(paymentDetails.amount.replace('$', '')),
+          currency: 'USD'
+        });
+        
+        // Mark authentication as completed (auto-created via payment)
+        journeyStore.updateAuthentication({
+          hasAccount: true,
+          email: userEmail,
+          method: paymentDetails.method === 'apple' ? 'apple' : 'email',
+          registeredAt: new Date().toISOString()
+        });
+        
+        // Complete checkout step
+        journeyStore.completeStep('checkout');
+        
+        // After payment success and auto-account creation, continue to photo capture
+        console.log('✅ Payment successful, user account created, continuing to photo capture');
+        NavigationHelpers.navigateToScreen('photoCapture');
+      } catch (error) {
+        console.error('Error creating user account:', error);
+        Alert.alert('Setup Error', 'Payment successful but account setup failed. Please contact support.');
+      }
     }
   };
 
@@ -271,22 +399,29 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
 
     setIsProcessing(true);
     try {
-      // TODO: Implement Apple Pay
-      // This would integrate with React Native Apple Pay
-      console.log('Processing Apple Pay for:', selectedPlan.id);
+      // In production, this would use react-native-apple-pay or Stripe's Apple Pay integration
+      // Apple Pay provides user's email from their Apple ID automatically
+      console.log('🍎 Processing Apple Pay for:', selectedPlan.id);
       
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // For demo purposes, simulate success
+      // Apple Pay returns user data including email from Apple ID
       const paymentDetails = {
         method: 'apple',
         planId: selectedPlan.id,
-        amount: selectedPlan.price,
-        customerEmail: userEmail,
+        amount: billingPeriod === 'annual' ? 
+          '$' + (getAnnualAmount() * 0.8).toFixed(0) : 
+          selectedPlan.price,
+        billingPeriod: billingPeriod,
+        // In production, email comes from Apple Pay response
+        customerEmail: 'user@icloud.com', // This would be extracted from Apple Pay
+        customerName: 'Apple User', // Optional: name from Apple ID
         paymentId: `apple_${Date.now()}`,
+        appleTransactionId: `sandbox_${Date.now()}`, // Apple's transaction ID
       };
       
+      console.log('✅ Apple Pay authorization successful');
       handlePaymentSuccess(paymentDetails);
     } catch (error: any) {
       handlePaymentError(error.message || 'Apple Pay failed');
@@ -309,16 +444,18 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton} testID="back-button">
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+          <TouchableOpacity 
+            onPress={handleBack} 
+            style={styles.backButton} 
+            testID="back-button"
+            activeOpacity={0.9}
+          >
+            <Ionicons name="arrow-back" size={24} color={tokens.color.accent} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Complete Purchase</Text>
           <View style={{ width: 40 }} />
@@ -327,10 +464,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
         <ScrollView 
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
           <Animated.View 
             style={[
-              styles.content,
+              styles.scrollContainer,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }]
@@ -352,7 +490,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                 <View style={styles.planFeatures}>
                   {selectedPlan.features.slice(0, 3).map((feature, index) => (
                     <View key={index} style={styles.featureItem}>
-                      <Ionicons name="checkmark-circle" size={16} color="#4facfe" />
+                      <Ionicons name="checkmark-circle" size={16} color={tokens.color.success} />
                       <Text style={styles.featureText}>{feature}</Text>
                     </View>
                   ))}
@@ -370,16 +508,20 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
               <Text style={styles.sectionTitle}>Billing Options</Text>
               
               <TouchableOpacity 
-                style={styles.billingOption}
+                style={[
+                  styles.billingOption,
+                  billingPeriod === 'monthly' && styles.billingOptionSelected
+                ]}
                 onPress={() => setBillingPeriod('monthly')}
+                activeOpacity={0.9}
               >
                 <View style={styles.billingOptionLeft}>
                   <View style={[
                     styles.radioButton, 
-                    billingPeriod === 'monthly' ? { backgroundColor: '#4facfe' } : styles.radioButtonInactive
+                    billingPeriod === 'monthly' ? styles.radioButtonActive : styles.radioButtonInactive
                   ]}>
                     {billingPeriod === 'monthly' && (
-                      <Ionicons name="checkmark" size={16} color="#ffffff" />
+                      <Ionicons name="checkmark" size={16} color="#FEFEFE" />
                     )}
                   </View>
                   <View>
@@ -391,16 +533,20 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={styles.billingOption}
+                style={[
+                  styles.billingOption,
+                  billingPeriod === 'annual' && styles.billingOptionSelected
+                ]}
                 onPress={() => setBillingPeriod('annual')}
+                activeOpacity={0.9}
               >
                 <View style={styles.billingOptionLeft}>
                   <View style={[
                     styles.radioButton, 
-                    billingPeriod === 'annual' ? { backgroundColor: '#4facfe' } : styles.radioButtonInactive
+                    billingPeriod === 'annual' ? styles.radioButtonActive : styles.radioButtonInactive
                   ]}>
                     {billingPeriod === 'annual' && (
-                      <Ionicons name="checkmark" size={16} color="#ffffff" />
+                      <Ionicons name="checkmark" size={16} color="#FEFEFE" />
                     )}
                   </View>
                   <View>
@@ -431,10 +577,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                 ]}
                 onPress={() => setSelectedPaymentMethod('stripe')}
                 testID="stripe-payment-method"
+                activeOpacity={0.9}
               >
                 <View style={styles.paymentMethodLeft}>
                   <View style={styles.paymentIcon}>
-                    <Ionicons name="card" size={24} color="#4facfe" />
+                    <Ionicons name="card" size={24} color={tokens.color.accent} />
                   </View>
                   <View>
                     <Text style={styles.paymentMethodTitle}>Credit/Debit Card</Text>
@@ -444,11 +591,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                 <View style={[
                   styles.radioButton,
                   selectedPaymentMethod === 'stripe' 
-                    ? { backgroundColor: '#4facfe' } 
+                    ? styles.radioButtonActive 
                     : styles.radioButtonInactive
                 ]}>
                   {selectedPaymentMethod === 'stripe' && (
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
+                    <Ionicons name="checkmark" size={16} color="#FEFEFE" />
                   )}
                 </View>
               </TouchableOpacity>
@@ -462,10 +609,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                   ]}
                   onPress={() => setSelectedPaymentMethod('apple')}
                   testID="apple-pay-method"
+                  activeOpacity={0.9}
                 >
                   <View style={styles.paymentMethodLeft}>
                     <View style={styles.paymentIcon}>
-                      <Ionicons name="logo-apple" size={24} color="#4facfe" />
+                      <Ionicons name="logo-apple" size={24} color={tokens.color.accent} />
                     </View>
                     <View>
                       <Text style={styles.paymentMethodTitle}>Apple Pay</Text>
@@ -475,11 +623,11 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                   <View style={[
                     styles.radioButton,
                     selectedPaymentMethod === 'apple' 
-                      ? { backgroundColor: '#4facfe' } 
+                      ? styles.radioButtonActive 
                       : styles.radioButtonInactive
                   ]}>
                     {selectedPaymentMethod === 'apple' && (
-                      <Ionicons name="checkmark" size={16} color="#ffffff" />
+                      <Ionicons name="checkmark" size={16} color="#FEFEFE" />
                     )}
                   </View>
                 </TouchableOpacity>
@@ -488,7 +636,7 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
 
             {/* Security Notice */}
             <View style={styles.securityNotice}>
-              <Ionicons name="shield-checkmark" size={20} color="#4facfe" />
+              <Ionicons name="shield-checkmark" size={20} color={tokens.color.success} />
               <Text style={styles.securityText}>
                 Your payment is secured with 256-bit SSL encryption
               </Text>
@@ -507,26 +655,24 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
         {/* Bottom Action */}
         <View style={styles.bottomContainer}>
           <TouchableOpacity
-            style={[
-              styles.payButton,
-              !selectedPaymentMethod && styles.payButtonDisabled,
-              isProcessing && styles.payButtonProcessing
-            ]}
             onPress={selectedPaymentMethod === 'apple' ? handleApplePayment : handleStripePayment}
             disabled={!selectedPaymentMethod || isProcessing}
             testID="complete-payment-button"
+            activeOpacity={0.9}
           >
             <LinearGradient
-              colors={
-                !selectedPaymentMethod || isProcessing 
-                  ? ['#666', '#888'] 
-                  : ['#4facfe', '#00f2fe']
-              }
-              style={styles.payButtonGradient}
+              colors={['#E8C097', '#D4A574']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.payButton,
+                !selectedPaymentMethod && styles.payButtonDisabled,
+                isProcessing && styles.payButtonProcessing
+              ]}
             >
               {isProcessing ? (
                 <View style={styles.processingContainer}>
-                  <Ionicons name="hourglass" size={20} color="#ffffff" />
+                  <Ionicons name="hourglass" size={20} color="#2D2B28" />
                   <Text style={styles.payButtonText}>Processing...</Text>
                 </View>
               ) : (
@@ -534,13 +680,13 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
                   <Text style={styles.payButtonText}>
                     {selectedPaymentMethod === 'apple' ? 'Pay with Apple Pay' : `Pay ${selectedPlan.price}`}
                   </Text>
-                  <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+                  <Ionicons name="arrow-forward" size={20} color="#2D2B28" />
                 </View>
               )}
             </LinearGradient>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -548,124 +694,133 @@ const CheckoutScreen: React.FC<CheckoutScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: tokens.color.bgApp,
   },
-  gradient: {
+  content: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingTop: tokens.spacing.sm,
+    paddingBottom: tokens.spacing.lg,
+    backgroundColor: tokens.color.bgApp,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: tokens.color.bgCard,
     justifyContent: 'center',
     alignItems: 'center',
+    ...tokens.shadow.card,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: tokens.fontSize.title3,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.textPrimary,
   },
   scrollView: {
     flex: 1,
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+  scrollContent: {
+    paddingBottom: tokens.spacing.xxl,
+  },
+  scrollContainer: {
+    paddingHorizontal: tokens.spacing.lg,
   },
   planSummary: {
-    marginBottom: 30,
+    marginBottom: tokens.spacing.xl,
   },
   summaryTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 16,
+    fontSize: tokens.fontSize.title2,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.md,
   },
   planCard: {
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: tokens.color.bgCard,
+    borderRadius: tokens.radius.lg,
+    padding: tokens.spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: tokens.color.border,
+    ...tokens.shadow.card,
   },
   planHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: tokens.spacing.sm,
   },
   planName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: tokens.fontSize.title3,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.textPrimary,
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
   },
   planPrice: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4facfe',
+    fontSize: tokens.fontSize.largeTitle,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.accent,
   },
   planPeriod: {
-    fontSize: 14,
-    color: '#b8c6db',
-    marginLeft: 4,
+    fontSize: tokens.fontSize.body,
+    color: tokens.color.textSecondary,
+    marginLeft: tokens.spacing.xs,
   },
   planDesigns: {
-    fontSize: 16,
-    color: '#ffffff',
-    marginBottom: 12,
-    fontWeight: '600',
+    fontSize: tokens.fontSize.callout,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.md,
+    fontWeight: tokens.fontWeight.semibold,
   },
   planFeatures: {
-    gap: 8,
+    gap: tokens.spacing.sm,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   featureText: {
-    fontSize: 14,
-    color: '#b8c6db',
-    marginLeft: 8,
+    fontSize: tokens.fontSize.body,
+    color: tokens.color.textSecondary,
+    marginLeft: tokens.spacing.sm,
   },
   moreFeatures: {
-    fontSize: 14,
-    color: '#4facfe',
-    fontWeight: '500',
-    marginTop: 4,
+    fontSize: tokens.fontSize.body,
+    color: tokens.color.accent,
+    fontWeight: tokens.fontWeight.medium,
+    marginTop: tokens.spacing.xs,
   },
   billingOptions: {
-    marginBottom: 30,
+    marginBottom: tokens.spacing.xl,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 16,
+    fontSize: tokens.fontSize.title3,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.md,
   },
   billingOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: tokens.color.bgCard,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    marginBottom: tokens.spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: tokens.color.border,
+    ...tokens.shadow.card,
+  },
+  billingOptionSelected: {
+    borderColor: tokens.color.borderFocus,
+    borderWidth: 2,
   },
   billingOptionLeft: {
     flexDirection: 'row',
@@ -678,67 +833,66 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: tokens.spacing.md,
+  },
+  radioButtonActive: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: tokens.color.accent,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: tokens.spacing.md,
   },
   radioButtonInactive: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    marginRight: 12,
+    borderColor: tokens.color.border,
+    marginRight: tokens.spacing.md,
   },
   billingOptionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 2,
-  },
-  billingOptionTitleInactive: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#8892b0',
+    fontSize: tokens.fontSize.callout,
+    fontWeight: tokens.fontWeight.semibold,
+    color: tokens.color.textPrimary,
     marginBottom: 2,
   },
   billingOptionDesc: {
-    fontSize: 13,
-    color: '#8892b0',
+    fontSize: tokens.fontSize.caption,
+    color: tokens.color.textSecondary,
   },
   billingPrice: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#4facfe',
-  },
-  billingPriceInactive: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#8892b0',
+    fontSize: tokens.fontSize.title2,
+    fontWeight: tokens.fontWeight.bold,
+    color: tokens.color.accent,
   },
   annualPricing: {
     alignItems: 'flex-end',
   },
   savingsBadgeText: {
-    fontSize: 12,
-    color: '#4facfe',
-    fontWeight: '600',
+    fontSize: tokens.fontSize.caption,
+    color: tokens.color.success,
+    fontWeight: tokens.fontWeight.semibold,
   },
   paymentMethods: {
-    marginBottom: 30,
+    marginBottom: tokens.spacing.xl,
   },
   paymentMethod: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: tokens.color.bgCard,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    marginBottom: tokens.spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: tokens.color.border,
+    ...tokens.shadow.card,
   },
   paymentMethodSelected: {
-    borderColor: 'rgba(79, 172, 254, 0.5)',
-    backgroundColor: 'rgba(79, 172, 254, 0.05)',
+    borderColor: tokens.color.borderFocus,
+    borderWidth: 2,
   },
   paymentMethodLeft: {
     flexDirection: 'row',
@@ -748,58 +902,67 @@ const styles = StyleSheet.create({
   paymentIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    borderRadius: tokens.radius.xl,
+    backgroundColor: tokens.color.bgApp,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: tokens.spacing.md,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
   },
   paymentMethodTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
+    fontSize: tokens.fontSize.callout,
+    fontWeight: tokens.fontWeight.semibold,
+    color: tokens.color.textPrimary,
     marginBottom: 2,
   },
   paymentMethodDesc: {
-    fontSize: 13,
-    color: '#8892b0',
+    fontSize: tokens.fontSize.caption,
+    color: tokens.color.textSecondary,
   },
   securityNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
+    backgroundColor: tokens.color.bgCard,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+    marginBottom: tokens.spacing.lg,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    ...tokens.shadow.card,
   },
   securityText: {
-    fontSize: 14,
-    color: '#b8c6db',
-    marginLeft: 12,
+    fontSize: tokens.fontSize.body,
+    color: tokens.color.textSecondary,
+    marginLeft: tokens.spacing.md,
     flex: 1,
   },
   termsText: {
-    fontSize: 13,
-    color: '#8892b0',
+    fontSize: tokens.fontSize.caption,
+    color: tokens.color.textTertiary,
     textAlign: 'center',
     lineHeight: 18,
-    marginBottom: 20,
+    marginBottom: tokens.spacing.lg,
   },
   termsLink: {
-    color: '#4facfe',
-    fontWeight: '600',
+    color: tokens.color.accent,
+    fontWeight: tokens.fontWeight.semibold,
   },
   bottomContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    backgroundColor: 'rgba(26, 26, 46, 0.95)',
+    paddingHorizontal: tokens.spacing.lg,
+    paddingTop: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xxl,
+    backgroundColor: tokens.color.bgApp,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: tokens.color.border,
   },
   payButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginTop: 20,
+    borderRadius: tokens.radius.lg,
+    paddingVertical: tokens.spacing.md + 2,
+    paddingHorizontal: tokens.spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...tokens.shadow.premium,
   },
   payButtonDisabled: {
     opacity: 0.5,
@@ -807,26 +970,20 @@ const styles = StyleSheet.create({
   payButtonProcessing: {
     opacity: 0.8,
   },
-  payButtonGradient: {
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   payButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: tokens.spacing.sm,
   },
   processingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: tokens.spacing.sm,
   },
   payButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: tokens.fontSize.title2,
+    fontWeight: tokens.fontWeight.bold,
+    color: '#2D2B28',
   },
 });
 

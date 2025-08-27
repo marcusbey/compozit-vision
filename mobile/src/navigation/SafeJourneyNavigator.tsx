@@ -20,7 +20,7 @@ const ErrorScreen: React.FC<{ error: string }> = ({ error }) => (
 // Loading screen
 const LoadingScreen: React.FC = () => (
   <View style={styles.loadingContainer}>
-    <ActivityIndicator size="large" color="#4facfe" />
+    <ActivityIndicator size="large" color="#D4A574" />
     <Text style={styles.loadingText}>Loading...</Text>
   </View>
 );
@@ -29,6 +29,7 @@ const Stack = createStackNavigator();
 export const navigationRef = createNavigationContainerRef();
 
 export type JourneyScreens = 
+  | 'welcome'
   | 'onboarding1' 
   | 'onboarding2' 
   | 'onboarding3'
@@ -43,10 +44,12 @@ export type JourneyScreens =
   | 'results'
   | 'myProjects'
   | 'profile'
-  | 'plans';
+  | 'plans'
+  | 'projectSettings';
 
 // Safe screen imports with error handling
 const screenImports: Record<JourneyScreens, () => Promise<{ default: React.ComponentType<any> }>> = {
+  welcome: () => import('../screens/Welcome/WelcomeScreen').catch(() => ({ default: () => <ErrorScreen error="WelcomeScreen not found" /> })),
   onboarding1: () => import('../screens/Onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
   onboarding2: () => import('../screens/Onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
   onboarding3: () => import('../screens/Onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
@@ -62,6 +65,7 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   myProjects: () => import('../screens/Projects/MyProjectsScreen').catch(() => ({ default: () => <ErrorScreen error="MyProjectsScreen not found" /> })),
   profile: () => import('../screens/Profile/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
   plans: () => import('../screens/Plans/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
+  projectSettings: () => import('../screens/ProjectSettings/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
 };
 
 const SafeJourneyNavigator: React.FC = () => {
@@ -127,8 +131,17 @@ const SafeJourneyNavigator: React.FC = () => {
 
   const determineInitialRoute = async (): Promise<JourneyScreens> => {
     try {
+      // Check if user has seen welcome screen
+      const hasSeenWelcome = await AsyncStorage.getItem('hasSeenWelcome');
+      
+      if (!hasSeenWelcome) {
+        console.log('🔄 First time user -> Welcome screen');
+        return 'welcome';
+      }
+
       // Check if user is authenticated
       if (isAuthenticated && user) {
+        console.log('✅ Authenticated user -> My Projects');
         return 'myProjects';
       }
 
@@ -140,17 +153,28 @@ const SafeJourneyNavigator: React.FC = () => {
         const savedJourney = await OnboardingService.getSavedJourney();
         
         if (savedJourney && savedJourney.currentScreen) {
-          console.log('📍 Resuming journey from:', savedJourney.currentScreen);
-          return savedJourney.currentScreen as JourneyScreens;
-        } else {
-          return 'paywall';
+          // Validate the saved screen is a valid continuation point
+          const validContinueScreens: JourneyScreens[] = [
+            'paywall', 'photoCapture', 'descriptions', 'furniture', 'budget', 'auth', 'checkout'
+          ];
+          
+          const savedScreen = savedJourney.currentScreen as JourneyScreens;
+          if (validContinueScreens.includes(savedScreen)) {
+            console.log('📍 Resuming journey from:', savedScreen);
+            return savedScreen;
+          }
         }
+        
+        // Default to paywall for users who completed onboarding
+        console.log('💳 Returning user -> Paywall');
+        return 'paywall';
       } else {
+        console.log('🎯 New user flow -> Onboarding1');
         return 'onboarding1';
       }
     } catch (error) {
       console.error('Error determining initial route:', error);
-      return 'onboarding1';
+      return 'welcome';
     }
   };
 
@@ -187,36 +211,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
     padding: 20,
   },
   errorTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ff6b6b',
+    color: '#E07A5F',
     marginBottom: 10,
   },
   errorMessage: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 20,
   },
   errorHint: {
     fontSize: 14,
-    color: '#8892b0',
+    color: '#8B7F73',
     fontStyle: 'italic',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   loadingText: {
     marginTop: 20,
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#2D2B28',
   },
 });
 
