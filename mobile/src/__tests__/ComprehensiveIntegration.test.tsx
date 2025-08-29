@@ -227,7 +227,7 @@ describe('Comprehensive Enhanced AI Processing Integration', () => {
         jest.advanceTimersByTime(3000);
       });
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Results', expect.any(Object));
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('results', expect.any(Object));
     });
   });
 

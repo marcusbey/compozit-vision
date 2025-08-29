@@ -115,7 +115,7 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
             <Ionicons 
               name={item.icon as any} 
               size={24} 
-              color={isSelected ? '#ffffff' : '#4facfe'} 
+              color={isSelected ? '#FEFEFE' : '#D4A574'} 
             />
           </View>
           
@@ -137,7 +137,7 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
             <Ionicons 
               name={isSelected ? 'checkmark' : 'add'} 
               size={20} 
-              color={isSelected ? '#ffffff' : '#4facfe'} 
+              color={isSelected ? '#FEFEFE' : '#D4A574'} 
             />
           </TouchableOpacity>
         </View>
@@ -147,16 +147,13 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={true} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Set Budget</Text>
           <View style={styles.placeholder} />
@@ -188,9 +185,9 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
                     const range = 1000;
                     setBudgetRange([Math.max(1000, base - range), Math.min(10000, base + range)]);
                   }}
-                  minimumTrackTintColor="#4facfe"
-                  maximumTrackTintColor="rgba(255,255,255,0.3)"
-                  thumbTintColor="#4facfe"
+                  minimumTrackTintColor="#D4A574"
+                  maximumTrackTintColor="#E6DDD1"
+                  thumbTintColor="#D4A574"
                 />
               </View>
             </View>
@@ -228,8 +225,10 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
             {/* See Items Button */}
             <TouchableOpacity style={styles.seeItemsButton} activeOpacity={0.8}>
               <LinearGradient
-                colors={['rgba(79, 172, 254, 0.1)', 'rgba(79, 172, 254, 0.2)']}
+                colors={['#F5F1E8', '#E6DDD1']}
                 style={styles.seeItemsGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
                 <Text style={styles.seeItemsText}>See Items</Text>
               </LinearGradient>
@@ -245,17 +244,17 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
+              colors={['#E8C097', '#D4A574']}
               style={styles.buttonGradient}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
               <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="arrow-forward" size={20} color="#ffffff" style={styles.buttonIcon} />
+              <Ionicons name="arrow-forward" size={20} color="#2D2B28" style={styles.buttonIcon} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -263,10 +262,11 @@ const BudgetSelectionScreen: React.FC<BudgetSelectionScreenProps> = ({ navigatio
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
     paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
@@ -281,14 +281,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E6DDD1',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   placeholder: {
     width: 40,
@@ -303,13 +310,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 22,
@@ -321,7 +328,7 @@ const styles = StyleSheet.create({
   budgetDisplay: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#4facfe',
+    color: '#D4A574',
     marginBottom: 30,
     textAlign: 'center',
   },
@@ -334,10 +341,10 @@ const styles = StyleSheet.create({
     height: 40,
   },
   sliderThumb: {
-    backgroundColor: '#4facfe',
+    backgroundColor: '#D4A574',
     width: 24,
     height: 24,
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -352,12 +359,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginBottom: 25,
     lineHeight: 20,
   },
@@ -368,12 +375,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
     padding: 20,
     marginBottom: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
   },
   furnitureInfo: {
     flexDirection: 'row',
@@ -384,16 +396,16 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: '#F5F1E8',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#D4C7B5',
   },
   furnitureIconSelected: {
-    backgroundColor: '#4facfe',
-    borderColor: '#4facfe',
+    backgroundColor: '#D4A574',
+    borderColor: '#D4A574',
   },
   furnitureDetails: {
     flex: 1,
@@ -401,12 +413,12 @@ const styles = StyleSheet.create({
   furnitureName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 4,
   },
   furniturePrice: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
   },
   furnitureActions: {
     flexDirection: 'row',
@@ -416,29 +428,34 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: '#F5F1E8',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#D4C7B5',
     marginLeft: 10,
   },
   selectButtonSelected: {
-    backgroundColor: '#4facfe',
-    borderColor: '#4facfe',
+    backgroundColor: '#D4A574',
+    borderColor: '#D4A574',
   },
   summarySection: {
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
     padding: 20,
     marginBottom: 30,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
   },
   summaryTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 15,
   },
   summaryItems: {
@@ -451,30 +468,35 @@ const styles = StyleSheet.create({
   },
   summaryItemName: {
     fontSize: 14,
-    color: '#ffffff',
+    color: '#2D2B28',
     fontWeight: '500',
   },
   summaryItemPrice: {
     fontSize: 14,
-    color: '#4facfe',
+    color: '#D4A574',
     fontWeight: '600',
   },
   seeItemsButton: {
-    borderRadius: 25,
+    borderRadius: 999,
     overflow: 'hidden',
     marginBottom: 40,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   seeItemsGradient: {
     paddingVertical: 15,
     paddingHorizontal: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#D4C7B5',
   },
   seeItemsText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#2D2B28',
   },
   buttonContainer: {
     paddingHorizontal: 30,
@@ -482,16 +504,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   continueButton: {
-    borderRadius: 30,
+    borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -503,7 +525,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
   },
   buttonIcon: {

@@ -84,7 +84,7 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
 
   const handleProjectPress = (project: any) => {
     // Always navigate to Results for existing projects to avoid regeneration
-    navigation.navigate('Results', {
+    navigation.navigate('results', {
       projectName: project.name,
       roomType: project.roomType,
       selectedStyle: project.style,
@@ -98,7 +98,7 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
 
   const handleCreateProject = () => {
     // For logged-in users, skip Welcome/Demo and go directly to project creation
-    navigation.navigate('ProjectName');
+    navigation.navigate('photoCapture');
   };
 
   const renderProjectCard = (project: any) => {
@@ -132,7 +132,7 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
           <View style={styles.projectHeader}>
             <Text style={styles.projectName}>{project.name}</Text>
             <TouchableOpacity style={styles.projectMenu}>
-              <Ionicons name="chevron-forward" size={20} color="#b8c6db" />
+              <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
             </TouchableOpacity>
           </View>
           
@@ -184,17 +184,14 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={false} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>My Projects</Text>
-          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Profile')}>
-            <Ionicons name="ellipsis-vertical" size={22} color="#4facfe" />
+          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('profile')}>
+            <Ionicons name="ellipsis-vertical" size={22} color="#D4A574" />
           </TouchableOpacity>
         </View>
 
@@ -230,7 +227,7 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
             >
               <View style={styles.newProjectContent}>
                 <View style={styles.newProjectIcon}>
-                  <Ionicons name="add-circle" size={40} color="#4facfe" />
+                  <Ionicons name="add-circle" size={40} color="#D4A574" />
                 </View>
                 <Text style={styles.newProjectText}>Start New Project</Text>
                 <Text style={styles.newProjectSubtext}>
@@ -240,7 +237,7 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -248,10 +245,11 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
   },
   header: {
     flexDirection: 'row',
@@ -264,17 +262,17 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: 'rgba(212, 165, 116, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: 'rgba(212, 165, 116, 0.3)',
   },
   scrollView: {
     flex: 1,
@@ -286,12 +284,12 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#FEFEFE',
     borderRadius: 15,
     padding: 20,
     marginBottom: 30,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
   },
   statItem: {
     alignItems: 'center',
@@ -299,31 +297,31 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#4facfe',
+    color: '#D4A574',
     marginBottom: 5,
   },
   statLabel: {
     fontSize: 12,
-    color: '#b8c6db',
+    color: '#8B7F73',
     fontWeight: '500',
   },
   projectsList: {
     marginBottom: 30,
   },
   projectCard: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#FEFEFE',
     borderRadius: 20,
     marginBottom: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 4,
   },
   projectImage: {
@@ -426,14 +424,14 @@ const styles = StyleSheet.create({
   projectName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   projectMenu: {
     padding: 5,
   },
   projectSubtitle: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginBottom: 15,
   },
   progressContainer: {
@@ -444,26 +442,26 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 6,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#E6DDD1',
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4facfe',
+    backgroundColor: '#D4A574',
     borderRadius: 3,
   },
   progressText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#D4A574',
     minWidth: 35,
   },
   newProjectCard: {
-    backgroundColor: 'rgba(79, 172, 254, 0.05)',
+    backgroundColor: 'rgba(212, 165, 116, 0.05)',
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: 'rgba(79, 172, 254, 0.2)',
+    borderColor: 'rgba(212, 165, 116, 0.2)',
     borderStyle: 'dashed',
     marginBottom: 40,
   },
@@ -478,12 +476,12 @@ const styles = StyleSheet.create({
   newProjectText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#D4A574',
     marginBottom: 8,
   },
   newProjectSubtext: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
   },
 });

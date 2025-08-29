@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'react-native',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.clean.js'],
   testEnvironment: 'jsdom',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   transform: {
@@ -9,6 +9,8 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js)',
     '<rootDir>/src/**/?(*.)(test|spec).(ts|tsx|js)',
+    '<rootDir>/__tests__/**/*.(ts|tsx|js)',
+    '<rootDir>/**/*.?(test|spec).(ts|tsx|js)',
   ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
@@ -28,11 +30,11 @@ module.exports = {
       statements: 90,
     },
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|expo|@expo|react-native-elements|react-native-vector-icons|react-native-gesture-handler|react-native-reanimated)/)',
+    'node_modules/(?!(react-native|@react-native|expo|@expo|react-native-elements|react-native-vector-icons|react-native-gesture-handler|react-native-reanimated|react-native-url-polyfill|@stripe|@supabase|react-native-safe-area-context|@react-navigation)/)',
   ],
 };

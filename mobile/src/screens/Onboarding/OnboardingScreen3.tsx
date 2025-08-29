@@ -14,6 +14,101 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
+// Design tokens for consistent theming
+const tokens = {
+  color: {
+    bgApp: '#FBF9F4',         // Warm beige background
+    bgSurface: '#FEFEFE',     // Soft white for cards
+    accent: '#2D2B28',        // Dark accent
+    accentSoft: '#5A564F',    // Lighter accent for hover states
+    textPrimary: '#2D2B28',   // Warm dark text
+    textSecondary: '#8B7F73', // Warm gray
+    textTertiary: '#B8AFA4',  // Muted warm gray
+    border: '#E6DDD1',        // Warm light border
+    shadow: '#000000',        // Shadow color
+    brand: '#D4A574',         // Brand color
+    brandLight: '#E8C097',    // Light brand color
+    brandDark: '#B8935F',     // Dark brand color
+    success: '#7FB069',       // Warmer green for positive states
+    warning: '#F2CC8F',       // Warm orange for warnings
+    blue: '#7FB069',          // Using warmer blue-green for highlights
+  },
+  typography: {
+    fontFamily: {
+      regular: 'System',
+      medium: 'System',
+      semiBold: 'System',
+      bold: 'System',
+    },
+    fontSize: {
+      xs: 12,
+      sm: 14,
+      base: 16,
+      lg: 18,
+      xl: 20,
+      '2xl': 24,
+      '3xl': 28,
+      '4xl': 32,
+      '5xl': 36,
+    },
+    fontWeight: {
+      regular: '400',
+      medium: '500',
+      semiBold: '600',
+      bold: '700',
+    },
+    lineHeight: {
+      tight: 1.2,
+      normal: 1.4,
+      relaxed: 1.6,
+    },
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    '2xl': 24,
+    '3xl': 32,
+    '4xl': 40,
+    '5xl': 48,
+    '6xl': 64,
+  },
+  borderRadius: {
+    sm: 6,
+    md: 8,
+    lg: 12,
+    xl: 16,
+    '2xl': 20,
+    '3xl': 24,
+    full: 999,
+  },
+  shadow: {
+    sm: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    md: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 4,
+    },
+    lg: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 16,
+      elevation: 8,
+    },
+  },
+};
+
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingScreen3Props {
@@ -48,16 +143,13 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding2')} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} />
           </TouchableOpacity>
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
@@ -92,13 +184,10 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
                 }
               ]}
             >
-              <LinearGradient
-                colors={['#FFD700', '#FFA500']}
-                style={styles.professionalBadge}
-              >
-                <Ionicons name="star" size={24} color="#ffffff" />
+              <View style={styles.professionalBadge}>
+                <Ionicons name="star" size={24} color={tokens.color.brand} />
                 <Text style={styles.badgeText}>Professional Grade</Text>
-              </LinearGradient>
+              </View>
             </Animated.View>
 
             <Text style={styles.title}>Ready for{'\n'}Professional Results?</Text>
@@ -112,7 +201,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="scan-outline" size={28} color="#4facfe" />
+                    <Ionicons name="scan-outline" size={28} color={tokens.color.blue} />
                   </View>
                   <Text style={styles.featureTitle}>Advanced Room Analysis</Text>
                 </View>
@@ -124,7 +213,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="color-palette-outline" size={28} color="#4facfe" />
+                    <Ionicons name="color-palette-outline" size={28} color={tokens.color.blue} />
                   </View>
                   <Text style={styles.featureTitle}>Style Customization</Text>
                 </View>
@@ -136,7 +225,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="storefront-outline" size={28} color="#4facfe" />
+                    <Ionicons name="storefront-outline" size={28} color={tokens.color.blue} />
                   </View>
                   <Text style={styles.featureTitle}>Smart Product Matching</Text>
                 </View>
@@ -148,7 +237,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="calculator-outline" size={28} color="#4facfe" />
+                    <Ionicons name="calculator-outline" size={28} color={tokens.color.blue} />
                   </View>
                   <Text style={styles.featureTitle}>Budget Planning</Text>
                 </View>
@@ -196,16 +285,16 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
           <TouchableOpacity
             style={styles.nextButton}
             onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('paywall')}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
           >
             <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
-              style={styles.buttonGradient}
+              colors={[tokens.color.brandLight, tokens.color.brand]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.buttonGradient}
             >
               <Text style={styles.buttonText}>Get Started</Text>
-              <Ionicons name="camera" size={20} color="#ffffff" />
+              <Ionicons name="camera" size={20} color={tokens.color.textPrimary} />
             </LinearGradient>
           </TouchableOpacity>
           
@@ -213,7 +302,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
             No credit card required • Cancel anytime
           </Text>
         </Animated.View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -221,202 +310,214 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: tokens.color.bgApp,
   },
   gradient: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
+    backgroundColor: tokens.color.bgApp,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingTop: tokens.spacing.md,
+    paddingBottom: tokens.spacing.xl,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: tokens.borderRadius.xl,
+    backgroundColor: tokens.color.bgSurface,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    ...tokens.shadow.sm,
   },
   progressContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: tokens.spacing.xl,
   },
   progressBar: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: tokens.color.border,
     borderRadius: 2,
-    marginBottom: 8,
+    marginBottom: tokens.spacing.sm,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4facfe',
+    backgroundColor: tokens.color.brand,
     borderRadius: 2,
   },
   progressText: {
-    fontSize: 14,
-    color: '#b8c6db',
+    fontSize: tokens.typography.fontSize.sm,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
+    fontWeight: tokens.typography.fontWeight.medium as any,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: 30,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing['3xl'],
+    paddingBottom: tokens.spacing.xl,
   },
   badgeContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: tokens.spacing['3xl'],
   },
   professionalBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    shadowColor: '#FFD700',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingVertical: tokens.spacing.md,
+    borderRadius: tokens.borderRadius['3xl'],
+    backgroundColor: tokens.color.bgSurface,
+    borderWidth: 1,
+    borderColor: `${tokens.color.brand}30`,
+    shadowColor: tokens.color.brand,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   badgeText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginLeft: 8,
+    fontSize: tokens.typography.fontSize.base,
+    fontWeight: tokens.typography.fontWeight.bold as any,
+    color: tokens.color.textPrimary,
+    marginLeft: tokens.spacing.sm,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#ffffff',
+    fontSize: tokens.typography.fontSize['4xl'],
+    fontWeight: tokens.typography.fontWeight.bold as any,
+    color: tokens.color.textPrimary,
     textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 38,
+    marginBottom: tokens.spacing.lg,
+    lineHeight: tokens.typography.fontSize['4xl'] * tokens.typography.lineHeight.tight,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#b8c6db',
+    fontSize: tokens.typography.fontSize.base,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-    paddingHorizontal: 10,
+    marginBottom: tokens.spacing['3xl'],
+    lineHeight: tokens.typography.fontSize.base * tokens.typography.lineHeight.relaxed,
+    paddingHorizontal: tokens.spacing.md,
   },
   featuresContainer: {
-    marginBottom: 32,
+    marginBottom: tokens.spacing['3xl'],
   },
   professionalFeature: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.borderRadius.xl,
+    padding: tokens.spacing.xl,
+    marginBottom: tokens.spacing.lg,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.2)',
+    borderColor: tokens.color.border,
+    ...tokens.shadow.sm,
   },
   featureHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: tokens.spacing.md,
   },
   featureIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(79, 172, 254, 0.15)',
+    borderRadius: tokens.borderRadius['3xl'],
+    backgroundColor: `${tokens.color.blue}15`,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: tokens.spacing.lg,
   },
   featureTitle: {
-    fontSize: 18,
-    color: '#ffffff',
-    fontWeight: '600',
+    fontSize: tokens.typography.fontSize.lg,
+    color: tokens.color.textPrimary,
+    fontWeight: tokens.typography.fontWeight.semiBold as any,
     flex: 1,
   },
   featureDescription: {
-    fontSize: 15,
-    color: '#8892b0',
-    lineHeight: 22,
-    paddingLeft: 64,
+    fontSize: tokens.typography.fontSize.sm,
+    color: tokens.color.textSecondary,
+    lineHeight: tokens.typography.fontSize.sm * tokens.typography.lineHeight.relaxed,
+    paddingLeft: tokens.spacing['6xl'],
   },
   trustContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
+    backgroundColor: tokens.color.bgSurface,
+    borderRadius: tokens.borderRadius.xl,
+    paddingVertical: tokens.spacing.xl,
+    paddingHorizontal: tokens.spacing.md,
+    borderWidth: 1,
+    borderColor: tokens.color.border,
+    ...tokens.shadow.sm,
   },
   trustItem: {
     alignItems: 'center',
   },
   trustNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#4facfe',
-    marginBottom: 4,
+    fontSize: tokens.typography.fontSize['2xl'],
+    fontWeight: tokens.typography.fontWeight.bold as any,
+    color: tokens.color.brand,
+    marginBottom: tokens.spacing.xs,
   },
   trustLabel: {
-    fontSize: 13,
-    color: '#8892b0',
+    fontSize: tokens.typography.fontSize.xs,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
   },
   bottomContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 40,
-    backgroundColor: 'rgba(26, 26, 46, 0.95)',
+    paddingHorizontal: tokens.spacing['3xl'],
+    paddingBottom: tokens.spacing['4xl'],
+    backgroundColor: tokens.color.bgApp,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: tokens.color.border,
   },
   ctaContainer: {
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 24,
+    marginTop: tokens.spacing.xl,
+    marginBottom: tokens.spacing['2xl'],
   },
   ctaTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 8,
+    fontSize: tokens.typography.fontSize.xl,
+    fontWeight: tokens.typography.fontWeight.bold as any,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.sm,
   },
   ctaSubtext: {
-    fontSize: 15,
-    color: '#b8c6db',
+    fontSize: tokens.typography.fontSize.sm,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: tokens.typography.fontSize.sm * tokens.typography.lineHeight.relaxed,
   },
   nextButton: {
-    borderRadius: 25,
+    borderRadius: tokens.borderRadius['3xl'],
     overflow: 'hidden',
-    shadowColor: '#4facfe',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-    marginBottom: 16,
+    marginBottom: tokens.spacing.lg,
+    shadowColor: tokens.color.brand,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing['3xl'],
+    borderRadius: tokens.borderRadius['3xl'],
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginRight: 8,
+    fontSize: tokens.typography.fontSize.lg,
+    fontWeight: tokens.typography.fontWeight.semiBold as any,
+    color: tokens.color.textPrimary,
+    marginRight: tokens.spacing.sm,
   },
   skipText: {
-    fontSize: 14,
-    color: '#8892b0',
+    fontSize: tokens.typography.fontSize.sm,
+    color: tokens.color.textTertiary,
     textAlign: 'center',
   },
 });

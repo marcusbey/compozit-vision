@@ -16,6 +16,75 @@ import { useContentStore } from '../../stores/contentStore';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
+// Design Tokens - Unified Design System
+const tokens = {
+  color: {
+    bgApp: '#FBF9F4',          // Warm beige background
+    bgSecondary: '#F5F1E8',    // Slightly darker warm beige
+    accent: '#2D2B28',         // Warm dark accent
+    textPrimary: '#2D2B28',    // Warm dark text
+    textSecondary: '#8B7F73',  // Warm gray for secondary text
+    textTertiary: '#B8AFA4',   // Muted warm gray for tertiary text
+    border: '#E6DDD1',         // Warm light border
+    surface: '#FEFEFE',        // Soft white for cards
+    success: '#7FB069',        // Green for success states
+    warning: '#F2CC8F',        // Warm amber for warnings
+    brand: '#D4A574',          // Brand color
+    brandLight: '#E8C097',     // Light brand color
+    brandDark: '#B8935F',      // Dark brand color
+    accent20: 'rgba(45, 43, 40, 0.2)',  // 20% accent
+    accent10: 'rgba(45, 43, 40, 0.1)',  // 10% accent
+    accent05: 'rgba(45, 43, 40, 0.05)', // 5% accent
+    scrim: 'rgba(45, 43, 40, 0.45)',    // Warm scrim
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 40,
+  },
+  typography: {
+    h1: { fontSize: 32, fontWeight: '700' as const, lineHeight: 38 },
+    h2: { fontSize: 24, fontWeight: '600' as const, lineHeight: 32 },
+    body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 },
+    bodyLarge: { fontSize: 18, fontWeight: '400' as const, lineHeight: 26 },
+    caption: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
+    small: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    pill: 25,
+  },
+  shadow: {
+    e1: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      elevation: 2,
+    },
+    e2: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    e3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 20,
+      elevation: 8,
+    },
+  },
+};
+
 const { width, height } = Dimensions.get('window');
 
 interface StyleOption {
@@ -78,16 +147,13 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.wrapper}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding1')} style={styles.backButton} testID="back-button">
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} />
           </TouchableOpacity>
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
@@ -116,7 +182,7 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
             {/* Credits Introduction */}
             <View style={styles.creditsIntro}>
               <View style={styles.creditsIcon}>
-                <Ionicons name="star" size={24} color="#FFD700" />
+                <Ionicons name="star" size={24} color={tokens.color.brand} />
               </View>
               <Text style={styles.creditsText}>
                 You get <Text style={styles.creditsHighlight}>3 free designs</Text> to start
@@ -195,21 +261,23 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
         >
           <TouchableOpacity
             style={[
-              styles.nextButton,
+              styles.nextButtonContainer,
               !canContinue && styles.nextButtonDisabled
             ]}
             onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding3')}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
             disabled={!canContinue}
           >
             <LinearGradient
-              colors={canContinue ? ['#4facfe', '#00f2fe'] : ['#666', '#888']}
-              style={styles.buttonGradient}
+              colors={canContinue ? ['#E8C097', '#D4A574'] : ['#B8AFA4', '#B8AFA4']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.nextButton}
             >
-              <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Continue</Text>
+                <Ionicons name="arrow-forward" size={20} color={tokens.color.textPrimary} />
+              </View>
             </LinearGradient>
           </TouchableOpacity>
           
@@ -217,7 +285,7 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
             Don't worry, you can always change your preferences later
           </Text>
         </Animated.View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -225,93 +293,92 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: tokens.color.bgApp,
   },
-  gradient: {
+  wrapper: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
+    paddingTop: tokens.spacing.sm,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingTop: tokens.spacing.md,
+    paddingBottom: tokens.spacing.lg,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: tokens.radius.xl,
+    backgroundColor: tokens.color.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    ...tokens.shadow.e2,
   },
   progressContainer: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: tokens.spacing.lg,
   },
   progressBar: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: tokens.color.border,
     borderRadius: 2,
-    marginBottom: 8,
+    marginBottom: tokens.spacing.sm,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4facfe',
+    backgroundColor: tokens.color.brand,
     borderRadius: 2,
   },
   progressText: {
-    fontSize: 14,
-    color: '#b8c6db',
+    ...tokens.typography.caption,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: 30,
-    paddingBottom: 20,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.lg,
   },
   creditsIntro: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 30,
+    backgroundColor: 'rgba(212, 165, 116, 0.08)',
+    borderRadius: tokens.radius.lg,
+    padding: tokens.spacing.md,
+    marginBottom: tokens.spacing.xl,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.2)',
+    borderColor: 'rgba(212, 165, 116, 0.15)',
+    ...tokens.shadow.e1,
   },
   creditsIcon: {
-    marginRight: 8,
+    marginRight: tokens.spacing.sm,
   },
   creditsText: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '500',
+    ...tokens.typography.body,
+    color: tokens.color.textPrimary,
+    fontWeight: '500' as const,
   },
   creditsHighlight: {
-    color: '#FFD700',
-    fontWeight: '700',
+    color: tokens.color.brand,
+    fontWeight: '700' as const,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#ffffff',
+    ...tokens.typography.h1,
+    color: tokens.color.textPrimary,
     textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 38,
+    marginBottom: tokens.spacing.md,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#b8c6db',
+    ...tokens.typography.body,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-    paddingHorizontal: 10,
+    marginBottom: tokens.spacing.xxl,
+    paddingHorizontal: tokens.spacing.md,
   },
   styleGrid: {
     flexDirection: 'row',
@@ -322,107 +389,116 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
+    paddingVertical: tokens.spacing.xxl,
   },
   loadingText: {
-    fontSize: 16,
-    color: '#8892b0',
+    ...tokens.typography.body,
+    color: tokens.color.textTertiary,
     textAlign: 'center',
   },
   styleOption: {
-    width: (width - 80) / 2,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    width: (width - (tokens.spacing.xl * 2) - tokens.spacing.md) / 2,
+    backgroundColor: tokens.color.surface,
+    borderRadius: tokens.radius.lg,
+    padding: tokens.spacing.lg,
+    marginBottom: tokens.spacing.md,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: tokens.color.border,
     position: 'relative',
+    ...tokens.shadow.e2,
   },
   styleOptionSelected: {
-    borderColor: '#4facfe',
-    backgroundColor: 'rgba(79, 172, 254, 0.15)',
+    borderColor: tokens.color.brand,
+    backgroundColor: 'rgba(212, 165, 116, 0.05)',
   },
   checkmark: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: tokens.spacing.sm,
+    right: tokens.spacing.sm,
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#4facfe',
+    backgroundColor: tokens.color.brand,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
+    ...tokens.shadow.e2,
   },
   styleIconContainer: {
-    marginBottom: 12,
+    marginBottom: tokens.spacing.md,
   },
   styleIcon: {
     fontSize: 32,
   },
   styleName: {
-    fontSize: 16,
-    color: '#ffffff',
-    fontWeight: '600',
-    marginBottom: 4,
+    ...tokens.typography.body,
+    color: tokens.color.textPrimary,
+    fontWeight: '600' as const,
+    marginBottom: tokens.spacing.xs,
     textAlign: 'center',
   },
   styleDescription: {
-    fontSize: 13,
-    color: '#8892b0',
+    ...tokens.typography.small,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
-    lineHeight: 18,
   },
   selectionCounter: {
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 20,
+    marginTop: tokens.spacing.lg,
+    marginBottom: tokens.spacing.lg,
   },
   counterText: {
-    fontSize: 16,
-    color: '#4facfe',
-    fontWeight: '600',
-    marginBottom: 4,
+    ...tokens.typography.body,
+    color: tokens.color.brand,
+    fontWeight: '600' as const,
+    marginBottom: tokens.spacing.xs,
   },
   counterNote: {
-    fontSize: 14,
-    color: '#8892b0',
+    ...tokens.typography.caption,
+    color: tokens.color.textSecondary,
     textAlign: 'center',
   },
   bottomContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 40,
-    backgroundColor: 'rgba(26, 26, 46, 0.95)',
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.xxl,
+    backgroundColor: tokens.color.bgApp,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: tokens.color.border,
+  },
+  nextButtonContainer: {
+    marginBottom: tokens.spacing.md,
+    marginTop: tokens.spacing.lg,
+    shadowColor: tokens.color.brand,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+    borderRadius: 999,
   },
   nextButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    marginBottom: 16,
-    marginTop: 20,
+    borderRadius: 999,
+    height: 54,
   },
   nextButtonDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
-  buttonGradient: {
+  buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    height: 54,
+    paddingHorizontal: tokens.spacing.xl,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginRight: 8,
+    ...tokens.typography.bodyLarge,
+    fontWeight: '600' as const,
+    color: tokens.color.textPrimary,
+    marginRight: tokens.spacing.sm,
   },
   skipText: {
-    fontSize: 14,
-    color: '#8892b0',
+    ...tokens.typography.caption,
+    color: tokens.color.textTertiary,
     textAlign: 'center',
   },
 });

@@ -82,7 +82,7 @@ const CameraScreen = ({ navigation }: any) => {
       Alert.alert(
         'Génération lancée',
         'Votre design est en cours de génération. Vous serez notifié quand il sera prêt.',
-        [{ text: 'OK', onPress: () => navigation.navigate('MyProjects') }]
+        [{ text: 'OK', onPress: () => navigation.navigate('myProjects') }]
       );
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de générer le design');

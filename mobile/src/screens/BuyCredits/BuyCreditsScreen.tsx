@@ -65,11 +65,11 @@ const BuyCreditsScreen: React.FC<BuyCreditsScreenProps> = ({ navigation, route }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      <LinearGradient colors={["#1a1a2e", "#16213e", "#0f3460"]} style={styles.gradient}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" />
+      <View style={styles.gradient}>
         <View style={styles.header}>
           <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Buy credits</Text>
           <View style={{ width: 40 }} />
@@ -95,8 +95,8 @@ const BuyCreditsScreen: React.FC<BuyCreditsScreenProps> = ({ navigation, route }
 
           <View style={styles.actions}>
             <TouchableOpacity style={styles.primaryBtn} onPress={handleOpenStripe} activeOpacity={0.9}>
-              <LinearGradient colors={["#4facfe", "#00f2fe"]} style={styles.primaryGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
-                <Ionicons name="card-outline" size={20} color="#ffffff" />
+              <LinearGradient colors={["#E8C097", "#D4A574"]} style={styles.primaryGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                <Ionicons name="card-outline" size={20} color="#2D2B28" />
                 <Text style={styles.primaryText}>Pay with Stripe (test)</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -110,32 +110,32 @@ const BuyCreditsScreen: React.FC<BuyCreditsScreenProps> = ({ navigation, route }
             Test mode: use Stripe test cards. Replace these placeholder links with your Payment Links.
           </Text>
         </View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e' },
-  gradient: { flex: 1 },
+  container: { flex: 1, backgroundColor: '#FBF9F4' },
+  gradient: { flex: 1, backgroundColor: '#FBF9F4' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 60, paddingBottom: 10 },
-  backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 16, fontWeight: '600', color: '#ffffff', letterSpacing: 1 },
+  backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEFEFE', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
+  headerTitle: { fontSize: 16, fontWeight: '600', color: '#2D2B28', letterSpacing: 1 },
   content: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
-  subtitle: { color: '#ffffff', fontSize: 18, fontWeight: '700', marginBottom: 8 },
-  subtitle2: { color: '#b8c6db', fontSize: 14, marginBottom: 20 },
+  subtitle: { color: '#2D2B28', fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  subtitle2: { color: '#8B7F73', fontSize: 14, marginBottom: 20 },
   packsContainer: { gap: 12 },
-  packCard: { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  packCardSelected: { borderColor: 'rgba(79, 172, 254, 0.8)', backgroundColor: 'rgba(79, 172, 254, 0.08)' },
-  packTitle: { color: '#ffffff', fontSize: 18, fontWeight: '700' },
-  packPrice: { color: '#4facfe', fontSize: 16, fontWeight: '600', marginTop: 6 },
+  packCard: { backgroundColor: '#FEFEFE', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#E6DDD1' },
+  packCardSelected: { borderColor: '#D4A574', backgroundColor: 'rgba(212, 165, 116, 0.08)' },
+  packTitle: { color: '#2D2B28', fontSize: 18, fontWeight: '700' },
+  packPrice: { color: '#D4A574', fontSize: 16, fontWeight: '600', marginTop: 6 },
   actions: { marginTop: 24, gap: 12 },
-  primaryBtn: { borderRadius: 28, overflow: 'hidden' },
+  primaryBtn: { borderRadius: 28, overflow: 'hidden', shadowColor: '#D4A574', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 6 },
   primaryGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, paddingHorizontal: 24 },
-  primaryText: { color: '#ffffff', fontSize: 16, fontWeight: '700', marginLeft: 8 },
-  secondaryBtn: { paddingVertical: 12, alignItems: 'center', borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
-  secondaryText: { color: '#ffffff', fontSize: 15, fontWeight: '600' },
-  note: { color: '#8892b0', fontSize: 12, marginTop: 16 },
+  primaryText: { color: '#2D2B28', fontSize: 16, fontWeight: '700', marginLeft: 8 },
+  secondaryBtn: { paddingVertical: 12, alignItems: 'center', borderRadius: 10, backgroundColor: '#FEFEFE', borderWidth: 1, borderColor: '#E6DDD1' },
+  secondaryText: { color: '#2D2B28', fontSize: 15, fontWeight: '600' },
+  note: { color: '#8B7F73', fontSize: 12, marginTop: 16 },
 });
 
 export default BuyCreditsScreen;

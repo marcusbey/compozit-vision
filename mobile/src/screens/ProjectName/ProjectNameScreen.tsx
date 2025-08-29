@@ -48,20 +48,17 @@ const ProjectNameScreen: React.FC<ProjectNameScreenProps> = ({ navigation }) => 
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={true} />
       
       <KeyboardAvoidingView 
         style={styles.keyboardContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <LinearGradient
-          colors={['#1a1a2e', '#16213e', '#0f3460']}
-          style={styles.gradient}
-        >
+        <View style={styles.gradient}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#ffffff" />
+              <Ionicons name="arrow-back" size={24} color="#2D2B28" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Project Details</Text>
             <View style={styles.placeholder} />
@@ -84,11 +81,11 @@ const ProjectNameScreen: React.FC<ProjectNameScreenProps> = ({ navigation }) => 
                     value={projectName}
                     onChangeText={setProjectName}
                     placeholder="e.g., My Dream Living Room"
-                    placeholderTextColor="#8892b0"
+                    placeholderTextColor="#B8AFA4"
                     maxLength={50}
                   />
                   <View style={styles.inputIcon}>
-                    <Ionicons name="create-outline" size={20} color="#4facfe" />
+                    <Ionicons name="create-outline" size={20} color="#D4A574" />
                   </View>
                 </View>
                 <Text style={styles.characterCount}>
@@ -121,7 +118,7 @@ const ProjectNameScreen: React.FC<ProjectNameScreenProps> = ({ navigation }) => 
                         <Ionicons 
                           name={room.icon as any} 
                           size={24} 
-                          color={roomType === room.id ? '#ffffff' : '#4facfe'} 
+                          color={roomType === room.id ? '#FEFEFE' : '#2D2B28'} 
                         />
                       </View>
                       <Text style={[
@@ -149,17 +146,17 @@ const ProjectNameScreen: React.FC<ProjectNameScreenProps> = ({ navigation }) => 
               disabled={!isFormValid}
             >
               <LinearGradient
-                colors={isFormValid ? ['#4facfe', '#00f2fe'] : ['#666', '#888']}
+                colors={isFormValid ? ['#E8C097', '#D4A574'] : ['#B8AFA4', '#8B7F73']}
                 style={styles.buttonGradient}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
                 <Text style={styles.buttonText}>Continue</Text>
-                <Ionicons name="arrow-forward" size={20} color="#ffffff" style={styles.buttonIcon} />
+                <Ionicons name="arrow-forward" size={20} color="#2D2B28" style={styles.buttonIcon} />
               </LinearGradient>
             </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -168,13 +165,14 @@ const ProjectNameScreen: React.FC<ProjectNameScreenProps> = ({ navigation }) => 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   keyboardContainer: {
     flex: 1,
   },
   gradient: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
     paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
@@ -189,14 +187,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   placeholder: {
     width: 40,
@@ -211,13 +216,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 22,
@@ -228,23 +233,28 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
     paddingHorizontal: 20,
     paddingVertical: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   textInput: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: '#2D2B28',
     fontWeight: '500',
   },
   inputIcon: {
@@ -252,7 +262,7 @@ const styles = StyleSheet.create({
   },
   characterCount: {
     fontSize: 12,
-    color: '#8892b0',
+    color: '#B8AFA4',
     textAlign: 'right',
     marginTop: 8,
   },
@@ -261,7 +271,7 @@ const styles = StyleSheet.create({
   },
   roomSubtitle: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -272,23 +282,29 @@ const styles = StyleSheet.create({
   },
   roomCard: {
     width: '48%',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
     padding: 20,
     marginBottom: 15,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   roomCardSelected: {
-    backgroundColor: 'rgba(79, 172, 254, 0.2)',
-    borderColor: '#4facfe',
-    shadowColor: '#4facfe',
+    backgroundColor: '#F5F1E8',
+    borderColor: '#D4A574',
+    borderWidth: 2,
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -296,25 +312,26 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: '#E8C097',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#D4C7B5',
   },
   roomIconContainerSelected: {
-    backgroundColor: '#4facfe',
-    borderColor: '#4facfe',
+    backgroundColor: '#D4A574',
+    borderColor: '#D4A574',
   },
   roomName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
   },
   roomNameSelected: {
-    color: '#ffffff',
+    color: '#2D2B28',
+    fontWeight: '700',
   },
   buttonContainer: {
     paddingHorizontal: 30,
@@ -322,16 +339,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   continueButton: {
-    borderRadius: 30,
+    borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   continueButtonDisabled: {
     shadowOpacity: 0,
@@ -347,7 +364,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
   },
   buttonIcon: {

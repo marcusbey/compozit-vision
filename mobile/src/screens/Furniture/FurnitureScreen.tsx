@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -54,177 +54,223 @@ const FurnitureScreen: React.FC<FurnitureScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.fullScreen}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="light" />
-        
-        {/* Progress Bar */}
-        <JourneyProgressBar />
-        
-        <View style={styles.screenHeader}>
-          <TouchableOpacity onPress={goBack} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      
+      {/* Progress Bar */}
+      <JourneyProgressBar />
+      
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={goBack} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color="#2D2B28" />
+        </TouchableOpacity>
+        <View style={styles.titleContainer}>
+          <Text style={styles.stepIndicator}>STEP 3 OF 5</Text>
           <Text style={styles.screenTitle}>Furniture Preferences</Text>
         </View>
+      </View>
+      
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.subtitle}>Select furniture styles you love (optional)</Text>
         
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>Select furniture styles you love (optional)</Text>
-          
-          <View style={styles.furnitureGrid}>
-            {furnitureOptions.map((furniture) => (
-              <TouchableOpacity 
-                key={furniture.id}
-                style={[
-                  styles.furnitureOption,
-                  selectedFurniture.includes(furniture.id) && styles.furnitureOptionSelected
-                ]}
-                onPress={() => handleFurnitureToggle(furniture.id)}
-              >
-                {selectedFurniture.includes(furniture.id) && (
-                  <View style={styles.furnitureCheckmark}>
-                    <Ionicons name="checkmark" size={16} color="#ffffff" />
-                  </View>
-                )}
-                <Text style={styles.furnitureEmoji}>{furniture.emoji}</Text>
-                <Text style={styles.furnitureText}>{furniture.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          
-          <View style={styles.selectionSummary}>
-            <Text style={styles.selectionText}>
-              {selectedFurniture.length > 0 
-                ? `${selectedFurniture.length} furniture types selected`
-                : 'No furniture selected (we\'ll suggest everything)'
-              }
-            </Text>
-          </View>
-          
-          <TouchableOpacity style={styles.primaryButton} onPress={handleContinue}>
-            <Text style={styles.primaryButtonText}>Continue</Text>
-          </TouchableOpacity>
+        <View style={styles.furnitureGrid}>
+          {furnitureOptions.map((furniture) => (
+            <TouchableOpacity 
+              key={furniture.id}
+              style={[
+                styles.furnitureOption,
+                selectedFurniture.includes(furniture.id) && styles.furnitureOptionSelected
+              ]}
+              onPress={() => handleFurnitureToggle(furniture.id)}
+              activeOpacity={0.7}
+            >
+              {selectedFurniture.includes(furniture.id) && (
+                <View style={styles.furnitureCheckmark}>
+                  <Ionicons name="checkmark" size={16} color="#FEFEFE" />
+                </View>
+              )}
+              <Text style={styles.furnitureEmoji}>{furniture.emoji}</Text>
+              <Text style={[
+                styles.furnitureText,
+                selectedFurniture.includes(furniture.id) && styles.furnitureTextSelected
+              ]}>{furniture.name}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+        
+        <View style={styles.selectionSummary}>
+          <Text style={styles.selectionText}>
+            {selectedFurniture.length > 0 
+              ? `${selectedFurniture.length} furniture types selected`
+              : 'No furniture selected (we\'ll suggest everything)'
+            }
+          </Text>
+        </View>
+        
+        <TouchableOpacity onPress={handleContinue} activeOpacity={0.9}>
+          <LinearGradient
+            colors={['#E8C097', '#D4A574']}
+            style={styles.primaryButton}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Text style={styles.primaryButtonText}>Continue</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
   container: {
     flex: 1,
+    backgroundColor: '#FBF9F4', // warm beige background
   },
   screenHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 20,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
   backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FEFEFE', // soft white
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  titleContainer: {
+    marginTop: 20,
+  },
+  stepIndicator: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#D4A574', // brand color
+    letterSpacing: 1,
+    marginBottom: 8,
   },
   screenTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#ffffff',
-    textAlign: 'center',
-    flex: 1,
-    marginRight: 56,
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#2D2B28', // warm dark text
+    lineHeight: 36,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    paddingHorizontal: 30,
-    paddingTop: 20,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
   },
   subtitle: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73', // warm gray
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 32,
     lineHeight: 24,
   },
   furnitureGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 30,
+    marginBottom: 32,
   },
   furnitureOption: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FEFEFE', // soft white
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
-    width: '30%',
+    width: '31%',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E6DDD1', // warm light border
     position: 'relative',
-    minHeight: 100,
+    minHeight: 110,
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   furnitureOptionSelected: {
-    backgroundColor: 'rgba(79, 172, 254, 0.15)',
-    borderColor: '#4facfe',
+    backgroundColor: '#FEFEFE',
+    borderColor: '#D4A574', // brand color
     borderWidth: 2,
+    shadowColor: '#D4A574',
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   furnitureCheckmark: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#4facfe',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#D4A574', // brand color
     justifyContent: 'center',
     alignItems: 'center',
   },
   furnitureEmoji: {
-    fontSize: 32,
+    fontSize: 36,
     marginBottom: 8,
   },
   furnitureText: {
     fontSize: 14,
-    color: '#ffffff',
+    color: '#8B7F73', // warm gray
     fontWeight: '500',
     textAlign: 'center',
+  },
+  furnitureTextSelected: {
+    color: '#2D2B28', // warm dark text when selected
+    fontWeight: '600',
   },
   selectionSummary: {
     alignItems: 'center',
-    marginBottom: 24,
-    padding: 16,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
-    borderRadius: 12,
+    marginBottom: 32,
+    padding: 20,
+    backgroundColor: '#F5F1E8', // bgSecondary
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.2)',
+    borderColor: '#E6DDD1', // warm light border
   },
   selectionText: {
-    fontSize: 14,
-    color: '#4facfe',
+    fontSize: 15,
+    color: '#D4A574', // brand color
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   primaryButton: {
-    backgroundColor: '#4facfe',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 999,
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+    shadowColor: '#D4A574',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   primaryButtonText: {
-    color: '#ffffff',
+    color: '#2D2B28', // warm dark text
     fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });
 

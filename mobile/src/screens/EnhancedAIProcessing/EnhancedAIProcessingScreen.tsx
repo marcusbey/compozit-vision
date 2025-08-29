@@ -344,7 +344,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
       announceForAccessibility('Design generation complete!');
 
       // Navigate to results
-      navigation.navigate('Results', {
+      navigation.navigate('results', {
         designId: result.designId,
         enhancedImageUrl: result.enhancedImageUrl,
         originalImageUri: imageUri,

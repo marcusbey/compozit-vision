@@ -88,8 +88,8 @@ export interface SwipeGesture {
   isValidSwipe: boolean;
 }
 
-// Room types enum
-export enum RoomType {
+// Room types enum for furniture context
+export enum FurnitureRoomType {
   LIVING_ROOM = 'living_room',
   BEDROOM = 'bedroom',
   DINING_ROOM = 'dining_room',

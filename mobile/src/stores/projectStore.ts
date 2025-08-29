@@ -96,7 +96,33 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   fetchProjects: async () => {
     set({ isLoading: true, error: null });
     try {
-      // Get current user
+      // Get current user from userStore (which handles both real and mock users)
+      const { useUserStore } = await import('./userStore');
+      const currentUser = useUserStore.getState().user;
+      
+      if (!currentUser) {
+        set({ error: 'Utilisateur non connecté', isLoading: false });
+        return;
+      }
+
+      // For development mode with mock users, load from AsyncStorage only
+      if (__DEV__ && currentUser.id.includes('dev-user')) {
+        console.log('🚀 Development mode: Loading projects from local storage');
+        
+        const storedProjects = await AsyncStorage.getItem('projects');
+        let projects: Project[] = [];
+        
+        if (storedProjects) {
+          const allProjects = JSON.parse(storedProjects);
+          projects = allProjects.filter((p: Project) => p.userId === currentUser.id);
+        }
+        
+        set({ projects, isLoading: false });
+        console.log('✅ Development projects loaded from local storage:', projects.length);
+        return;
+      }
+
+      // Production mode - fetch from Supabase
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
         set({ error: 'Utilisateur non connecté', isLoading: false });
@@ -157,14 +183,52 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   createProject: async (name: string, description?: string) => {
     set({ isLoading: true, error: null });
     try {
-      // Get current user
+      // Get current user from userStore (which handles both real and mock users)
+      const { useUserStore } = await import('./userStore');
+      const currentUser = useUserStore.getState().user;
+      
+      if (!currentUser) {
+        set({ error: 'Utilisateur non connecté', isLoading: false });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const projectId = `project-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // For development mode with mock users, store locally
+      if (__DEV__ && currentUser.id.includes('dev-user')) {
+        console.log('🚀 Development mode: Creating project locally');
+        
+        const newProject: Project = {
+          id: projectId,
+          userId: currentUser.id,
+          name: name.trim(),
+          description: description?.trim() || '',
+          status: 'draft' as const,
+          metadata: {},
+          createdAt: now,
+          updatedAt: now,
+        };
+
+        // Update AsyncStorage
+        const storedProjects = await AsyncStorage.getItem('projects');
+        const existingProjects = storedProjects ? JSON.parse(storedProjects) : [];
+        const updatedProjects = [...existingProjects, newProject];
+        await AsyncStorage.setItem('projects', JSON.stringify(updatedProjects));
+        
+        get().addProject(newProject);
+        set({ isLoading: false });
+        console.log('✅ Development project created locally:', newProject.name);
+        return;
+      }
+
+      // Production mode - use real Supabase
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
         set({ error: 'Utilisateur non connecté', isLoading: false });
         return;
       }
 
-      const now = new Date().toISOString();
       const projectData = {
         user_id: user.id,
         name: name.trim(),

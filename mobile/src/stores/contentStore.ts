@@ -1,386 +1,850 @@
-/**
- * Content Store - Database-driven content management
- * Manages all app content from Supabase database
- * Replaces hardcoded data throughout the application
- */
-
 import { create } from 'zustand';
-import DatabaseService, { 
-  type StyleCategory, 
-  type StyleReferenceImage,
-  type FurnitureCategory,
-  type FurnitureStyleVariation,
-  type SubscriptionPlan,
-  type BudgetRange,
-} from '../services/database';
+import { supabase } from '../services/supabase';
+import { referenceImageService, ReferenceImage as ReferenceImageType } from '../services/referenceImageService';
+import { colorExtractionService, ColorPalette as ColorPaletteType, DominantColors } from '../services/colorExtractionService';
 
-export interface ContentState {
-  // Styles
-  styles: StyleCategory[];
-  styleImages: Record<string, StyleReferenceImage[]>; // keyed by style_id
-  loadingStyles: boolean;
-  stylesLastLoaded: Date | null;
-
-  // Furniture
-  furniture: FurnitureCategory[];
-  furnitureVariations: Record<string, FurnitureStyleVariation[]>; // keyed by category_id
-  loadingFurniture: boolean;
-  furnitureLastLoaded: Date | null;
-
-  // Subscription Plans
-  subscriptionPlans: SubscriptionPlan[];
-  loadingPlans: boolean;
-  plansLastLoaded: Date | null;
-
-  // Budget Ranges
-  budgetRanges: BudgetRange[];
-  loadingBudgets: boolean;
-  budgetsLastLoaded: Date | null;
-
-  // General loading state
-  isInitialized: boolean;
-  initializing: boolean;
-  lastRefresh: Date | null;
-
-  // Actions
-  loadStyles: (forceRefresh?: boolean) => Promise<void>;
-  loadStyleImages: (styleId: string, forceRefresh?: boolean) => Promise<StyleReferenceImage[]>;
-  loadFurniture: (forceRefresh?: boolean) => Promise<void>;
-  loadFurnitureVariations: (categoryId: string, forceRefresh?: boolean) => Promise<FurnitureStyleVariation[]>;
-  loadSubscriptionPlans: (forceRefresh?: boolean) => Promise<void>;
-  loadBudgetRanges: (forceRefresh?: boolean) => Promise<void>;
-  initializeAllContent: () => Promise<void>;
-  refreshAllContent: () => Promise<void>;
-
-  // Getters
-  getStyleById: (styleId: string) => StyleCategory | undefined;
-  getFurnitureById: (furnitureId: string) => FurnitureCategory | undefined;
-  getPlanById: (planId: string) => SubscriptionPlan | undefined;
-  getBudgetById: (budgetId: string) => BudgetRange | undefined;
-  
-  // Popular/Featured content
-  getFeaturedStyles: () => StyleCategory[];
-  getPopularPlans: () => SubscriptionPlan[];
-  getFeaturedFurniture: () => FurnitureCategory[];
+// Type definitions based on database structure
+export interface Category {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+  icon_name: string;
+  sort_order: number;
+  is_active: boolean;
 }
 
+export interface Room {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+  category_id: string;
+  icon_name: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface DesignStyle {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+  mood_tags: string[];
+  color_palette: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  illustration_url?: string;
+  is_popular: boolean;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface ReferenceImage {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  thumbnail_url?: string;
+  style_id?: string;
+  room_id?: string;
+  tags: string[];
+  color_palette?: any;
+  is_featured: boolean;
+  likes_count: number;
+  sort_order: number;
+  is_active: boolean;
+}
+
+// Re-export from services for backward compatibility
+export type ColorPalette = ColorPaletteType;
+export type UserReferenceImage = ReferenceImageType;
+export type ExtractedColors = DominantColors;
+
+// Legacy interface for existing reference images
+export interface ColorPaletteOld {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+  colors: {
+    colors: string[];
+  };
+  style_id?: string;
+  preview_image_url?: string;
+  is_trending: boolean;
+  usage_count: number;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export interface ExamplePhoto {
+  id: string;
+  category_id: string;
+  room_id?: string;
+  image_url: string;
+  thumbnail_url?: string;
+  title: string;
+  description: string;
+}
+
+// Store interface
+export interface ContentState {
+  // Data
+  categories: Category[];
+  rooms: Room[];
+  styles: DesignStyle[];
+  referenceImages: ReferenceImage[];
+  colorPalettes: ColorPaletteOld[];
+  examplePhotos: ExamplePhoto[];
+  
+  // Enhanced user content with new services
+  userReferences: UserReferenceImage[]; // User's uploaded reference images
+  userPalettes: ColorPalette[]; // User's saved/extracted color palettes
+  selectedReferences: string[]; // IDs of selected references for current project
+  selectedPalettes: string[]; // IDs of selected palettes for current project
+  
+  // Upload and processing state
+  uploadProgress: {
+    isUploading: boolean;
+    progress: number;
+    stage: string;
+    message: string;
+  };
+  
+  // Color extraction state
+  colorExtraction: {
+    isExtracting: boolean;
+    extractedColors?: DominantColors;
+  };
+  
+  // Loading states
+  loading: {
+    categories: boolean;
+    rooms: boolean;
+    styles: boolean;
+    references: boolean;
+    palettes: boolean;
+    examplePhotos: boolean;
+    userReferences: boolean;
+    userPalettes: boolean;
+  };
+  
+  // Error states
+  errors: {
+    categories: string | null;
+    rooms: string | null;
+    styles: string | null;
+    references: string | null;
+    palettes: string | null;
+    examplePhotos: string | null;
+    userReferences: string | null;
+    userPalettes: string | null;
+  };
+  
+  // Actions
+  loadCategories: () => Promise<void>;
+  loadRooms: (categoryId?: string) => Promise<void>;
+  loadStyles: () => Promise<void>;
+  loadReferenceImages: (filters?: { styleId?: string; roomId?: string; featured?: boolean }) => Promise<void>;
+  loadColorPalettes: (styleId?: string) => Promise<void>;
+  loadExamplePhotos: (categoryId?: string, roomId?: string) => Promise<void>;
+  
+  // Enhanced user actions with new services
+  // Reference management
+  uploadReferenceImage: (imageUri: string, metadata?: { title?: string; description?: string; tags?: string[] }) => Promise<UserReferenceImage>;
+  loadUserReferences: () => Promise<void>;
+  deleteUserReference: (referenceId: string) => Promise<void>;
+  toggleReferenceSelection: (referenceId: string) => void;
+  toggleReferenceFavorite: (referenceId: string) => Promise<void>;
+  
+  // Color palette management
+  extractColorsFromImage: (imageUri: string) => Promise<DominantColors>;
+  createColorPalette: (name: string, colors: DominantColors, options?: { description?: string; sourceReferenceId?: string }) => Promise<ColorPalette>;
+  loadUserPalettes: () => Promise<void>;
+  deletePalette: (paletteId: string) => Promise<void>;
+  togglePaletteSelection: (paletteId: string) => void;
+  togglePaletteFavorite: (paletteId: string) => Promise<void>;
+  
+  // Legacy methods (deprecated but maintained for compatibility)
+  saveUserReference: (imageUrl: string, projectContext: { styleId?: string; roomId?: string }) => Promise<void>;
+  saveUserPalette: (colors: string[], name: string) => Promise<void>;
+  extractPaletteFromImage: (imageUrl: string) => Promise<string[]>;
+  toggleFavoriteReference: (referenceId: string) => Promise<void>;
+  getUserFavoriteReferences: () => ReferenceImage[];
+  
+  // Utility functions
+  getCategoryById: (id: string) => Category | undefined;
+  getRoomById: (id: string) => Room | undefined;
+  getStyleById: (id: string) => DesignStyle | undefined;
+  getPopularStyles: () => DesignStyle[];
+  getFeaturedReferences: () => ReferenceImage[];
+  getTrendingPalettes: () => ColorPalette[];
+  getFilteredReferences: (roomId?: string, styleId?: string) => ReferenceImage[];
+}
+
+// Create the content store
 export const useContentStore = create<ContentState>((set, get) => ({
   // Initial state
+  categories: [],
+  rooms: [],
   styles: [],
-  styleImages: {},
-  loadingStyles: false,
-  stylesLastLoaded: null,
-
-  furniture: [],
-  furnitureVariations: {},
-  loadingFurniture: false,
-  furnitureLastLoaded: null,
-
-  subscriptionPlans: [],
-  loadingPlans: false,
-  plansLastLoaded: null,
-
-  budgetRanges: [],
-  loadingBudgets: false,
-  budgetsLastLoaded: null,
-
-  isInitialized: false,
-  initializing: false,
-  lastRefresh: null,
-
-  // ===== STYLE ACTIONS =====
-
-  loadStyles: async (forceRefresh = false) => {
-    const { stylesLastLoaded, loadingStyles } = get();
+  referenceImages: [],
+  colorPalettes: [],
+  examplePhotos: [],
+  
+  // Enhanced user content
+  userReferences: [],
+  userPalettes: [],
+  selectedReferences: [],
+  selectedPalettes: [],
+  
+  // Upload and processing state
+  uploadProgress: {
+    isUploading: false,
+    progress: 0,
+    stage: 'idle',
+    message: ''
+  },
+  
+  colorExtraction: {
+    isExtracting: false,
+    extractedColors: undefined
+  },
+  
+  loading: {
+    categories: false,
+    rooms: false,
+    styles: false,
+    references: false,
+    palettes: false,
+    examplePhotos: false,
+    userReferences: false,
+    userPalettes: false,
+  },
+  
+  errors: {
+    categories: null,
+    rooms: null,
+    styles: null,
+    references: null,
+    palettes: null,
+    examplePhotos: null,
+    userReferences: null,
+    userPalettes: null,
+  },
+  
+  // Load categories
+  loadCategories: async () => {
+    set((state) => ({
+      loading: { ...state.loading, categories: true },
+      errors: { ...state.errors, categories: null },
+    }));
     
-    // Avoid duplicate loads
-    if (loadingStyles) return;
-    
-    // Check if refresh needed
-    if (!forceRefresh && stylesLastLoaded && !DatabaseService.shouldRefreshCache(stylesLastLoaded)) {
-      console.log('🎨 Using cached styles');
-      return;
-    }
-
     try {
-      set({ loadingStyles: true });
-      console.log('🔄 Loading style categories from database...');
-
-      const styles = await DatabaseService.getStyleCategories();
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
       
-      set({ 
-        styles,
-        stylesLastLoaded: new Date(),
-        loadingStyles: false
+      if (error) throw error;
+      
+      set({
+        categories: data || [],
+        loading: { ...get().loading, categories: false },
       });
-
-      console.log(`✅ Loaded ${styles.length} style categories`);
       
-    } catch (error) {
-      console.error('❌ Failed to load styles:', error);
-      set({ loadingStyles: false });
-      throw error;
+      console.log('📂 Categories loaded:', data?.length || 0);
+    } catch (error: any) {
+      console.error('Error loading categories:', error);
+      set((state) => ({
+        loading: { ...state.loading, categories: false },
+        errors: { ...state.errors, categories: error.message },
+      }));
     }
   },
-
-  loadStyleImages: async (styleId, forceRefresh = false) => {
-    const { styleImages } = get();
+  
+  // Load rooms filtered by category
+  loadRooms: async (categoryId?: string) => {
+    set((state) => ({
+      loading: { ...state.loading, rooms: true },
+      errors: { ...state.errors, rooms: null },
+    }));
     
-    // Check cache first
-    if (!forceRefresh && styleImages[styleId]) {
-      console.log('🖼️ Using cached style images for:', styleId);
-      return styleImages[styleId];
-    }
-
     try {
-      console.log('🔄 Loading style reference images for:', styleId);
+      let query = supabase
+        .from('rooms')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
       
-      const images = await DatabaseService.getStyleReferenceImages(styleId);
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
+      }
       
-      set({ 
-        styleImages: {
-          ...get().styleImages,
-          [styleId]: images
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      set({
+        rooms: data || [],
+        loading: { ...get().loading, rooms: false },
+      });
+      
+      console.log('🏠 Rooms loaded:', data?.length || 0, categoryId ? `for category ${categoryId}` : '');
+    } catch (error: any) {
+      console.error('Error loading rooms:', error);
+      set((state) => ({
+        loading: { ...state.loading, rooms: false },
+        errors: { ...state.errors, rooms: error.message },
+      }));
+    }
+  },
+  
+  // Load design styles
+  loadStyles: async () => {
+    set((state) => ({
+      loading: { ...state.loading, styles: true },
+      errors: { ...state.errors, styles: null },
+    }));
+    
+    try {
+      const { data, error } = await supabase
+        .from('design_styles')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_popular', { ascending: false })
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      
+      set({
+        styles: data || [],
+        loading: { ...get().loading, styles: false },
+      });
+      
+      console.log('🎨 Styles loaded:', data?.length || 0);
+    } catch (error: any) {
+      console.error('Error loading styles:', error);
+      set((state) => ({
+        loading: { ...state.loading, styles: false },
+        errors: { ...state.errors, styles: error.message },
+      }));
+    }
+  },
+  
+  // Load reference images filtered by style and room
+  loadReferenceImages: async (filters?: { styleId?: string; roomId?: string; featured?: boolean }) => {
+    set((state) => ({
+      loading: { ...state.loading, references: true },
+      errors: { ...state.errors, references: null },
+    }));
+    
+    try {
+      let query = supabase
+        .from('reference_images')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_featured', { ascending: false })
+        .order('likes_count', { ascending: false })
+        .order('sort_order', { ascending: true })
+        .limit(50);
+      
+      if (filters?.styleId) {
+        query = query.eq('style_id', filters.styleId);
+      }
+      if (filters?.roomId) {
+        query = query.eq('room_id', filters.roomId);
+      }
+      if (filters?.featured !== undefined) {
+        query = query.eq('is_featured', filters.featured);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      set({
+        referenceImages: data || [],
+        loading: { ...get().loading, references: false },
+      });
+      
+      console.log('🖼️ References loaded:', data?.length || 0);
+    } catch (error: any) {
+      console.error('Error loading reference images:', error);
+      set((state) => ({
+        loading: { ...state.loading, references: false },
+        errors: { ...state.errors, references: error.message },
+      }));
+    }
+  },
+  
+  // Load color palettes
+  loadColorPalettes: async (styleId?: string) => {
+    set((state) => ({
+      loading: { ...state.loading, palettes: true },
+      errors: { ...state.errors, palettes: null },
+    }));
+    
+    try {
+      let query = supabase
+        .from('color_palettes')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_trending', { ascending: false })
+        .order('usage_count', { ascending: false })
+        .order('sort_order', { ascending: true });
+      
+      if (styleId) {
+        query = query.eq('style_id', styleId);
+      }
+      
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      set({
+        colorPalettes: data || [],
+        loading: { ...get().loading, palettes: false },
+      });
+      
+      console.log('🎨 Palettes loaded:', data?.length || 0);
+    } catch (error: any) {
+      console.error('Error loading color palettes:', error);
+      set((state) => ({
+        loading: { ...state.loading, palettes: false },
+        errors: { ...state.errors, palettes: error.message },
+      }));
+    }
+  },
+  
+  // Load example photos for trying the app
+  loadExamplePhotos: async (categoryId?: string, roomId?: string) => {
+    set((state) => ({
+      loading: { ...state.loading, examplePhotos: true },
+      errors: { ...state.errors, examplePhotos: null },
+    }));
+    
+    try {
+      // For now, using mock data - this would come from a dedicated table
+      const mockExamples: ExamplePhoto[] = [
+        {
+          id: '1',
+          category_id: categoryId || 'interior',
+          room_id: roomId,
+          image_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500',
+          thumbnail_url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300',
+          title: 'Empty Living Space',
+          description: 'Try designing this empty living room'
+        },
+        {
+          id: '2',
+          category_id: categoryId || 'interior',
+          room_id: roomId,
+          image_url: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=500',
+          thumbnail_url: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=300',
+          title: 'Blank Bedroom',
+          description: 'Transform this blank bedroom'
         }
-      });
-
-      console.log(`✅ Loaded ${images.length} reference images for style ${styleId}`);
-      return images;
+      ];
       
-    } catch (error) {
-      console.error('❌ Failed to load style images:', error);
-      throw error;
+      set({
+        examplePhotos: mockExamples,
+        loading: { ...get().loading, examplePhotos: false },
+      });
+    } catch (error: any) {
+      console.error('Error loading example photos:', error);
+      set((state) => ({
+        loading: { ...state.loading, examplePhotos: false },
+        errors: { ...state.errors, examplePhotos: error.message },
+      }));
     }
   },
-
-  // ===== FURNITURE ACTIONS =====
-
-  loadFurniture: async (forceRefresh = false) => {
-    const { furnitureLastLoaded, loadingFurniture } = get();
-    
-    if (loadingFurniture) return;
-    
-    if (!forceRefresh && furnitureLastLoaded && !DatabaseService.shouldRefreshCache(furnitureLastLoaded)) {
-      console.log('🪑 Using cached furniture');
-      return;
-    }
-
+  
+  // Enhanced reference management
+  uploadReferenceImage: async (imageUri: string, metadata = {}) => {
     try {
-      set({ loadingFurniture: true });
-      console.log('🔄 Loading furniture categories from database...');
-
-      const furniture = await DatabaseService.getFurnitureCategories();
+      set((state) => ({
+        uploadProgress: {
+          ...state.uploadProgress,
+          isUploading: true,
+          progress: 0,
+          stage: 'preparing',
+          message: 'Preparing upload...'
+        },
+        errors: { ...state.errors, userReferences: null }
+      }));
       
-      set({ 
-        furniture,
-        furnitureLastLoaded: new Date(),
-        loadingFurniture: false
-      });
-
-      console.log(`✅ Loaded ${furniture.length} furniture categories`);
-      
-    } catch (error) {
-      console.error('❌ Failed to load furniture:', error);
-      set({ loadingFurniture: false });
-      throw error;
-    }
-  },
-
-  loadFurnitureVariations: async (categoryId, forceRefresh = false) => {
-    const { furnitureVariations } = get();
-    
-    // Check cache first
-    if (!forceRefresh && furnitureVariations[categoryId]) {
-      console.log('🔄 Using cached furniture variations for:', categoryId);
-      return furnitureVariations[categoryId];
-    }
-
-    try {
-      console.log('🔄 Loading furniture variations for:', categoryId);
-      
-      const variations = await DatabaseService.getFurnitureStyleVariations(categoryId);
-      
-      set({ 
-        furnitureVariations: {
-          ...get().furnitureVariations,
-          [categoryId]: variations
+      const uploadedImage = await referenceImageService.uploadReferenceImage(
+        imageUri,
+        {
+          createThumbnail: true,
+          metadata: {
+            title: metadata.title || 'Reference Image',
+            description: metadata.description,
+            tags: metadata.tags || []
+          }
+        },
+        (progress) => {
+          set((state) => ({
+            uploadProgress: {
+              ...state.uploadProgress,
+              progress: progress.percentage,
+              stage: progress.stage,
+              message: progress.message
+            }
+          }));
         }
-      });
-
-      console.log(`✅ Loaded ${variations.length} variations for furniture ${categoryId}`);
-      return variations;
+      );
       
-    } catch (error) {
-      console.error('❌ Failed to load furniture variations:', error);
+      set((state) => ({
+        userReferences: [...state.userReferences, uploadedImage],
+        uploadProgress: {
+          isUploading: false,
+          progress: 100,
+          stage: 'complete',
+          message: 'Upload complete!'
+        }
+      }));
+      
+      console.log('📷 Reference image uploaded successfully');
+      return uploadedImage;
+      
+    } catch (error: any) {
+      console.error('Error uploading reference image:', error);
+      set((state) => ({
+        uploadProgress: {
+          isUploading: false,
+          progress: 0,
+          stage: 'error',
+          message: error.message || 'Upload failed'
+        },
+        errors: { ...state.errors, userReferences: error.message }
+      }));
       throw error;
     }
   },
-
-  // ===== SUBSCRIPTION ACTIONS =====
-
-  loadSubscriptionPlans: async (forceRefresh = false) => {
-    const { plansLastLoaded, loadingPlans } = get();
-    
-    if (loadingPlans) return;
-    
-    if (!forceRefresh && plansLastLoaded && !DatabaseService.shouldRefreshCache(plansLastLoaded)) {
-      console.log('💳 Using cached subscription plans');
-      return;
-    }
-
-    try {
-      set({ loadingPlans: true });
-      console.log('🔄 Loading subscription plans from database...');
-
-      const plans = await DatabaseService.getSubscriptionPlans();
-      
-      set({ 
-        subscriptionPlans: plans,
-        plansLastLoaded: new Date(),
-        loadingPlans: false
-      });
-
-      console.log(`✅ Loaded ${plans.length} subscription plans`);
-      
-    } catch (error) {
-      console.error('❌ Failed to load subscription plans:', error);
-      set({ loadingPlans: false });
-      throw error;
-    }
-  },
-
-  // ===== BUDGET ACTIONS =====
-
-  loadBudgetRanges: async (forceRefresh = false) => {
-    const { budgetsLastLoaded, loadingBudgets } = get();
-    
-    if (loadingBudgets) return;
-    
-    if (!forceRefresh && budgetsLastLoaded && !DatabaseService.shouldRefreshCache(budgetsLastLoaded)) {
-      console.log('💰 Using cached budget ranges');
-      return;
-    }
-
-    try {
-      set({ loadingBudgets: true });
-      console.log('🔄 Loading budget ranges from database...');
-
-      const budgets = await DatabaseService.getBudgetRanges();
-      
-      set({ 
-        budgetRanges: budgets,
-        budgetsLastLoaded: new Date(),
-        loadingBudgets: false
-      });
-
-      console.log(`✅ Loaded ${budgets.length} budget ranges`);
-      
-    } catch (error) {
-      console.error('❌ Failed to load budget ranges:', error);
-      set({ loadingBudgets: false });
-      throw error;
-    }
-  },
-
-  // ===== INITIALIZATION =====
-
-  initializeAllContent: async () => {
-    const { initializing, isInitialized } = get();
-    
-    if (initializing || isInitialized) {
-      console.log('🔄 Content already initializing or initialized');
-      return;
-    }
-
-    try {
-      set({ initializing: true });
-      console.log('🚀 Initializing all app content...');
-
-      // Load all essential content in parallel
-      await Promise.all([
-        get().loadStyles(),
-        get().loadFurniture(),
-        get().loadSubscriptionPlans(),
-        get().loadBudgetRanges(),
-      ]);
-
-      set({ 
-        isInitialized: true,
-        initializing: false,
-        lastRefresh: new Date()
-      });
-
-      console.log('✅ All app content initialized successfully');
-      
-    } catch (error) {
-      console.error('❌ Failed to initialize app content:', error);
-      set({ 
-        initializing: false,
-        isInitialized: false // Allow retry
-      });
-      throw error;
-    }
-  },
-
-  refreshAllContent: async () => {
-    console.log('🔄 Refreshing all app content...');
+  
+  loadUserReferences: async () => {
+    set((state) => ({
+      loading: { ...state.loading, userReferences: true },
+      errors: { ...state.errors, userReferences: null }
+    }));
     
     try {
-      // Force refresh all content
-      await Promise.all([
-        get().loadStyles(true),
-        get().loadFurniture(true),
-        get().loadSubscriptionPlans(true),
-        get().loadBudgetRanges(true),
-      ]);
-
-      set({ lastRefresh: new Date() });
-      console.log('✅ All content refreshed');
+      const references = await referenceImageService.getUserReferenceImages();
+      set((state) => ({
+        userReferences: references,
+        loading: { ...state.loading, userReferences: false }
+      }));
+      console.log('📷 User references loaded:', references.length);
+    } catch (error: any) {
+      console.error('Error loading user references:', error);
+      set((state) => ({
+        loading: { ...state.loading, userReferences: false },
+        errors: { ...state.errors, userReferences: error.message }
+      }));
+    }
+  },
+  
+  deleteUserReference: async (referenceId: string) => {
+    try {
+      await referenceImageService.deleteReferenceImage(referenceId);
+      set((state) => ({
+        userReferences: state.userReferences.filter(ref => ref.id !== referenceId),
+        selectedReferences: state.selectedReferences.filter(id => id !== referenceId)
+      }));
+      console.log('🗑️ Reference image deleted');
+    } catch (error: any) {
+      console.error('Error deleting reference image:', error);
+      set((state) => ({
+        errors: { ...state.errors, userReferences: error.message }
+      }));
+    }
+  },
+  
+  toggleReferenceSelection: (referenceId: string) => {
+    set((state) => {
+      const isSelected = state.selectedReferences.includes(referenceId);
+      return {
+        selectedReferences: isSelected
+          ? state.selectedReferences.filter(id => id !== referenceId)
+          : [...state.selectedReferences, referenceId]
+      };
+    });
+  },
+  
+  toggleReferenceFavorite: async (referenceId: string) => {
+    try {
+      const updatedReference = await referenceImageService.toggleFavorite(referenceId);
+      set((state) => ({
+        userReferences: state.userReferences.map(ref => 
+          ref.id === referenceId ? updatedReference : ref
+        )
+      }));
+      console.log('❤️ Reference favorite toggled');
+    } catch (error: any) {
+      console.error('Error toggling reference favorite:', error);
+      set((state) => ({
+        errors: { ...state.errors, userReferences: error.message }
+      }));
+    }
+  },
+  
+  // Enhanced color palette management
+  extractColorsFromImage: async (imageUri: string) => {
+    try {
+      set((state) => ({
+        colorExtraction: {
+          isExtracting: true,
+          extractedColors: undefined
+        },
+        errors: { ...state.errors, userPalettes: null }
+      }));
       
-    } catch (error) {
-      console.error('❌ Failed to refresh content:', error);
+      const colors = await colorExtractionService.extractColorsFromImage(imageUri);
+      
+      set((state) => ({
+        colorExtraction: {
+          isExtracting: false,
+          extractedColors: colors
+        }
+      }));
+      
+      console.log('🎨 Colors extracted from image:', colors.palette.length);
+      return colors;
+      
+    } catch (error: any) {
+      console.error('Error extracting colors:', error);
+      set((state) => ({
+        colorExtraction: {
+          isExtracting: false,
+          extractedColors: undefined
+        },
+        errors: { ...state.errors, userPalettes: error.message }
+      }));
       throw error;
     }
   },
-
-  // ===== GETTERS =====
-
-  getStyleById: (styleId) => {
-    return get().styles.find(s => s.id === styleId);
+  
+  createColorPalette: async (name: string, colors: DominantColors, options = {}) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+      
+      const palette = await colorExtractionService.createColorPalette(
+        user.id,
+        name,
+        colors,
+        options
+      );
+      
+      set((state) => ({
+        userPalettes: [...state.userPalettes, palette]
+      }));
+      
+      console.log('🎨 Color palette created:', name);
+      return palette;
+      
+    } catch (error: any) {
+      console.error('Error creating color palette:', error);
+      set((state) => ({
+        errors: { ...state.errors, userPalettes: error.message }
+      }));
+      throw error;
+    }
   },
-
-  getFurnitureById: (furnitureId) => {
-    return get().furniture.find(f => f.id === furnitureId);
+  
+  loadUserPalettes: async () => {
+    set((state) => ({
+      loading: { ...state.loading, userPalettes: true },
+      errors: { ...state.errors, userPalettes: null }
+    }));
+    
+    try {
+      const palettes = await colorExtractionService.getUserColorPalettes();
+      set((state) => ({
+        userPalettes: palettes,
+        loading: { ...state.loading, userPalettes: false }
+      }));
+      console.log('🎨 User palettes loaded:', palettes.length);
+    } catch (error: any) {
+      console.error('Error loading user palettes:', error);
+      set((state) => ({
+        loading: { ...state.loading, userPalettes: false },
+        errors: { ...state.errors, userPalettes: error.message }
+      }));
+    }
   },
-
-  getPlanById: (planId) => {
-    return get().subscriptionPlans.find(p => p.id === planId);
+  
+  deletePalette: async (paletteId: string) => {
+    try {
+      await colorExtractionService.deleteColorPalette(paletteId);
+      set((state) => ({
+        userPalettes: state.userPalettes.filter(palette => palette.id !== paletteId),
+        selectedPalettes: state.selectedPalettes.filter(id => id !== paletteId)
+      }));
+      console.log('🗑️ Color palette deleted');
+    } catch (error: any) {
+      console.error('Error deleting color palette:', error);
+      set((state) => ({
+        errors: { ...state.errors, userPalettes: error.message }
+      }));
+    }
   },
-
-  getBudgetById: (budgetId) => {
-    return get().budgetRanges.find(b => b.id === budgetId);
+  
+  togglePaletteSelection: (paletteId: string) => {
+    set((state) => {
+      const isSelected = state.selectedPalettes.includes(paletteId);
+      return {
+        selectedPalettes: isSelected
+          ? state.selectedPalettes.filter(id => id !== paletteId)
+          : [...state.selectedPalettes, paletteId]
+      };
+    });
   },
-
-  getFeaturedStyles: () => {
-    return get().styles.filter(s => s.is_featured).sort((a, b) => a.display_order - b.display_order);
+  
+  togglePaletteFavorite: async (paletteId: string) => {
+    try {
+      const updatedPalette = await colorExtractionService.togglePaletteFavorite(paletteId);
+      set((state) => ({
+        userPalettes: state.userPalettes.map(palette => 
+          palette.id === paletteId ? updatedPalette : palette
+        )
+      }));
+      console.log('❤️ Palette favorite toggled');
+    } catch (error: any) {
+      console.error('Error toggling palette favorite:', error);
+      set((state) => ({
+        errors: { ...state.errors, userPalettes: error.message }
+      }));
+    }
   },
-
-  getPopularPlans: () => {
-    return get().subscriptionPlans.filter(p => p.is_popular).sort((a, b) => a.display_order - b.display_order);
+  
+  // Legacy methods (maintained for compatibility)
+  saveUserReference: async (imageUrl: string, projectContext: { styleId?: string; roomId?: string }) => {
+    try {
+      const newReference: ReferenceImage = {
+        id: `user-ref-${Date.now()}`,
+        title: 'User Reference',
+        description: 'User uploaded reference',
+        image_url: imageUrl,
+        style_id: projectContext.styleId,
+        room_id: projectContext.roomId,
+        tags: ['user-uploaded'],
+        is_featured: false,
+        likes_count: 0,
+        sort_order: 999,
+        is_active: true,
+      };
+      
+      set((state) => ({
+        referenceImages: [...state.referenceImages, newReference]
+      }));
+      
+      console.log('💾 User reference saved (legacy)');
+    } catch (error) {
+      console.error('Error saving user reference:', error);
+    }
   },
-
-  getFeaturedFurniture: () => {
-    return get().furniture.filter(f => f.display_order <= 6).sort((a, b) => a.display_order - b.display_order);
+  
+  // Legacy save user palette method
+  saveUserPalette: async (colors: string[], name: string) => {
+    try {
+      const newPalette: ColorPaletteOld = {
+        id: `user-palette-${Date.now()}`,
+        name: name.toLowerCase().replace(/\s+/g, '_'),
+        display_name: name,
+        description: 'User extracted palette',
+        colors: { colors },
+        is_trending: false,
+        usage_count: 0,
+        sort_order: 999,
+        is_active: true,
+      };
+      
+      set((state) => ({
+        colorPalettes: [...state.colorPalettes, newPalette]
+      }));
+      
+      console.log('🎨 User palette saved (legacy):', name);
+    } catch (error) {
+      console.error('Error saving user palette:', error);
+    }
+  },
+  
+  // Extract palette from image (mock implementation)
+  extractPaletteFromImage: async (imageUrl: string): Promise<string[]> => {
+    // This would use an image processing service or computer vision API
+    // For now, returning mock colors based on common palettes
+    const mockPalettes = [
+      ['#F5F5DC', '#DEB887', '#D2B48C', '#BC9A6A'], // Warm neutrals
+      ['#2D2D2D', '#FFFFFF', '#C9A98C', '#8B4513'], // Modern contrast
+      ['#F5F5F5', '#D2B48C', '#2F4F4F', '#FFFFFF'], // Scandinavian
+      ['#4A4A4A', '#D2691E', '#CD853F', '#F5DEB3'], // Industrial
+    ];
+    
+    const randomPalette = mockPalettes[Math.floor(Math.random() * mockPalettes.length)];
+    return randomPalette;
+  },
+  
+  // Legacy toggle favorite reference
+  toggleFavoriteReference: async (referenceId: string) => {
+    // This would update user's favorites in database
+    console.log('❤️ Toggling favorite (legacy):', referenceId);
+  },
+  
+  // Get user's favorite references
+  getUserFavoriteReferences: () => {
+    // This would fetch from user's favorites table
+    return [];
+  },
+  
+  // Utility functions
+  getCategoryById: (id: string) => {
+    return get().categories.find(cat => cat.id === id);
+  },
+  
+  getRoomById: (id: string) => {
+    return get().rooms.find(room => room.id === id);
+  },
+  
+  getStyleById: (id: string) => {
+    return get().styles.find(style => style.id === style.id);
+  },
+  
+  getPopularStyles: () => {
+    return get().styles.filter(style => style.is_popular);
+  },
+  
+  getFeaturedReferences: () => {
+    return get().referenceImages.filter(ref => ref.is_featured);
+  },
+  
+  getTrendingPalettes: () => {
+    // Filter old palettes by is_trending, user palettes don't have this field
+    return get().colorPalettes.filter(palette => palette.is_trending);
+  },
+  
+  getUserTrendingPalettes: () => {
+    // For user palettes, we could sort by usage or creation date instead
+    return get().userPalettes.slice(0, 10); // Top 10 most recent
+  },
+  
+  // Get filtered references based on room and style selection
+  getFilteredReferences: (roomId?: string, styleId?: string) => {
+    let filtered = get().referenceImages;
+    
+    if (roomId) {
+      filtered = filtered.filter(ref => ref.room_id === roomId);
+    }
+    if (styleId) {
+      filtered = filtered.filter(ref => ref.style_id === styleId);
+    }
+    
+    return filtered;
   },
 }));
-
-/**
- * Initialize all app content on startup
- * Call this in App.tsx or root component
- */
-export const initializeAppContent = async () => {
-  const store = useContentStore.getState();
-  await store.initializeAllContent();
-};
-
-export default useContentStore;

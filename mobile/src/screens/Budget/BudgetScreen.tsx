@@ -9,6 +9,25 @@ import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 import JourneyProgressBar from '../../components/ProgressBar/JourneyProgressBar';
 
+// Import style tokens from the design guide
+const colors = {
+  bgApp: '#FBF9F4',
+  bgSecondary: '#F5F1E8',
+  surface: '#FEFEFE',
+  textPrimary: '#2D2B28',
+  textSecondary: '#8B7F73',
+  textMuted: '#B8AFA4',
+  borderSoft: '#E6DDD1',
+  borderWarm: '#D4C7B5',
+  brand: '#D4A574',
+  brandLight: '#E8C097',
+  brandDark: '#B8935F',
+  accent: '#2D2B28',
+  accentSoft: '#5A564F',
+  warm: '#E8C097',
+  warmDark: '#D4A574',
+};
+
 interface BudgetScreenProps {
   navigation?: any;
   route?: any;
@@ -73,16 +92,10 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
 
     console.log('💰 Budget selected:', formatBudget(finalBudget));
     
-    // Navigate based on authentication status
-    if (isAuthenticated && user) {
-      // User is already logged in, go directly to processing
-      console.log('✅ User authenticated, going to processing');
-      NavigationHelpers.navigateToScreen('processing');
-    } else {
-      // User needs to login/signup first
-      console.log('🔐 User not authenticated, going to auth');
-      NavigationHelpers.navigateToScreen('auth');
-    }
+    // Navigate directly to processing
+    // User authentication happens automatically through Apple/Google payment
+    console.log('💰 Budget selected, proceeding to AI processing');
+    NavigationHelpers.navigateToScreen('processing');
   };
 
   const goBack = () => {
@@ -90,19 +103,18 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.fullScreen}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="light" />
-        
-        {/* Progress Bar */}
-        <JourneyProgressBar />
-        
-        <View style={styles.screenHeader}>
-          <TouchableOpacity onPress={goBack} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
-          </TouchableOpacity>
-          <Text style={styles.screenTitle}>Budget Range</Text>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      
+      {/* Progress Bar */}
+      <JourneyProgressBar />
+      
+      <View style={styles.screenHeader}>
+        <TouchableOpacity onPress={goBack} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+        </TouchableOpacity>
+        <Text style={styles.screenTitle}>Budget Range</Text>
+      </View>
         
         <ScrollView style={styles.scrollContainer}>
           <View style={styles.content}>
@@ -127,8 +139,9 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
                 onValueChange={handleSliderChange}
                 minimumValue={0}
                 maximumValue={1}
-                minimumTrackTintColor="#4facfe"
-                maximumTrackTintColor="rgba(255,255,255,0.2)"
+                minimumTrackTintColor={colors.brand}
+                maximumTrackTintColor={colors.borderSoft}
+                thumbTintColor={colors.brandDark}
               />
               
               {/* Slider Labels */}
@@ -152,26 +165,30 @@ const BudgetScreen: React.FC<BudgetScreenProps> = ({ navigation }) => {
             </View>
             
             <TouchableOpacity 
-              style={styles.primaryButton}
               onPress={handleContinue}
+              activeOpacity={0.9}
             >
-              <Text style={styles.primaryButtonText}>
-                Continue with {formatBudget(currentBudget)}
-              </Text>
+              <LinearGradient
+                colors={[colors.brandLight, colors.brand]}
+                style={styles.primaryButton}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.primaryButtonText}>
+                  Continue with {formatBudget(currentBudget)}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
   container: {
     flex: 1,
+    backgroundColor: colors.bgApp,
   },
   screenHeader: {
     flexDirection: 'row',
@@ -184,15 +201,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   screenTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#ffffff',
+    color: colors.textPrimary,
     textAlign: 'center',
     flex: 1,
     marginRight: 56,
@@ -209,13 +231,13 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: 10,
   },
   helperText: {
     fontSize: 14,
-    color: '#8892b0',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 40,
   },
@@ -223,21 +245,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
     padding: 24,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.2)',
+    borderColor: colors.borderSoft,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   budgetAmount: {
     fontSize: 42,
     fontWeight: '700',
-    color: '#4facfe',
+    color: colors.brand,
     marginBottom: 8,
     textAlign: 'center',
   },
   budgetDescription: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   sliderContainer: {
@@ -250,13 +277,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sliderThumb: {
-    backgroundColor: '#4facfe',
+    backgroundColor: colors.brandDark,
     width: 30,
     height: 30,
     borderRadius: 15,
-    shadowColor: '#4facfe',
+    shadowColor: colors.brand,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
   },
   sliderTrack: {
@@ -271,12 +298,12 @@ const styles = StyleSheet.create({
   },
   sliderLabel: {
     fontSize: 14,
-    color: '#8892b0',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   sliderGuide: {
     fontSize: 12,
-    color: '#8892b0',
+    color: colors.textMuted,
     textAlign: 'center',
     fontStyle: 'italic',
     lineHeight: 16,
@@ -285,27 +312,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
     padding: 16,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.2)',
+    borderColor: colors.borderSoft,
   },
   selectionText: {
     fontSize: 14,
-    color: '#4facfe',
+    color: colors.brand,
     textAlign: 'center',
     fontWeight: '500',
   },
   primaryButton: {
-    backgroundColor: '#4facfe',
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: 'center',
     marginBottom: 20,
+    shadowColor: colors.brand,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   primaryButtonText: {
-    color: '#ffffff',
+    color: colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },

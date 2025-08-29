@@ -36,6 +36,128 @@ npm test -- ComponentName.test.tsx
 npm test -- --testNamePattern="should handle"
 ```
 
+## Design System Guidelines
+
+**MANDATORY: All screens must use the unified design system from `@STYLE-GUIDE.json`**
+
+### Design Tokens Import Pattern
+```typescript
+// Import design tokens at the top of every screen
+const tokens = {
+  color: {
+    bgApp: "#FDFBF7",
+    surface: "#FFFFFF", 
+    textPrimary: "#1C1C1C",
+    textInverse: "#FDFBF7",
+    textMuted: "#7A7A7A",
+    borderSoft: "#E8E2D8",
+    brand: "#C9A98C",
+    brandHover: "#B9906F",
+    accent: "#1C1C1C",
+    scrim: "rgba(28,28,28,0.45)",
+    scrimHeavy: "rgba(28,28,28,0.65)",
+  },
+  radius: { sm: 8, md: 12, lg: 16, xl: 24, pill: 999 },
+  shadow: {
+    e1: { shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+    e2: { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+    e3: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  },
+  type: {
+    display: { fontSize: 32, lineHeight: 40, fontWeight: "700" as const },
+    h1: { fontSize: 28, lineHeight: 36, fontWeight: "600" as const },
+    h2: { fontSize: 22, lineHeight: 28, fontWeight: "600" as const },
+    h3: { fontSize: 18, lineHeight: 24, fontWeight: "500" as const },
+    body: { fontSize: 16, lineHeight: 22, fontWeight: "400" as const },
+    small: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
+    caption: { fontSize: 12, lineHeight: 16, fontWeight: "400" as const },
+  },
+  spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 },
+};
+```
+
+### Component Standards
+
+**Buttons (MANDATORY CONSISTENCY):**
+```typescript
+// Primary Button (CTA actions)
+<TouchableOpacity
+  activeOpacity={0.9}
+  style={[styles.primaryButton, tokens.shadow.e2]}
+  onPress={handleAction}
+>
+  <Text style={styles.primaryButtonText}>Get Started</Text>
+</TouchableOpacity>
+
+const styles = StyleSheet.create({
+  primaryButton: {
+    height: 52,
+    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.color.accent,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+  },
+  primaryButtonText: {
+    ...tokens.type.h2,
+    color: tokens.color.textInverse,
+  },
+});
+```
+
+**Cards (CONSISTENT ELEVATION):**
+```typescript
+const cardStyle = {
+  backgroundColor: tokens.color.surface,
+  borderRadius: tokens.radius.lg,
+  padding: tokens.spacing.xl,
+  ...tokens.shadow.e2,
+  borderWidth: 1,
+  borderColor: tokens.color.borderSoft,
+};
+```
+
+**Input Fields:**
+```typescript
+const inputStyle = {
+  backgroundColor: tokens.color.surface,
+  borderWidth: 1,
+  borderColor: tokens.color.borderSoft,
+  borderRadius: tokens.radius.md,
+  height: 48,
+  paddingHorizontal: tokens.spacing.lg,
+  ...tokens.type.body,
+  color: tokens.color.textPrimary,
+};
+```
+
+### Interactive States (MANDATORY)
+- **Pressed State**: `activeOpacity={0.9}` for all buttons
+- **Hover Effect**: Use `brandHover` color for brand elements
+- **Focus State**: Use `brand` color for focus indicators
+- **Disabled State**: 50% opacity + `textMuted` color
+
+### Color Usage Rules
+- **Background**: Always use `bgApp` (#FDFBF7) as app background
+- **Cards/Surfaces**: Use `surface` (#FFFFFF) with `borderSoft`
+- **Text**: `textPrimary` for main text, `textMuted` for secondary
+- **Brand**: `brand` (#C9A98C) for highlights, `brandHover` for interactions
+- **CTA Buttons**: `accent` (#1C1C1C) background with `textInverse` text
+
+### Typography Hierarchy (MANDATORY)
+- **Screen Titles**: Use `tokens.type.display`
+- **Section Headers**: Use `tokens.type.h2`
+- **Body Text**: Use `tokens.type.body`
+- **Captions/Meta**: Use `tokens.type.small`
+- **Button Text**: Use `tokens.type.h2` for primary buttons
+
+### Spacing System (CONSISTENT)
+- **Screen Padding**: `tokens.spacing.xl` (24px) horizontal padding
+- **Component Spacing**: Use `tokens.spacing.lg` (16px) between components
+- **Section Spacing**: Use `tokens.spacing.xxl` (32px) between sections
+- **Text Spacing**: Use `tokens.spacing.sm` (8px) between text elements
+
 ## Architecture Overview
 
 This is a React Native application for AI-powered interior design, built with clean architecture principles and comprehensive testing.

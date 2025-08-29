@@ -1,0 +1,178 @@
+{
+  "designSystem": {
+    "name": "Compozit Vision Design System",
+    "version": "1.0.0",
+    "description": "Clean, modern design system for interior design app"
+  },
+  "tokens": {
+    "color": {
+      "bgApp": "#FBF9F4",
+      "bgSecondary": "#F5F1E8",
+      "surface": "#FEFEFE", 
+      "textPrimary": "#2D2B28",
+      "textSecondary": "#8B7F73",
+      "textMuted": "#B8AFA4",
+      "textInverse": "#FEFEFE",
+      "borderSoft": "#E6DDD1",
+      "borderWarm": "#D4C7B5",
+      "brand": "#D4A574",
+      "brandLight": "#E8C097",
+      "brandDark": "#B8935F",
+      "accent": "#2D2B28",
+      "accentSoft": "#5A564F",
+      "warm": "#E8C097",
+      "warmDark": "#D4A574",
+      "scrim": "rgba(45,43,40,0.45)",
+      "scrimHeavy": "rgba(45,43,40,0.65)",
+      "success": "#7FB069",
+      "error": "#E07A5F",
+      "warning": "#F2CC8F"
+    },
+    "radius": {
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 24,
+      "pill": 999
+    },
+    "shadow": {
+      "e1": {
+        "shadowColor": "#000",
+        "shadowOpacity": 0.06,
+        "shadowRadius": 3,
+        "shadowOffset": { "width": 0, "height": 1 },
+        "elevation": 2
+      },
+      "e2": {
+        "shadowColor": "#000", 
+        "shadowOpacity": 0.08,
+        "shadowRadius": 12,
+        "shadowOffset": { "width": 0, "height": 4 },
+        "elevation": 4
+      },
+      "e3": {
+        "shadowColor": "#000",
+        "shadowOpacity": 0.12,
+        "shadowRadius": 20,
+        "shadowOffset": { "width": 0, "height": 8 },
+        "elevation": 8
+      }
+    },
+    "typography": {
+      "display": {
+        "fontSize": 32,
+        "lineHeight": 40,
+        "fontWeight": "700"
+      },
+      "h1": {
+        "fontSize": 28,
+        "lineHeight": 36,
+        "fontWeight": "600"
+      },
+      "h2": {
+        "fontSize": 22,
+        "lineHeight": 28,
+        "fontWeight": "600"
+      },
+      "h3": {
+        "fontSize": 18,
+        "lineHeight": 24,
+        "fontWeight": "500"
+      },
+      "body": {
+        "fontSize": 16,
+        "lineHeight": 22,
+        "fontWeight": "400"
+      },
+      "small": {
+        "fontSize": 14,
+        "lineHeight": 20,
+        "fontWeight": "400"
+      },
+      "caption": {
+        "fontSize": 12,
+        "lineHeight": 16,
+        "fontWeight": "400"
+      }
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 12,
+      "lg": 16,
+      "xl": 24,
+      "xxl": 32,
+      "xxxl": 48
+    }
+  },
+  "components": {
+    "button": {
+      "primary": {
+        "gradientColors": ["#E8C097", "#D4A574"],
+        "gradientStart": { "x": 0, "y": 0 },
+        "gradientEnd": { "x": 1, "y": 1 },
+        "color": "#2D2B28",
+        "borderRadius": 999,
+        "height": 54,
+        "pressedOpacity": 0.9,
+        "shadowColor": "#D4A574",
+        "shadowOpacity": 0.25,
+        "shadowRadius": 8,
+        "shadowOffset": { "width": 0, "height": 4 },
+        "elevation": 6
+      },
+      "secondary": {
+        "gradientColors": ["#F5F1E8", "#E6DDD1"],
+        "gradientStart": { "x": 0, "y": 0 },
+        "gradientEnd": { "x": 1, "y": 1 },
+        "color": "#2D2B28",
+        "borderRadius": 999,
+        "height": 52,
+        "pressedOpacity": 0.9,
+        "borderWidth": 1,
+        "borderColor": "#D4C7B5"
+      },
+      "ghost": {
+        "backgroundColor": "transparent",
+        "color": "#2D2B28",
+        "borderWidth": 1,
+        "borderColor": "#D4C7B5",
+        "borderRadius": 999,
+        "height": 52,
+        "pressedOpacity": 0.8,
+        "hoverBackgroundColor": "#F5F1E8"
+      },
+      "accent": {
+        "gradientColors": ["#2D2B28", "#5A564F"],
+        "gradientStart": { "x": 0, "y": 0 },
+        "gradientEnd": { "x": 1, "y": 1 },
+        "color": "#FEFEFE",
+        "borderRadius": 999,
+        "height": 52,
+        "pressedOpacity": 0.9,
+        "shadowColor": "#2D2B28",
+        "shadowOpacity": 0.2,
+        "shadowRadius": 6,
+        "shadowOffset": { "width": 0, "height": 3 },
+        "elevation": 4
+      }
+    },
+    "input": {
+      "backgroundColor": "#FFFFFF",
+      "borderWidth": 1,
+      "borderColor": "#E8E2D8",
+      "borderRadius": 12,
+      "height": 48,
+      "paddingHorizontal": 16,
+      "focusBorderColor": "#C9A98C"
+    },
+    "card": {
+      "backgroundColor": "#FFFFFF",
+      "borderRadius": 16,
+      "padding": 24,
+      "shadow": "e2",
+      "borderWidth": 1,
+      "borderColor": "#E8E2D8"
+    }
+  }
+}

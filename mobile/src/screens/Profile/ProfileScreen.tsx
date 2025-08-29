@@ -31,7 +31,7 @@ const ProfileScreen = ({ navigation }: any) => {
               // Navigate to Auth screen after successful logout
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'Auth' }],
+                routes: [{ name: 'auth' }],
               });
             }
           }
@@ -53,15 +53,12 @@ const ProfileScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" />
+      <View style={styles.gradient}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <LinearGradient
-            colors={['#4facfe', '#00f2fe']}
+            colors={['#E8C097', '#D4A574']}
             style={styles.avatar}
           >
             <Text style={styles.avatarText}>
@@ -78,16 +75,16 @@ const ProfileScreen = ({ navigation }: any) => {
           {/* Informations sur les tokens et le plan */}
           <View style={styles.userStats}>
             <View style={styles.statItem}>
-              <Ionicons name="diamond-outline" size={24} color="#4facfe" />
+              <Ionicons name="diamond-outline" size={24} color="#D4A574" />
               <Text style={styles.statValue}>{user?.nbToken || 0}</Text>
               <Text style={styles.statLabel}>Credits</Text>
             </View>
             <View style={styles.statDivider} />
             <TouchableOpacity 
               style={styles.statItem}
-              onPress={() => navigation.navigate('Plans')}
+              onPress={() => navigation.navigate('plans')}
             >
-              <Ionicons name="card-outline" size={24} color="#4facfe" />
+              <Ionicons name="card-outline" size={24} color="#D4A574" />
               <Text style={[styles.statValue, styles.planValue]}>{user?.currentPlan || 'free'}</Text>
               <Text style={styles.statLabel}>Plan • Upgrade ›</Text>
             </TouchableOpacity>
@@ -103,10 +100,10 @@ const ProfileScreen = ({ navigation }: any) => {
               onPress={() => handleMenuPress(item.id)}
             >
               <View style={styles.menuItemLeft}>
-                <Ionicons name={item.icon as any} size={20} color="#4facfe" style={styles.menuIcon} />
+                <Ionicons name={item.icon as any} size={20} color="#D4A574" style={styles.menuIcon} />
                 <Text style={styles.menuTitle}>{item.title}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#8892b0" />
+              <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
             </TouchableOpacity>
           ))}
         </View>
@@ -127,7 +124,7 @@ const ProfileScreen = ({ navigation }: any) => {
           <Text style={styles.footerText}>Compozit Vision v1.0.0</Text>
         </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -135,10 +132,11 @@ const ProfileScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
   },
   scrollView: {
     flex: 1,
@@ -156,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 8,
@@ -168,18 +166,18 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#2D2B28',
     textTransform: 'uppercase',
   },
   userName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginTop: 4,
   },
   userStats: {
@@ -196,22 +194,22 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginTop: 8,
   },
   planValue: {
-    color: '#ffffff',
+    color: '#2D2B28',
     textTransform: 'capitalize',
   },
   statLabel: {
     fontSize: 14,
-    color: '#8892b0',
+    color: '#8B7F73',
     marginTop: 4,
   },
   statDivider: {
     width: 1,
     height: 60,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#E6DDD1',
     marginHorizontal: 20,
   },
   section: {
@@ -221,19 +219,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 16,
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     borderRadius: 15,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
   },
   menuItemLeft: {
     flexDirection: 'row',
@@ -245,20 +243,20 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     fontSize: 16,
-    color: '#ffffff',
+    color: '#2D2B28',
     flex: 1,
     fontWeight: '500',
   },
   menuArrow: {
     fontSize: 20,
-    color: '#8892b0',
+    color: '#8B7F73',
   },
   logoutButton: {
-    backgroundColor: '#ff6b6b',
+    backgroundColor: '#E07A5F',
     borderRadius: 15,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#ff6b6b',
+    shadowColor: '#E07A5F',
     shadowOffset: {
       width: 0,
       height: 4,
@@ -268,7 +266,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logoutText: {
-    color: '#ffffff',
+    color: '#FEFEFE',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -278,7 +276,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#8892b0',
+    color: '#8B7F73',
   },
 });
 

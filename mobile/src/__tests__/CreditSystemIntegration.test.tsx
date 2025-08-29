@@ -134,7 +134,7 @@ describe('Credit System Integration', () => {
         expect(mockConsumeToken).toHaveBeenCalled();
       }, { timeout: 15000 });
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith('Results', expect.any(Object));
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('results', expect.any(Object));
     });
 
     test('should redirect to BuyCredits when token consumption fails', async () => {

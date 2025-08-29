@@ -46,6 +46,28 @@ export interface UserJourneyData {
     };
   };
   
+  // Project Creation Wizard
+  projectWizard: {
+    categoryId?: string;
+    categoryName?: string;
+    categoryType?: string;
+    categorySlug?: string;
+    roomId?: string;
+    roomName?: string;
+    selectedRooms?: string[];
+    styleId?: string;
+    styleName?: string;
+    selectedReferences: string[];
+    selectedPalettes?: string[];
+    selectedPaletteId?: string;
+    customColors?: string[];
+    selectedSamplePhoto?: string;
+    currentWizardStep?: 'category_selection' | 'space_definition' | 'photo_capture' | 'style_selection' | 'references_palettes' | 'ai_processing' | 'results' | 'completed';
+    completedWizardSteps: string[];
+    wizardStartedAt?: string;
+    wizardCompletedAt?: string;
+  };
+  
   // User Preferences
   preferences: {
     stylePreferences: string[];
@@ -91,6 +113,7 @@ export interface JourneyState extends UserJourneyData {
   updateOnboarding: (data: Partial<UserJourneyData['onboarding']>) => void;
   updateSubscription: (data: Partial<UserJourneyData['subscription']>) => void;
   updateProject: (data: Partial<UserJourneyData['project']>) => void;
+  updateProjectWizard: (data: Partial<UserJourneyData['projectWizard']>) => void;
   updatePreferences: (data: Partial<UserJourneyData['preferences']>) => void;
   updateProgress: (data: Partial<UserJourneyData['progress']>) => void;
   updateAuthentication: (data: Partial<UserJourneyData['authentication']>) => void;
@@ -109,6 +132,12 @@ export interface JourneyState extends UserJourneyData {
   getStepInfo: (screen: string) => JourneyStep | undefined;
   getNextStep: (currentScreen: string) => JourneyStep | undefined;
   getPreviousStep: (currentScreen: string) => JourneyStep | undefined;
+  
+  // Wizard validation methods
+  validateWizardStep: (stepName: string) => boolean;
+  canProgressToNextStep: (currentStep: string) => boolean;
+  getWizardValidationErrors: (stepName: string) => string[];
+  getWizardProgress: () => { completed: number; total: number; percentage: number };
 }
 
 // Default state
@@ -124,6 +153,12 @@ const defaultJourneyData: UserJourneyData = {
   project: {
     furniturePreferences: [],
   },
+  projectWizard: {
+    selectedReferences: [],
+    selectedPalettes: [],
+    completedWizardSteps: [],
+    currentWizardStep: 'category_selection',
+  },
   preferences: {
     stylePreferences: [],
     colorPreferences: [],
@@ -132,7 +167,7 @@ const defaultJourneyData: UserJourneyData = {
   },
   progress: {
     currentStep: 1,
-    totalSteps: 12, // Total journey steps
+    totalSteps: 11, // Total journey steps (auth removed - handled via payment)
     completedSteps: [],
     currentScreen: 'onboarding1',
     lastUpdated: new Date().toISOString(),
@@ -178,6 +213,30 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     set({ project: updated });
     get().persistJourney();
     console.log('🏠 Project updated:', updated);
+  },
+
+  updateProjectWizard: (data) => {
+    const current = get().projectWizard;
+    const updated = { ...current, ...data };
+    
+    // Auto-track wizard start time
+    if (data.currentWizardStep && !current.wizardStartedAt) {
+      updated.wizardStartedAt = new Date().toISOString();
+    }
+    
+    // Mark wizard as completed if all steps done
+    if (data.currentWizardStep === 'completed' && !current.wizardCompletedAt) {
+      updated.wizardCompletedAt = new Date().toISOString();
+    }
+    
+    // Track completed steps
+    if (data.currentWizardStep && !updated.completedWizardSteps.includes(data.currentWizardStep)) {
+      updated.completedWizardSteps = [...updated.completedWizardSteps, data.currentWizardStep];
+    }
+    
+    set({ projectWizard: updated });
+    get().persistJourney();
+    console.log('🔮 Project Wizard updated:', updated);
   },
 
   updatePreferences: (data) => {
@@ -345,6 +404,107 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     const { journeySteps } = get();
     const currentIndex = journeySteps.findIndex(s => s.screen_name === currentScreen);
     return journeySteps[currentIndex - 1];
+  },
+
+  // Wizard State Validation Methods
+  validateWizardStep: (stepName: string) => {
+    const state = get();
+    const validationRules: Record<string, () => boolean> = {
+      category_selection: () => !!state.projectWizard.categoryId,
+      space_definition: () => !!(state.projectWizard.selectedRooms && state.projectWizard.selectedRooms.length > 0),
+      photo_capture: () => !!state.project.photoUri || !!state.projectWizard.selectedSamplePhoto,
+      style_selection: () => !!(state.onboarding.selectedStyles && state.onboarding.selectedStyles.length > 0),
+      references_selection: () => !!(state.projectWizard.selectedReferences && state.projectWizard.selectedReferences.length > 0),
+    };
+
+    const validator = validationRules[stepName];
+    return validator ? validator() : true;
+  },
+
+  canProgressToNextStep: (currentStep: string) => {
+    return get().validateWizardStep(currentStep);
+  },
+
+  getWizardValidationErrors: (stepName: string) => {
+    const state = get();
+    const errors: string[] = [];
+
+    switch (stepName) {
+      case 'category_selection':
+        if (!state.projectWizard.categoryId) {
+          errors.push('Please select a project category');
+        }
+        break;
+      case 'room_selection':
+        if (!state.projectWizard.selectedRooms || state.projectWizard.selectedRooms.length === 0) {
+          errors.push('Please select at least one room');
+        }
+        break;
+      case 'photo_capture':
+        if (!state.project.photoUri && !state.projectWizard.selectedSamplePhoto) {
+          errors.push('Please capture a photo or select a sample');
+        }
+        break;
+      case 'style_selection':
+        if (!state.onboarding.selectedStyles || state.onboarding.selectedStyles.length === 0) {
+          errors.push('Please select a design style');
+        }
+        break;
+      case 'references_selection':
+        if (!state.projectWizard.selectedReferences || state.projectWizard.selectedReferences.length === 0) {
+          errors.push('Please select reference images or color palettes');
+        }
+        break;
+    }
+
+    return errors;
+  },
+
+  getWizardProgress: () => {
+    const state = get();
+    const completedSteps = state.projectWizard.completedWizardSteps || [];
+    const totalWizardSteps = 5; // category, room, photo, style, references
+    return {
+      completed: completedSteps.length,
+      total: totalWizardSteps,
+      percentage: Math.round((completedSteps.length / totalWizardSteps) * 100),
+      currentStep: state.projectWizard.currentWizardStep || 'category_selection',
+      canResume: completedSteps.length > 0 && !state.projectWizard.wizardCompletedAt,
+    };
+  },
+
+  resumeWizardFromLastStep: () => {
+    const state = get();
+    const progress = get().getWizardProgress();
+    
+    if (!progress.canResume) {
+      return null;
+    }
+
+    // Determine the next incomplete step
+    const stepOrder = ['category_selection', 'room_selection', 'photo_capture', 'style_selection', 'references_selection'];
+    const completedSteps = state.projectWizard.completedWizardSteps || [];
+    
+    for (const step of stepOrder) {
+      if (!completedSteps.includes(step)) {
+        return step;
+      }
+    }
+    
+    return 'references_selection'; // Default to last step
+  },
+
+  resetWizardProgress: () => {
+    set(state => ({
+      projectWizard: {
+        ...state.projectWizard,
+        completedWizardSteps: [],
+        currentWizardStep: 'category_selection',
+        wizardStartedAt: undefined,
+        wizardCompletedAt: undefined,
+      }
+    }));
+    get().persistJourney();
   },
 }));
 

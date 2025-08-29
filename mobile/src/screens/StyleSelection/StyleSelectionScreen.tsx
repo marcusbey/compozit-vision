@@ -79,7 +79,7 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
                 <Ionicons 
                   name="home" 
                   size={48} 
-                  color={isSelected ? '#4facfe' : '#666'} 
+                  color={isSelected ? '#D4A574' : '#8B7F73'} 
                 />
               </View>
             ) : (
@@ -131,7 +131,7 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
           {/* Indicateur de sélection */}
           {isSelected && (
             <View style={styles.selectedIndicator}>
-              <Ionicons name="checkmark-circle" size={24} color="#4facfe" />
+              <Ionicons name="checkmark-circle" size={24} color="#D4A574" />
             </View>
           )}
         </View>
@@ -155,7 +155,7 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
   };
 
   const renderStyleIllustration = (styleId: string, isSelected: boolean) => {
-    const iconColor = isSelected ? '#4facfe' : '#666';
+    const iconColor = isSelected ? '#D4A574' : '#8B7F73';
     
     switch (styleId) {
       case 'modern':
@@ -196,16 +196,13 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={true} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.background}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Choose Style</Text>
           <View style={styles.placeholder} />
@@ -238,17 +235,17 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
             disabled={!selectedStyle}
           >
             <LinearGradient
-              colors={selectedStyle ? ['#4facfe', '#00f2fe'] : ['#666', '#888']}
+              colors={selectedStyle ? ['#E8C097', '#D4A574'] : ['#B8AFA4', '#8B7F73']}
               style={styles.buttonGradient}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
               <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="arrow-forward" size={20} color="#ffffff" style={styles.buttonIcon} />
+              <Ionicons name="arrow-forward" size={20} color={selectedStyle ? '#2D2B28' : '#FEFEFE'} style={styles.buttonIcon} />
             </LinearGradient>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -256,10 +253,11 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
-  gradient: {
+  background: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
     paddingTop: StatusBar.currentHeight || 0,
   },
   header: {
@@ -274,14 +272,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   placeholder: {
     width: 40,
@@ -296,13 +299,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 22,
@@ -311,22 +314,28 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   styleCard: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#FEFEFE',
     borderRadius: 20,
     marginBottom: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   styleCardSelected: {
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
-    borderColor: '#4facfe',
-    shadowColor: '#4facfe',
+    backgroundColor: '#FEFEFE',
+    borderColor: '#D4A574',
+    borderWidth: 2,
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 8,
     },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 8,
   },
@@ -336,7 +345,7 @@ const styles = StyleSheet.create({
   },
   styleImageContainerSelected: {
     borderBottomWidth: 2,
-    borderBottomColor: '#4facfe',
+    borderBottomColor: '#D4A574',
   },
   styleImageGradient: {
     flex: 1,
@@ -452,27 +461,27 @@ const styles = StyleSheet.create({
   styleName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 4,
   },
   styleNameSelected: {
-    color: '#4facfe',
+    color: '#D4A574',
   },
   styleSubtitle: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#b8c6db',
+    color: '#8B7F73',
   },
   styleSubtitleSelected: {
-    color: '#4facfe',
+    color: '#D4A574',
   },
   styleDescription: {
     fontSize: 14,
-    color: '#8892b0',
+    color: '#B8AFA4',
     lineHeight: 20,
   },
   styleDescriptionSelected: {
-    color: '#b8c6db',
+    color: '#8B7F73',
   },
   selectedIndicator: {
     position: 'absolute',
@@ -487,14 +496,14 @@ const styles = StyleSheet.create({
   continueButton: {
     borderRadius: 30,
     overflow: 'hidden',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   continueButtonDisabled: {
     shadowOpacity: 0,
@@ -510,7 +519,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
   },
   buttonIcon: {
@@ -527,9 +536,11 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(254, 254, 254, 0.95)',
     borderRadius: 12,
     padding: 4,
+    borderWidth: 1,
+    borderColor: '#E6DDD1',
   },
   colorSwatch: {
     width: 12,
@@ -537,10 +548,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginHorizontal: 1,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: '#E6DDD1',
   },
   colorSwatchSelected: {
-    borderColor: '#4facfe',
+    borderColor: '#D4A574',
     borderWidth: 2,
   },
 });

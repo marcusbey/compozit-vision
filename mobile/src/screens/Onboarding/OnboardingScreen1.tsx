@@ -13,6 +13,69 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
+// Design System Tokens
+const tokens = {
+  color: {
+    bgApp: '#FBF9F4',
+    surface: '#FEFEFE',
+    accent: '#2D2B28',
+    textPrimary: '#2D2B28',
+    textSecondary: '#8B7F73',
+    textMuted: '#B8AFA4',
+    borderSoft: '#E6DDD1',
+    accentSoft: 'rgba(45, 43, 40, 0.1)',
+    white: '#FEFEFE',
+    brand: '#D4A574',
+    brandLight: '#E8C097',
+  },
+  type: {
+    display: {
+      fontSize: 32,
+      fontWeight: '700',
+      lineHeight: 40,
+    },
+    body: {
+      fontSize: 16,
+      fontWeight: '400',
+      lineHeight: 24,
+    },
+    caption: {
+      fontSize: 14,
+      fontWeight: '500',
+    },
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  radius: {
+    sm: 6,
+    md: 12,
+    lg: 16,
+    pill: 25,
+  },
+  shadow: {
+    e2: {
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    brandShadow: {
+      shadowColor: '#D4A574',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 8,
+      elevation: 6,
+    },
+  },
+};
+
 const { width, height } = Dimensions.get('window');
 
 interface OnboardingScreen1Props {
@@ -46,12 +109,9 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.screenBackground}>
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
@@ -71,16 +131,13 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
           ]}
         >
           <View style={styles.aiVisualization}>
-            <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
-              style={styles.aiCircle}
-            >
-              <Ionicons name="camera" size={32} color="#ffffff" />
-            </LinearGradient>
+            <View style={styles.aiCircle}>
+              <Ionicons name="camera" size={32} color={tokens.color.white} />
+            </View>
             <View style={styles.sparkles}>
-              <Ionicons name="sparkles" size={20} color="#4facfe" style={[styles.sparkle, styles.sparkle1]} />
-              <Ionicons name="sparkles" size={16} color="#00f2fe" style={[styles.sparkle, styles.sparkle2]} />
-              <Ionicons name="sparkles" size={18} color="#4facfe" style={[styles.sparkle, styles.sparkle3]} />
+              <Ionicons name="sparkles" size={20} color={tokens.color.brand} style={[styles.sparkle, styles.sparkle1]} />
+              <Ionicons name="sparkles" size={16} color={tokens.color.textSecondary} style={[styles.sparkle, styles.sparkle2]} />
+              <Ionicons name="sparkles" size={18} color={tokens.color.brand} style={[styles.sparkle, styles.sparkle3]} />
             </View>
           </View>
         </Animated.View>
@@ -104,7 +161,7 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
           <View style={styles.featuresContainer}>
             <View style={styles.feature}>
               <View style={styles.featureIcon}>
-                <Ionicons name="scan" size={24} color="#4facfe" />
+                <Ionicons name="scan" size={24} color={tokens.color.brand} />
               </View>
               <View style={styles.featureContent}>
                 <Text style={styles.featureTitle}>Smart Room Analysis</Text>
@@ -114,7 +171,7 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
 
             <View style={styles.feature}>
               <View style={styles.featureIcon}>
-                <Ionicons name="color-palette" size={24} color="#4facfe" />
+                <Ionicons name="color-palette" size={24} color={tokens.color.brand} />
               </View>
               <View style={styles.featureContent}>
                 <Text style={styles.featureTitle}>Professional Styles</Text>
@@ -124,7 +181,7 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
 
             <View style={styles.feature}>
               <View style={styles.featureIcon}>
-                <Ionicons name="flash" size={24} color="#4facfe" />
+                <Ionicons name="flash" size={24} color={tokens.color.brand} />
               </View>
               <View style={styles.featureContent}>
                 <Text style={styles.featureTitle}>Instant Results</Text>
@@ -145,19 +202,21 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
           ]}
         >
           <TouchableOpacity
-            style={styles.nextButton}
+            style={styles.nextButtonContainer}
             onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding2')}
-            activeOpacity={0.8}
+            activeOpacity={0.9}
             testID="continue-button"
           >
             <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
-              style={styles.buttonGradient}
+              colors={[tokens.color.brandLight, tokens.color.brand]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.nextButton}
             >
-              <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="arrow-forward" size={20} color="#ffffff" />
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Continue</Text>
+                <Ionicons name="arrow-forward" size={20} color={tokens.color.accent} />
+              </View>
             </LinearGradient>
           </TouchableOpacity>
           
@@ -165,7 +224,7 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
             Join thousands of users transforming their spaces
           </Text>
         </Animated.View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -173,36 +232,36 @@ const OnboardingScreen1: React.FC<OnboardingScreen1Props> = ({ onNext }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e'
+    backgroundColor: tokens.color.bgApp,
   },
-  gradient: {
+  screenBackground: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight || 0,
+    backgroundColor: tokens.color.bgApp,
   },
   progressContainer: {
-    paddingHorizontal: 30,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingTop: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.md,
   },
   progressBar: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    marginBottom: 8,
+    backgroundColor: tokens.color.borderSoft,
+    borderRadius: tokens.radius.sm,
+    marginBottom: tokens.spacing.sm,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4facfe',
-    borderRadius: 2,
+    backgroundColor: tokens.color.brand,
+    borderRadius: tokens.radius.sm,
   },
   progressText: {
-    fontSize: 14,
-    color: '#b8c6db',
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
     textAlign: 'center',
   },
   heroContainer: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: tokens.spacing.xxl,
   },
   aiVisualization: {
     position: 'relative',
@@ -213,13 +272,10 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    backgroundColor: tokens.color.accent,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4facfe',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 10,
+    ...tokens.shadow.e2,
   },
   sparkles: {
     position: 'absolute',
@@ -243,24 +299,22 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 30,
+    paddingHorizontal: tokens.spacing.xl,
     alignItems: 'center',
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#ffffff',
+    ...tokens.type.display,
+    color: tokens.color.textPrimary,
     textAlign: 'center',
-    marginBottom: 16,
-    lineHeight: 40,
+    marginBottom: tokens.spacing.md,
   },
   subtitle: {
     fontSize: 18,
-    color: '#b8c6db',
+    color: tokens.color.textSecondary,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: tokens.spacing.xxl,
     lineHeight: 26,
-    paddingHorizontal: 10,
+    paddingHorizontal: tokens.spacing.md,
   },
   featuresContainer: {
     width: '100%',
@@ -268,19 +322,20 @@ const styles = StyleSheet.create({
   feature: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 24,
-    paddingHorizontal: 10,
+    marginBottom: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.md,
   },
   featureIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: 'rgba(79, 172, 254, 0.15)',
+    backgroundColor: tokens.color.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: tokens.spacing.md,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: tokens.color.borderSoft,
+    ...tokens.shadow.e2,
   },
   featureContent: {
     flex: 1,
@@ -288,45 +343,43 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 17,
-    color: '#ffffff',
+    color: tokens.color.textPrimary,
     fontWeight: '600',
     marginBottom: 4,
   },
   featureText: {
     fontSize: 15,
-    color: '#8892b0',
+    color: tokens.color.textSecondary,
     lineHeight: 22,
   },
   bottomContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 40,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.xxl,
+  },
+  nextButtonContainer: {
+    marginBottom: tokens.spacing.md,
+    borderRadius: tokens.radius.pill,
+    ...tokens.shadow.brandShadow,
   },
   nextButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-    shadowColor: '#4facfe',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-    marginBottom: 16,
+    borderRadius: tokens.radius.pill,
   },
-  buttonGradient: {
+  buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: tokens.spacing.md,
+    paddingHorizontal: tokens.spacing.xl,
   },
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
-    marginRight: 8,
+    color: tokens.color.accent,
+    marginRight: tokens.spacing.sm,
   },
   skipText: {
-    fontSize: 14,
-    color: '#8892b0',
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
     textAlign: 'center',
   },
 });

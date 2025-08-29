@@ -172,11 +172,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           {/* Trust indicators */}
           <View style={styles.trustContainer}>
             <View style={styles.trustItem}>
-              <View style={styles.laurelContainer}>
-                <MaterialIcons name="eco" size={16} color={tokens.color.brand} style={styles.laurelLeft} />
-                <MaterialIcons name="eco" size={16} color={tokens.color.brand} style={styles.laurelRight} />
-              </View>
-              <View style={styles.trustContent}>
+              <View style={styles.trustBadge}>
+                <View style={styles.laurelContainer}>
+                  <Text style={styles.laurelIcon}>🏆</Text>
+                </View>
                 <Text style={styles.trustLabel}>Trusted by over</Text>
                 <Text style={styles.trustValue}>1,000,000+</Text>
                 <View style={styles.starsContainer}>
@@ -184,7 +183,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
                     <Ionicons 
                       key={star} 
                       name="star" 
-                      size={14} 
+                      size={12} 
                       color={tokens.color.brand} 
                     />
                   ))}
@@ -192,12 +191,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
               </View>
             </View>
 
+            <View style={styles.trustSeparator} />
+
             <View style={styles.trustItem}>
-              <View style={styles.laurelContainer}>
-                <MaterialIcons name="eco" size={16} color={tokens.color.brand} style={styles.laurelLeft} />
-                <MaterialIcons name="eco" size={16} color={tokens.color.brand} style={styles.laurelRight} />
-              </View>
-              <View style={styles.trustContent}>
+              <View style={styles.trustBadge}>
+                <View style={styles.laurelContainer}>
+                  <Text style={styles.laurelIcon}>🏆</Text>
+                </View>
                 <Text style={styles.trustValue}>4.8</Text>
                 <Text style={styles.trustLabel}>Average Rating</Text>
                 <View style={styles.starsContainer}>
@@ -205,7 +205,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
                     <Ionicons 
                       key={star} 
                       name="star" 
-                      size={14} 
+                      size={12} 
                       color={tokens.color.brand} 
                     />
                   ))}
@@ -214,26 +214,21 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <TouchableOpacity 
             onPress={handleGetStarted}
             activeOpacity={0.9}
             style={styles.ctaButtonContainer}
           >
-            <LinearGradient
-              colors={['#E8C097', '#D4A574']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.ctaButton}
-            >
+            <View style={styles.ctaButton}>
               <Text style={styles.ctaText}>Get Started</Text>
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
-          {/* Login Button for Existing Users */}
+          {/* Login Link for Existing Users */}
           <TouchableOpacity 
             onPress={handleLogin}
-            activeOpacity={0.9}
+            activeOpacity={0.7}
             style={styles.loginButtonContainer}
           >
             <Text style={styles.loginText}>Already have an account? Log in</Text>
@@ -356,28 +351,31 @@ const styles = StyleSheet.create({
   },
   trustContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     width: '100%',
-    marginBottom: tokens.spacing.xxxl + tokens.spacing.sm,
+    marginBottom: tokens.spacing.xxxl,
+    paddingHorizontal: tokens.spacing.md,
   },
   trustItem: {
-    alignItems: 'center',
     flex: 1,
   },
+  trustBadge: {
+    backgroundColor: 'rgba(212, 165, 116, 0.1)',
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.lg,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 165, 116, 0.2)',
+  },
+  trustSeparator: {
+    width: tokens.spacing.md,
+  },
   laurelContainer: {
-    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: tokens.spacing.sm,
   },
-  laurelLeft: {
-    transform: [{ rotate: '-30deg' }],
-    marginRight: 5,
-  },
-  laurelRight: {
-    transform: [{ rotate: '30deg' }, { scaleX: -1 }],
-    marginLeft: 5,
-  },
-  trustContent: {
-    alignItems: 'center',
+  laurelIcon: {
+    fontSize: 20,
   },
   trustLabel: {
     fontSize: tokens.type.caption.size,
@@ -399,30 +397,33 @@ const styles = StyleSheet.create({
   },
   ctaButtonContainer: {
     width: '100%',
-    maxWidth: 320,
-    shadowColor: '#D4A574',
+    borderRadius: tokens.radius.pill,
+    overflow: 'hidden',
+    shadowColor: tokens.color.brand,
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   ctaButton: {
-    paddingVertical: tokens.spacing.lg + tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.xxxl - tokens.spacing.sm,
-    borderRadius: tokens.radius.pill,
+    backgroundColor: '#D4A574',
+    paddingVertical: 18,
+    paddingHorizontal: 48,
     alignItems: 'center',
-    height: 54,
     justifyContent: 'center',
+    height: 56,
+    borderRadius: 999,
   },
   ctaText: {
-    color: tokens.color.accent,
-    fontSize: tokens.type.subtitle.size,
-    lineHeight: tokens.type.subtitle.lineHeight,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+    color: '#FFFFFF',
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   loginButtonContainer: {
     marginTop: tokens.spacing.lg,

@@ -30,7 +30,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
 
   // Set current step when screen mounts
   useEffect(() => {
-    journeyStore.setCurrentStep(12, 'results');
+    journeyStore.setCurrentStep(11, 'results');
   }, []);
 
   const handleNextDesign = () => {
@@ -51,7 +51,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
     }
 
     // Générer un nouveau design
-    navigation.navigate('Processing', route.params);
+    navigation.navigate('processing', route.params);
   };
 
   const handleZoom = () => {
@@ -72,8 +72,8 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
         name: projectName,
         room_type: roomType,
         style_preferences: [selectedStyle],
-        budget_min: budgetRange?.[0],
-        budget_max: budgetRange?.[1],
+        budget_min: typeof budgetRange?.[0] === 'number' ? budgetRange[0] : parseFloat(String(budgetRange?.[0] || 0).replace('$', '')),
+        budget_max: typeof budgetRange?.[1] === 'number' ? budgetRange[1] : parseFloat(String(budgetRange?.[1] || 0).replace('$', '')),
         original_images: capturedImage ? [{ url: capturedImage }] : [],
         status: 'completed',
         updated_at: now,
@@ -104,23 +104,23 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
         }
       }
 
-      navigation.navigate('MyProjects');
+      navigation.navigate('myProjects');
     } catch (e) {
       console.error('Erreur lors de la sauvegarde du projet:', e);
     }
   };
 
   const handleViewProjects = () => {
-    navigation.navigate('MyProjects');
+    navigation.navigate('myProjects');
   };
 
   const handleBack = () => {
-    navigation.navigate('MyProjects');
+    navigation.navigate('myProjects');
   };
 
   const handleOpenSettings = () => {
     // Ouvrir l'écran de paramètres du projet (édition)
-    navigation.navigate('ProjectSettings', {
+    navigation.navigate('projectSettings', {
       projectId: route.params?.projectId ?? null,
       projectName,
       roomType,
@@ -133,16 +133,13 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{projectName}</Text>
           <TouchableOpacity 
@@ -150,7 +147,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
             onPress={handleOpenSettings}
             activeOpacity={0.7}
           >
-            <Ionicons name="settings-outline" size={22} color="#ffffff" />
+            <Ionicons name="settings-outline" size={22} color="#2D2B28" />
           </TouchableOpacity>
         </View>
 
@@ -232,9 +229,9 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
                   maximumValue={1}
                   value={sliderValue}
                   onValueChange={setSliderValue}
-                  minimumTrackTintColor="#4facfe"
-                  maximumTrackTintColor="rgba(255,255,255,0.3)"
-                  thumbTintColor="#4facfe"
+                  minimumTrackTintColor="#D4A574"
+                  maximumTrackTintColor="#E6DDD1"
+                  thumbTintColor="#D4A574"
                 />
               </View>
             </View>
@@ -247,7 +244,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
                 activeOpacity={0.8}
               >
                 <View style={styles.actionButtonContent}>
-                  <Ionicons name="refresh" size={20} color="#4facfe" />
+                  <Ionicons name="refresh" size={20} color="#D4A574" />
                   <Text style={styles.actionButtonText}>Re-Generate</Text>
                 </View>
               </TouchableOpacity>
@@ -258,15 +255,15 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
               <Text style={styles.projectName}>{projectName}</Text>
               <View style={styles.projectMeta}>
                 <View style={styles.metaItem}>
-                  <Ionicons name="home-outline" size={16} color="#b8c6db" />
+                  <Ionicons name="home-outline" size={16} color="#8B7F73" />
                   <Text style={styles.metaText}>{roomType}</Text>
                 </View>
                 <View style={styles.metaItem}>
-                  <Ionicons name="color-palette-outline" size={16} color="#b8c6db" />
+                  <Ionicons name="color-palette-outline" size={16} color="#8B7F73" />
                   <Text style={styles.metaText}>{selectedStyle}</Text>
                 </View>
                 <View style={styles.metaItem}>
-                  <Ionicons name="card-outline" size={16} color="#b8c6db" />
+                  <Ionicons name="card-outline" size={16} color="#8B7F73" />
                   <Text style={styles.metaText}>
                     ${Math.round(budgetRange[0]).toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 })} - ${Math.round(budgetRange[1]).toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
                   </Text>
@@ -286,17 +283,17 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
+              colors={['#E8C097', '#D4A574']}
               style={styles.buttonGradient}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <Ionicons name="bookmark" size={20} color="#ffffff" />
+              <Ionicons name="bookmark" size={20} color="#2D2B28" />
               <Text style={styles.buttonText}>Save Project</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
     </SafeAreaView>
   );
 };
@@ -304,10 +301,11 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
     flex: 1,
+    backgroundColor: '#FBF9F4',
   },
   header: {
     flexDirection: 'row',
@@ -321,23 +319,39 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
   },
   headerTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
   },
   menuButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
   },
   scrollView: {
     flex: 1,
@@ -353,17 +367,20 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 16,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: '#FEFEFE',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
     elevation: 8,
+    borderWidth: 1,
+    borderColor: '#E6DDD1',
   },
   imagePlaceholder: {
     flex: 1,
@@ -530,8 +547,8 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 2,
-    backgroundColor: '#4facfe',
-    shadowColor: '#4facfe',
+    backgroundColor: '#D4A574',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -557,7 +574,7 @@ const styles = StyleSheet.create({
   labelText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#b8c6db',
+    color: '#8B7F73',
     letterSpacing: 1,
   },
   sliderContainer: {
@@ -569,10 +586,10 @@ const styles = StyleSheet.create({
     height: 40,
   },
   sliderThumb: {
-    backgroundColor: '#4facfe',
+    backgroundColor: '#D4A574',
     width: 20,
     height: 20,
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -589,10 +606,18 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   actionButtonContent: {
     flexDirection: 'row',
@@ -604,21 +629,29 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#D4A574',
     marginLeft: 8,
   },
   projectDetails: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
-    padding: 20,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
+    padding: 24,
     marginBottom: 30,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   projectName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 15,
   },
   projectMeta: {
@@ -630,7 +663,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginLeft: 8,
     textTransform: 'capitalize',
   },
@@ -658,16 +691,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   saveButton: {
-    borderRadius: 30,
+    borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -679,7 +712,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
     marginLeft: 10,
   },

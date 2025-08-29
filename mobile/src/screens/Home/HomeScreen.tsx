@@ -19,7 +19,7 @@ const HomeScreen = ({ navigation }: any) => {
   }, []);
 
   const handleCreateProject = () => {
-    navigation.navigate('MyProjects');
+    navigation.navigate('myProjects');
   };
 
   const handleTakePhoto = () => {

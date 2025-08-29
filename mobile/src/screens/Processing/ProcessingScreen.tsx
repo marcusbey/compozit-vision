@@ -7,23 +7,99 @@ import {
   StatusBar,
   Dimensions,
   Animated,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../../stores/userStore';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
+// 🚀 NEW: Import our AI service
+import { getGeminiService, RoomAnalysisInput, DesignRecommendation } from '../../services/geminiService';
+
 const { width } = Dimensions.get('window');
+
+// Design tokens - Updated to warm color scheme
+const tokens = {
+  color: {
+    bgApp: "#FBF9F4",
+    bgSecondary: "#F5F1E8", 
+    surface: "#FEFEFE",
+    textPrimary: "#2D2B28",
+    textSecondary: "#8B7F73",
+    textMuted: "#B8AFA4",
+    textInverse: "#FEFEFE",
+    borderSoft: "#E6DDD1",
+    borderWarm: "#D4C7B5",
+    brand: "#D4A574",
+    brandLight: "#E8C097",
+    brandDark: "#B8935F",
+    accent: "#2D2B28",
+    accentSoft: "#5A564F",
+    warm: "#E8C097",
+    warmDark: "#D4A574",
+    scrim: "rgba(45,43,40,0.45)",
+    scrimHeavy: "rgba(45,43,40,0.65)",
+    success: "#7FB069",
+    error: "#E07A5F",
+    warning: "#F2CC8F",
+  },
+  radius: { sm: 8, md: 12, lg: 16, xl: 24, pill: 999 },
+  shadow: {
+    e1: { shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+    e2: { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+    e3: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+    brand: { shadowColor: "#D4A574", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  },
+  gradient: {
+    brand: ["#E8C097", "#D4A574"],
+    accent: ["#2D2B28", "#5A564F"],
+    processing: ["#D4A574", "#B8935F"],
+    surface: ["#FEFEFE", "#F5F1E8"],
+  },
+  type: {
+    display: { fontSize: 32, lineHeight: 40, fontWeight: "700" as const },
+    h1: { fontSize: 28, lineHeight: 36, fontWeight: "600" as const },
+    h2: { fontSize: 22, lineHeight: 28, fontWeight: "600" as const },
+    h3: { fontSize: 18, lineHeight: 24, fontWeight: "500" as const },
+    body: { fontSize: 16, lineHeight: 22, fontWeight: "400" as const },
+    small: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
+    caption: { fontSize: 12, lineHeight: 16, fontWeight: "400" as const },
+  },
+  spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 },
+};
 
 interface ProcessingScreenProps {
   navigation?: any;
   route?: any;
 }
 
+interface ProcessingState {
+  isProcessing: boolean;
+  progress: number;
+  currentStep: string;
+  result?: DesignRecommendation;
+  error?: string;
+  processingTime?: number;
+  useRealAI: boolean;
+}
+
 const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }) => {
-  const [progress, setProgress] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
+  // 🚀 NEW: Real AI processing state
+  const [processingState, setProcessingState] = useState<ProcessingState>({
+    isProcessing: false,
+    progress: 0,
+    currentStep: 'Ready to analyze your space',
+    useRealAI: true, // Toggle between real AI and mock processing
+  });
+  
+  const [customPrompt, setCustomPrompt] = useState('');
   const progressAnim = new Animated.Value(0);
   
   // Get data from stores if route params not provided
@@ -39,7 +115,7 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
     capturedImage: journeyStore.capturedImage || null
   };
 
-  const processingSteps = [
+  const mockProcessingSteps = [
     'Analyzing your space...',
     'Detecting room elements...',
     'Applying AI transformation...',
@@ -49,24 +125,154 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
   ];
 
   useEffect(() => {
-    // Set current step when screen mounts
-    journeyStore.setCurrentStep(11, 'processing');
+    journeyStore.setCurrentStep(10, 'processing');
+    
+    // Auto-start processing when screen loads
+    if (processingState.useRealAI && capturedImage) {
+      handleStartRealAIProcessing();
+    } else {
+      handleStartMockProcessing();
+    }
   }, []);
 
-  useEffect(() => {
-    // Skip credit check for subscription-based users
-    // If user doesn't have credits, they should have gone through paywall first
+  // 🚀 NEW: Real AI Processing Function
+  const handleStartRealAIProcessing = async () => {
+    if (!capturedImage) {
+      Alert.alert('Error', 'No room image found. Please go back and capture a photo.');
+      return;
+    }
+
+    setProcessingState(prev => ({
+      ...prev,
+      isProcessing: true,
+      progress: 10,
+      currentStep: 'Initializing AI processing...',
+    }));
+
+    try {
+      const geminiService = getGeminiService();
+
+      // Step 1: Prepare input
+      setProcessingState(prev => ({
+        ...prev,
+        progress: 25,
+        currentStep: 'Preparing image for analysis...',
+      }));
+
+      // Convert image URI to base64 if needed
+      let imageData = capturedImage;
+      if (typeof capturedImage === 'string' && !capturedImage.startsWith('data:image/')) {
+        // In real implementation, convert file URI to base64
+        imageData = `data:image/jpeg;base64,${capturedImage}`;
+      }
+
+      const analysisInput: RoomAnalysisInput = {
+        imageData,
+        roomDimensions: {
+          width: 4, // Default dimensions - in real app, get from AR measurement
+          height: 3,
+          length: 5,
+          roomType: roomType || 'living-room',
+          lightingSources: ['window', 'ceiling-light'],
+        },
+        stylePreferences: {
+          primaryStyle: selectedStyle || 'modern',
+          colors: ['white', 'gray', 'beige'],
+          budget: budgetRange || '5000-10000',
+          preferredMaterials: ['wood', 'fabric', 'metal'],
+        },
+        customPrompt: customPrompt || 'Create a functional and aesthetically pleasing design',
+      };
+
+      // Step 2: AI Analysis
+      setProcessingState(prev => ({
+        ...prev,
+        progress: 50,
+        currentStep: 'AI is analyzing your room...',
+      }));
+
+      const startTime = Date.now();
+      const result = await geminiService.analyzeRoom(analysisInput);
+      const endTime = Date.now();
+
+      if (!result.success) {
+        throw new Error(result.error || 'AI processing failed');
+      }
+
+      // Step 3: Processing complete
+      setProcessingState({
+        isProcessing: false,
+        progress: 100,
+        currentStep: 'AI analysis complete!',
+        result: result.data,
+        processingTime: endTime - startTime,
+        useRealAI: true,
+      });
+
+      // Navigate to results after showing success
+      setTimeout(() => {
+        if (navigation?.navigate) {
+          navigation.navigate('results', {
+            projectName,
+            roomType,
+            selectedStyle,
+            budgetRange,
+            selectedItems,
+            capturedImage,
+            aiDesignData: result.data, // 🚀 Pass real AI results
+          });
+        } else {
+          NavigationHelpers.navigateToScreen('results');
+        }
+      }, 2000);
+
+    } catch (error) {
+      console.error('AI Processing Error:', error);
+      
+      setProcessingState({
+        isProcessing: false,
+        progress: 0,
+        currentStep: 'Processing failed',
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        useRealAI: true,
+      });
+
+      Alert.alert(
+        'AI Processing Failed',
+        error instanceof Error ? error.message : 'An unknown error occurred',
+        [
+          { text: 'Use Mock Processing', onPress: () => {
+            setProcessingState(prev => ({ ...prev, useRealAI: false }));
+            handleStartMockProcessing();
+          }},
+          { text: 'Retry AI', onPress: handleStartRealAIProcessing },
+          { text: 'Cancel' }
+        ]
+      );
+    }
+  };
+
+  // Original mock processing (fallback)
+  const handleStartMockProcessing = () => {
+    setProcessingState(prev => ({
+      ...prev,
+      isProcessing: true,
+      progress: 0,
+      currentStep: mockProcessingSteps[0],
+      useRealAI: false,
+    }));
 
     const interval = setInterval(() => {
-      setProgress(prev => {
-        const newProgress = prev + Math.random() * 15 + 5;
+      setProcessingState(prev => {
+        const newProgress = prev.progress + Math.random() * 15 + 5;
+        const stepIndex = Math.floor((newProgress / 100) * mockProcessingSteps.length);
+        const currentStep = mockProcessingSteps[Math.min(stepIndex, mockProcessingSteps.length - 1)];
+        
         if (newProgress >= 100) {
           clearInterval(interval);
-          setTimeout(async () => {
-            // For subscription users, proceed directly to results
-            // Token consumption handled by subscription system
+          setTimeout(() => {
             if (navigation?.navigate) {
-              navigation.navigate('Results', {
+              navigation.navigate('results', {
                 projectName,
                 roomType,
                 selectedStyle,
@@ -78,101 +284,229 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
               NavigationHelpers.navigateToScreen('results');
             }
           }, 1000);
-          return 100;
+          return { ...prev, progress: 100, currentStep: 'Design complete!', isProcessing: false };
         }
-        return newProgress;
+        return { ...prev, progress: newProgress, currentStep };
       });
     }, 800);
-
-    return () => clearInterval(interval);
-  }, []);
+  };
 
   useEffect(() => {
-    const stepIndex = Math.floor((progress / 100) * processingSteps.length);
-    setCurrentStep(Math.min(stepIndex, processingSteps.length - 1));
-    
     Animated.timing(progressAnim, {
-      toValue: progress,
+      toValue: processingState.progress,
       duration: 300,
       useNativeDriver: false,
     }).start();
-  }, [progress]);
+  }, [processingState.progress]);
+
+  // Reset welcome screen for testing
+  const handleResetWelcome = () => {
+    Alert.alert(
+      'Reset Welcome Screen', 
+      'This will clear the welcome flag and restart the app from the welcome screen.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Reset', 
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('hasSeenWelcome');
+              await AsyncStorage.clear();
+              console.log('✅ Welcome screen reset - app will restart from welcome');
+              Alert.alert('Success', 'Please reload the app to see the welcome screen');
+            } catch (error) {
+              console.error('Error resetting welcome:', error);
+              Alert.alert('Error', 'Failed to reset welcome screen');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // 🚀 NEW: Toggle between AI modes
+  const handleToggleAIMode = () => {
+    Alert.alert(
+      'Switch Processing Mode',
+      `Currently using: ${processingState.useRealAI ? 'Real AI Processing' : 'Mock Processing'}\n\nSwitch to ${processingState.useRealAI ? 'mock' : 'real AI'} processing?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Switch',
+          onPress: () => {
+            setProcessingState(prev => ({
+              ...prev,
+              useRealAI: !prev.useRealAI,
+              isProcessing: false,
+              progress: 0,
+              currentStep: 'Ready to analyze your space',
+              error: undefined,
+              result: undefined,
+            }));
+          }
+        }
+      ]
+    );
+  };
+
+  // 🚀 NEW: Render AI results preview
+  const renderAIResults = () => {
+    if (!processingState.result) return null;
+
+    const { result } = processingState;
+
+    return (
+      <View style={styles.resultsPreview}>
+        <LinearGradient
+          colors={tokens.gradient.surface}
+          style={styles.resultsCard}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <Text style={styles.resultsTitle}>AI Analysis Complete!</Text>
+          
+          {/* Confidence Score */}
+          <View style={styles.confidenceContainer}>
+            <Text style={styles.confidenceLabel}>AI Confidence</Text>
+            <View style={styles.confidenceBar}>
+              <LinearGradient
+                colors={tokens.gradient.processing}
+                style={[styles.confidenceFill, { width: `${(result.confidenceScore || 0) * 100}%` }]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
+            </View>
+            <Text style={styles.confidenceText}>
+              {Math.round((result.confidenceScore || 0) * 100)}%
+            </Text>
+          </View>
+
+          <Text style={styles.conceptText} numberOfLines={3}>
+            {result.overallDesignConcept}
+          </Text>
+          
+          <Text style={styles.furnitureCount}>
+            {result.furniture?.length || 0} furniture recommendations
+          </Text>
+
+          {processingState.processingTime && (
+            <Text style={styles.timeText}>
+              Processed in {processingState.processingTime}ms
+            </Text>
+          )}
+        </LinearGradient>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" />
       
       <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
+        colors={['#FBF9F4', '#F5F1E8']}
         style={styles.gradient}
       >
-        {/* Header avec tags de style */}
+        {/* Header with AI mode indicator */}
         <View style={styles.header}>
           <View style={styles.tagsContainer}>
+            <TouchableOpacity style={styles.tag} onPress={handleToggleAIMode}>
+              <Ionicons 
+                name={processingState.useRealAI ? "flash" : "flash-off"} 
+                size={16} 
+                color="#D4A574" 
+              />
+              <Text style={styles.tagText}>
+                {processingState.useRealAI ? 'Real AI' : 'Mock'}
+              </Text>
+            </TouchableOpacity>
             <View style={styles.tag}>
-              <Ionicons name="home" size={16} color="#4facfe" />
-              <Text style={styles.tagText}>AI</Text>
+              <Text style={styles.tagText}>{selectedStyle}</Text>
             </View>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>Modern</Text>
-            </View>
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>Minimalist</Text>
+              <Text style={styles.tagText}>{roomType}</Text>
             </View>
           </View>
+          
+          {/* Development Reset Button */}
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.devResetButton}
+              onPress={handleResetWelcome}
+            >
+              <Text style={styles.devResetText}>🔄</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
-        {/* Contenu principal */}
-        <View style={styles.content}>
-          {/* Illustration de la pièce en cours d'analyse */}
+        <ScrollView style={styles.scrollContainer}>
+          {/* Custom Prompt Input */}
+          {processingState.useRealAI && !processingState.isProcessing && !processingState.result && (
+            <View style={styles.promptContainer}>
+              <Text style={styles.promptLabel}>Custom Design Instructions (Optional)</Text>
+              <TextInput
+                style={styles.promptInput}
+                value={customPrompt}
+                onChangeText={setCustomPrompt}
+                placeholder="e.g., Focus on maximizing natural light and storage..."
+                multiline
+                numberOfLines={3}
+                placeholderTextColor={tokens.color.textMuted}
+              />
+            </View>
+          )}
+
+          {/* Room Illustration */}
           <View style={styles.roomIllustration}>
             <LinearGradient
-              colors={['#f8f9fa', '#e9ecef']}
+              colors={['#FEFEFE', '#F5F1E8']}
               style={styles.roomContainer}
             >
-              {/* Simulation d'une pièce en cours d'analyse */}
+              {/* Simulation of room being analyzed */}
               <View style={styles.room}>
                 <View style={styles.wall}>
                   <View style={styles.artwork} />
                 </View>
                 <View style={styles.furniture}>
-                  <View style={[styles.sofa, { opacity: progress > 30 ? 1 : 0.3 }]} />
-                  <View style={[styles.coffeeTable, { opacity: progress > 50 ? 1 : 0.3 }]} />
-                  <View style={[styles.lamp, { opacity: progress > 70 ? 1 : 0.3 }]} />
+                  <View style={[styles.sofa, { opacity: processingState.progress > 30 ? 1 : 0.3 }]} />
+                  <View style={[styles.coffeeTable, { opacity: processingState.progress > 50 ? 1 : 0.3 }]} />
+                  <View style={[styles.lamp, { opacity: processingState.progress > 70 ? 1 : 0.3 }]} />
                 </View>
-                <View style={[styles.rug, { opacity: progress > 40 ? 1 : 0.3 }]} />
+                <View style={[styles.rug, { opacity: processingState.progress > 40 ? 1 : 0.3 }]} />
               </View>
               
-              {/* Overlay d'analyse avec effet de scan */}
-              <View style={styles.analysisOverlay}>
-                <Animated.View 
-                  style={[
-                    styles.scanLine,
-                    {
-                      transform: [{
-                        translateY: progressAnim.interpolate({
-                          inputRange: [0, 100],
-                          outputRange: [0, 200],
-                        })
-                      }]
-                    }
-                  ]}
-                />
-              </View>
+              {/* Analysis overlay with scan effect */}
+              {processingState.isProcessing && (
+                <View style={styles.analysisOverlay}>
+                  <Animated.View 
+                    style={[
+                      styles.scanLine,
+                      {
+                        transform: [{
+                          translateY: progressAnim.interpolate({
+                            inputRange: [0, 100],
+                            outputRange: [0, 200],
+                          })
+                        }]
+                      }
+                    ]}
+                  />
+                </View>
+              )}
             </LinearGradient>
           </View>
 
-          {/* Texte de progression */}
+          {/* Processing Status */}
           <Text style={styles.processingTitle}>
-            {processingSteps[currentStep]}
+            {processingState.currentStep}
           </Text>
 
-          {/* Barre de progression */}
+          {/* Progress Bar */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
               <Animated.View 
                 style={[
-                  styles.progressFill,
+                  styles.progressFillContainer,
                   {
                     width: progressAnim.interpolate({
                       inputRange: [0, 100],
@@ -180,41 +514,109 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
                     })
                   }
                 ]}
-              />
+              >
+                <LinearGradient
+                  colors={['#E8C097', '#D4A574']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.progressFill}
+                />
+              </Animated.View>
             </View>
             <Text style={styles.progressText}>
-              {Math.round(progress)}%
+              {Math.round(processingState.progress)}%
             </Text>
           </View>
 
-          {/* Informations du projet */}
+          {/* Processing Indicator */}
+          {processingState.isProcessing && (
+            <View style={styles.spinnerContainer}>
+              <ActivityIndicator 
+                size="large" 
+                color={tokens.color.brand}
+                style={styles.spinner}
+              />
+              <View style={styles.processingDots}>
+                <View style={[styles.dot, styles.dot1]} />
+                <View style={[styles.dot, styles.dot2]} />
+                <View style={[styles.dot, styles.dot3]} />
+              </View>
+            </View>
+          )}
+
+          {/* Error Display */}
+          {processingState.error && (
+            <View style={styles.errorContainer}>
+              <LinearGradient
+                colors={tokens.gradient.surface}
+                style={styles.errorCard}
+              >
+                <Text style={styles.errorTitle}>Processing Error</Text>
+                <Text style={styles.errorText}>{processingState.error}</Text>
+                
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={processingState.useRealAI ? handleStartRealAIProcessing : handleStartMockProcessing}
+                  activeOpacity={0.9}
+                >
+                  <LinearGradient
+                    colors={tokens.gradient.brand}
+                    style={styles.retryButtonGradient}
+                  >
+                    <Text style={styles.retryButtonText}>Retry Processing</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
+          )}
+
+          {/* AI Results Preview */}
+          {renderAIResults()}
+
+          {/* Project Info */}
           <View style={styles.projectInfo}>
             <View style={styles.infoItem}>
-              <Ionicons name="home-outline" size={20} color="#4facfe" />
+              <Ionicons name="home-outline" size={20} color="#D4A574" />
               <Text style={styles.infoText}>{roomType}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="color-palette-outline" size={20} color="#4facfe" />
+              <Ionicons name="color-palette-outline" size={20} color="#D4A574" />
               <Text style={styles.infoText}>{selectedStyle}</Text>
             </View>
             <View style={styles.infoItem}>
-              <Ionicons name="card-outline" size={20} color="#4facfe" />
-              <Text style={styles.infoText}>
-                ${Math.round(budgetRange[0]).toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 })} - ${Math.round(budgetRange[1]).toLocaleString(undefined, { maximumFractionDigits: 0, minimumFractionDigits: 0 })}
-              </Text>
+              <Ionicons name="card-outline" size={20} color="#D4A574" />
+              <Text style={styles.infoText}>{budgetRange}</Text>
             </View>
           </View>
 
-          {/* Message d'encouragement */}
+          {/* Encouragement */}
           <View style={styles.encouragementContainer}>
             <Text style={styles.encouragementText}>
-              Creating your perfect space...
+              {processingState.useRealAI ? 'AI is creating your perfect space...' : 'Creating your perfect space...'}
             </Text>
             <Text style={styles.encouragementSubtext}>
-              This usually takes 30-60 seconds
+              {processingState.useRealAI ? 'Real AI analysis in progress' : 'This usually takes 30-60 seconds'}
             </Text>
           </View>
-        </View>
+
+          {/* Start Processing Button */}
+          {!processingState.isProcessing && !processingState.result && !processingState.error && (
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={processingState.useRealAI ? handleStartRealAIProcessing : handleStartMockProcessing}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={tokens.gradient.brand}
+                style={styles.startButtonGradient}
+              >
+                <Text style={styles.startButtonText}>
+                  Start {processingState.useRealAI ? 'AI' : 'Mock'} Processing
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -223,9 +625,12 @@ const ProcessingScreen: React.FC<ProcessingScreenProps> = ({ navigation, route }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
+    flex: 1,
+  },
+  scrollContainer: {
     flex: 1,
   },
   header: {
@@ -241,28 +646,46 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: 'rgba(212, 165, 116, 0.1)',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: 'rgba(212, 165, 116, 0.3)',
   },
   tagText: {
     fontSize: 14,
-    color: '#4facfe',
+    color: '#D4A574',
     fontWeight: '500',
     marginLeft: 5,
   },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  
+  // Custom Prompt Styles
+  promptContainer: {
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
+  promptLabel: {
+    ...tokens.type.h3,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.sm,
+  },
+  promptInput: {
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.lg,
+    ...tokens.type.body,
+    color: tokens.color.textPrimary,
+    textAlignVertical: 'top',
+    minHeight: 80,
+  },
+  
   roomIllustration: {
     width: width * 0.8,
     height: 250,
+    alignSelf: 'center',
     marginBottom: 40,
     borderRadius: 20,
     overflow: 'hidden',
@@ -271,9 +694,11 @@ const styles = StyleSheet.create({
       width: 0,
       height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E6DDD1',
   },
   roomContainer: {
     flex: 1,
@@ -290,7 +715,7 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 60,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F5F1E8',
   },
   artwork: {
     position: 'absolute',
@@ -298,7 +723,7 @@ const styles = StyleSheet.create({
     right: 30,
     width: 40,
     height: 30,
-    backgroundColor: '#333',
+    backgroundColor: '#2D2B28',
     borderRadius: 4,
   },
   furniture: {
@@ -314,7 +739,7 @@ const styles = StyleSheet.create({
     left: 10,
     width: 80,
     height: 40,
-    backgroundColor: '#666',
+    backgroundColor: '#8B7F73',
     borderRadius: 8,
   },
   coffeeTable: {
@@ -323,7 +748,7 @@ const styles = StyleSheet.create({
     left: 100,
     width: 40,
     height: 20,
-    backgroundColor: '#8B4513',
+    backgroundColor: '#D4A574',
     borderRadius: 4,
   },
   lamp: {
@@ -332,7 +757,7 @@ const styles = StyleSheet.create({
     right: 20,
     width: 15,
     height: 50,
-    backgroundColor: '#444',
+    backgroundColor: '#5A564F',
     borderRadius: 2,
   },
   rug: {
@@ -341,7 +766,7 @@ const styles = StyleSheet.create({
     left: 30,
     right: 30,
     height: 15,
-    backgroundColor: '#8B0000',
+    backgroundColor: '#E8C097',
     borderRadius: 8,
   },
   analysisOverlay: {
@@ -350,15 +775,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: 'rgba(212, 165, 116, 0.1)',
   },
   scanLine: {
     position: 'absolute',
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: '#4facfe',
-    shadowColor: '#4facfe',
+    backgroundColor: '#D4A574',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 0,
@@ -370,49 +795,195 @@ const styles = StyleSheet.create({
   processingTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 30,
+    paddingHorizontal: 20,
   },
   progressContainer: {
-    width: '100%',
+    paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 40,
   },
   progressBar: {
     width: '100%',
     height: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#E6DDD1',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 10,
   },
+  progressFillContainer: {
+    height: '100%',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4facfe',
     borderRadius: 4,
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
       height: 0,
     },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 2,
   },
   progressText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#D4A574',
   },
-  projectInfo: {
+
+  // Spinner Styles
+  spinnerContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  spinner: {
+    marginBottom: tokens.spacing.lg,
+  },
+  processingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: tokens.color.brand,
+    marginHorizontal: 4,
+  },
+  dot1: {
+    opacity: 0.4,
+  },
+  dot2: {
+    opacity: 0.7,
+  },
+  dot3: {
+    opacity: 1,
+  },
+
+  // Error Styles
+  errorContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  errorCard: {
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.xl,
+    alignItems: 'center',
+    ...tokens.shadow.e2,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+  },
+  errorTitle: {
+    ...tokens.type.h2,
+    color: tokens.color.error,
+    marginBottom: tokens.spacing.lg,
+  },
+  errorText: {
+    ...tokens.type.body,
+    color: tokens.color.textSecondary,
+    textAlign: 'center',
+    marginBottom: tokens.spacing.xl,
+  },
+  retryButton: {
+    height: 48,
+    paddingHorizontal: tokens.spacing.xl,
+    borderRadius: tokens.radius.pill,
+    ...tokens.shadow.brand,
+  },
+  retryButtonGradient: {
+    height: '100%',
+    borderRadius: tokens.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: tokens.spacing.xl,
+  },
+  retryButtonText: {
+    ...tokens.type.body,
+    color: tokens.color.accent,
+    fontWeight: '600',
+  },
+
+  // AI Results Preview Styles
+  resultsPreview: {
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
+  resultsCard: {
+    borderRadius: tokens.radius.xl,
+    padding: tokens.spacing.xl,
+    alignItems: 'center',
+    ...tokens.shadow.e2,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+  },
+  resultsTitle: {
+    ...tokens.type.h2,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.lg,
+  },
+  confidenceContainer: {
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
-    padding: 20,
+    marginBottom: tokens.spacing.lg,
+  },
+  confidenceLabel: {
+    ...tokens.type.small,
+    color: tokens.color.textSecondary,
+    marginBottom: tokens.spacing.xs,
+  },
+  confidenceBar: {
+    height: 8,
+    backgroundColor: tokens.color.borderSoft,
+    borderRadius: tokens.radius.pill,
+    overflow: 'hidden',
+    marginBottom: tokens.spacing.xs,
+  },
+  confidenceFill: {
+    height: '100%',
+    borderRadius: tokens.radius.pill,
+  },
+  confidenceText: {
+    ...tokens.type.body,
+    color: tokens.color.brand,
+    fontWeight: '600',
+    textAlign: 'right',
+  },
+  conceptText: {
+    ...tokens.type.body,
+    color: tokens.color.textPrimary,
+    textAlign: 'center',
+    marginBottom: tokens.spacing.md,
+  },
+  furnitureCount: {
+    ...tokens.type.small,
+    color: tokens.color.textSecondary,
+    marginBottom: tokens.spacing.sm,
+  },
+  timeText: {
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
+  },
+
+  projectInfo: {
+    marginHorizontal: 20,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
+    padding: 24,
     marginBottom: 30,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   infoItem: {
     flexDirection: 'row',
@@ -421,25 +992,65 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    color: '#ffffff',
+    color: '#2D2B28',
     marginLeft: 12,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
   encouragementContainer: {
     alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 40,
   },
   encouragementText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
     marginBottom: 8,
   },
   encouragementSubtext: {
     fontSize: 14,
-    color: '#8892b0',
+    color: '#B8AFA4',
     textAlign: 'center',
+  },
+
+  // Start Button Styles
+  startButton: {
+    marginHorizontal: 20,
+    height: 54,
+    borderRadius: tokens.radius.pill,
+    ...tokens.shadow.brand,
+    marginBottom: 40,
+  },
+  startButtonGradient: {
+    height: '100%',
+    borderRadius: tokens.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButtonText: {
+    ...tokens.type.h2,
+    color: tokens.color.accent,
+    fontWeight: '600',
+  },
+
+  devResetButton: {
+    position: 'absolute',
+    top: 10,
+    right: 15,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(224, 122, 95, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(224, 122, 95, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  devResetText: {
+    fontSize: 18,
+    color: '#E07A5F',
   },
 });
 

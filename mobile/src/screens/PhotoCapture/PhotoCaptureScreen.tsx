@@ -9,6 +9,8 @@ import {
   Alert,
   Image,
   Dimensions,
+  ScrollView,
+  Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,11 +27,58 @@ interface PhotoCaptureScreenProps {
   route?: any;
 }
 
+// Sample photos data - in real app, this would come from contentStore
+const SAMPLE_PHOTOS = [
+  {
+    id: 'living-room-1',
+    title: 'Modern Living Room',
+    category: 'living-room',
+    imageUri: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
+    description: 'Bright, modern living space with neutral tones'
+  },
+  {
+    id: 'bedroom-1', 
+    title: 'Cozy Bedroom',
+    category: 'bedroom',
+    imageUri: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400',
+    description: 'Minimalist bedroom with natural light'
+  },
+  {
+    id: 'kitchen-1',
+    title: 'Contemporary Kitchen',
+    category: 'kitchen',
+    imageUri: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
+    description: 'Clean, contemporary kitchen design'
+  },
+  {
+    id: 'bathroom-1',
+    title: 'Spa Bathroom',
+    category: 'bathroom', 
+    imageUri: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?w=400',
+    description: 'Luxurious spa-like bathroom'
+  },
+  {
+    id: 'dining-1',
+    title: 'Elegant Dining Room',
+    category: 'dining-room',
+    imageUri: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+    description: 'Elegant dining space for entertaining'
+  },
+  {
+    id: 'office-1',
+    title: 'Home Office',
+    category: 'home-office',
+    imageUri: 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=400',
+    description: 'Productive home office setup'
+  }
+];
+
 const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, route }) => {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('back');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [showSamples, setShowSamples] = useState(false);
   const cameraRef = useRef<CameraView>(null);
   const journeyStore = useJourneyStore();
   
@@ -81,11 +130,11 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
 
   const handleContinue = () => {
     if (capturedImage) {
-      // After photo capture, go to descriptions screen (next step in journey)
-      console.log('📸 Photo captured, proceeding to descriptions');
+      // After photo capture, go to style selection screen (next step in wizard)
+      console.log('📸 Photo captured, proceeding to style selection');
       
       if (navigation?.navigate) {
-        navigation.navigate('descriptions', {
+        navigation.navigate('styleSelection', {
           projectName,
           roomType,
           selectedStyle,
@@ -94,7 +143,7 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
           capturedImage,
         });
       } else {
-        NavigationHelpers.navigateToScreen('descriptions');
+        NavigationHelpers.navigateToScreen('styleSelection');
       }
     }
   };
@@ -113,6 +162,25 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
 
   const handleRetakePhoto = () => {
     setCapturedImage(null);
+  };
+
+  const handleShowSamples = () => {
+    setShowSamples(true);
+  };
+
+  const handleSelectSample = (samplePhoto: typeof SAMPLE_PHOTOS[0]) => {
+    setCapturedImage(samplePhoto.imageUri);
+    setShowSamples(false);
+    
+    // Store additional metadata for AI processing
+    journeyStore.updateProjectWizard({
+      selectedSamplePhoto: {
+        id: samplePhoto.id,
+        title: samplePhoto.title,
+        category: samplePhoto.category,
+        description: samplePhoto.description,
+      }
+    });
   };
 
   if (showCamera) {
@@ -154,16 +222,13 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a2e" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={true} />
       
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f3460']}
-        style={styles.gradient}
-      >
+      <View style={styles.gradient}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#ffffff" />
+            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Capture Room</Text>
           <View style={styles.placeholder} />
@@ -181,11 +246,11 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
               {/* Zone de capture */}
               <View style={styles.captureArea}>
                 <LinearGradient
-                  colors={['rgba(79, 172, 254, 0.1)', 'rgba(79, 172, 254, 0.05)']}
+                  colors={['rgba(212, 165, 116, 0.1)', 'rgba(232, 192, 151, 0.05)']}
                   style={styles.captureZone}
                 >
                   <View style={styles.captureIcon}>
-                    <Ionicons name="camera" size={60} color="#4facfe" />
+                    <Ionicons name="camera" size={60} color="#D4A574" />
                   </View>
                   <Text style={styles.captureText}>
                     Ready to capture your space
@@ -201,10 +266,10 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
                   activeOpacity={0.8}
                 >
                   <LinearGradient
-                    colors={['#4facfe', '#00f2fe']}
+                    colors={['#E8C097', '#D4A574']}
                     style={styles.actionButtonGradient}
                   >
-                    <Ionicons name="camera" size={24} color="#ffffff" />
+                    <Ionicons name="camera" size={24} color="#2D2B28" />
                     <Text style={styles.actionButtonText}>Take Photo</Text>
                   </LinearGradient>
                 </TouchableOpacity>
@@ -215,8 +280,19 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
                   activeOpacity={0.8}
                 >
                   <View style={styles.actionButtonSecondary}>
-                    <Ionicons name="images" size={24} color="#4facfe" />
+                    <Ionicons name="images" size={24} color="#D4A574" />
                     <Text style={styles.actionButtonSecondaryText}>Import Photo</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={handleShowSamples}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.actionButtonSecondary}>
+                    <Ionicons name="library" size={24} color="#D4A574" />
+                    <Text style={styles.actionButtonSecondaryText}>Try Sample Photos</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -225,15 +301,15 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
               <View style={styles.tipsContainer}>
                 <Text style={styles.tipsTitle}>Tips for best results:</Text>
                 <View style={styles.tip}>
-                  <Ionicons name="checkmark-circle" size={16} color="#4facfe" />
+                  <Ionicons name="checkmark-circle" size={16} color="#D4A574" />
                   <Text style={styles.tipText}>Ensure good lighting</Text>
                 </View>
                 <View style={styles.tip}>
-                  <Ionicons name="checkmark-circle" size={16} color="#4facfe" />
+                  <Ionicons name="checkmark-circle" size={16} color="#D4A574" />
                   <Text style={styles.tipText}>Capture the entire room</Text>
                 </View>
                 <View style={styles.tip}>
-                  <Ionicons name="checkmark-circle" size={16} color="#4facfe" />
+                  <Ionicons name="checkmark-circle" size={16} color="#D4A574" />
                   <Text style={styles.tipText}>Hold the camera steady</Text>
                 </View>
               </View>
@@ -253,7 +329,7 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
                   onPress={handleRetakePhoto}
                   activeOpacity={0.8}
                 >
-                  <Ionicons name="refresh" size={20} color="#4facfe" />
+                  <Ionicons name="refresh" size={20} color="#D4A574" />
                   <Text style={styles.retakeText}>Retake</Text>
                 </TouchableOpacity>
               </View>
@@ -270,18 +346,78 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
               activeOpacity={0.8}
             >
               <LinearGradient
-                colors={['#4facfe', '#00f2fe']}
+                colors={['#E8C097', '#D4A574']}
                 style={styles.buttonGradient}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
                 <Text style={styles.buttonText}>Continue</Text>
-                <Ionicons name="arrow-forward" size={20} color="#ffffff" style={styles.buttonIcon} />
+                <Ionicons name="arrow-forward" size={20} color="#2D2B28" style={styles.buttonIcon} />
               </LinearGradient>
             </TouchableOpacity>
           </View>
         )}
-      </LinearGradient>
+
+        {/* Sample Photos Modal */}
+        <Modal
+          visible={showSamples}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowSamples(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.sampleModal}>
+              <View style={styles.sampleHeader}>
+                <Text style={styles.sampleTitle}>Try Sample Photos</Text>
+                <TouchableOpacity
+                  onPress={() => setShowSamples(false)}
+                  style={styles.closeButton}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="close" size={24} color="#2D2B28" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.sampleSubtitle}>
+                Explore different room styles with our curated sample photos
+              </Text>
+
+              <ScrollView 
+                style={styles.samplesGrid}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.samplesContent}
+              >
+                <View style={styles.samplesRow}>
+                  {SAMPLE_PHOTOS.map((sample, index) => (
+                    <TouchableOpacity
+                      key={sample.id}
+                      style={[
+                        styles.sampleCard,
+                        index % 2 === 1 && styles.sampleCardRight
+                      ]}
+                      onPress={() => handleSelectSample(sample)}
+                      activeOpacity={0.9}
+                    >
+                      <Image 
+                        source={{ uri: sample.imageUri }} 
+                        style={styles.sampleImage}
+                        resizeMode="cover"
+                      />
+                      <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.7)']}
+                        style={styles.sampleOverlay}
+                      >
+                        <Text style={styles.sampleImageTitle}>{sample.title}</Text>
+                        <Text style={styles.sampleImageDesc}>{sample.description}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </SafeAreaView>
   );
 };
@@ -289,7 +425,7 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#FBF9F4',
   },
   gradient: {
     flex: 1,
@@ -307,14 +443,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: '#FEFEFE',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
   },
   placeholder: {
     width: 40,
@@ -328,13 +469,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     textAlign: 'center',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: '#b8c6db',
+    color: '#8B7F73',
     textAlign: 'center',
     marginBottom: 40,
     lineHeight: 22,
@@ -350,7 +491,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#E6DDD1',
     borderStyle: 'dashed',
   },
   captureIcon: {
@@ -358,7 +499,7 @@ const styles = StyleSheet.create({
   },
   captureText: {
     fontSize: 16,
-    color: '#4facfe',
+    color: '#D4A574',
     fontWeight: '500',
   },
   actionButtons: {
@@ -366,9 +507,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   actionButton: {
-    borderRadius: 15,
+    borderRadius: 999,
     overflow: 'hidden',
     marginBottom: 15,
+    shadowColor: '#D4A574',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   actionButtonGradient: {
     flexDirection: 'row',
@@ -383,34 +529,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 18,
     paddingHorizontal: 30,
-    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+    backgroundColor: '#FEFEFE',
     borderWidth: 1,
-    borderColor: 'rgba(79, 172, 254, 0.3)',
+    borderColor: '#D4C7B5',
   },
   actionButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginLeft: 10,
   },
   actionButtonSecondaryText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4facfe',
+    color: '#D4A574',
     marginLeft: 10,
   },
   tipsContainer: {
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 15,
+    backgroundColor: '#FEFEFE',
+    borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#E6DDD1',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   tipsTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: '#2D2B28',
     marginBottom: 15,
   },
   tip: {
@@ -420,7 +571,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 14,
-    color: '#b8c6db',
+    color: '#8B7F73',
     marginLeft: 10,
   },
   imagePreview: {
@@ -430,6 +581,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
     marginBottom: 40,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
   previewImage: {
     width: '100%',
@@ -442,14 +598,19 @@ const styles = StyleSheet.create({
     right: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(254,254,254,0.95)',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   retakeText: {
     fontSize: 14,
-    color: '#4facfe',
+    color: '#D4A574',
     marginLeft: 5,
     fontWeight: '500',
   },
@@ -459,16 +620,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   continueButton: {
-    borderRadius: 30,
+    borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: '#4facfe',
+    shadowColor: '#D4A574',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonGradient: {
     flexDirection: 'row',
@@ -480,7 +641,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#2D2B28',
     letterSpacing: 1,
   },
   buttonIcon: {
@@ -555,6 +716,104 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: '#ffffff',
+  },
+  // Sample Photos Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  sampleModal: {
+    backgroundColor: '#FBF9F4',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '80%',
+    paddingTop: 20,
+  },
+  sampleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  sampleTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2D2B28',
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FEFEFE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  sampleSubtitle: {
+    fontSize: 16,
+    color: '#8B7F73',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+    lineHeight: 22,
+  },
+  samplesGrid: {
+    flex: 1,
+  },
+  samplesContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  samplesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  sampleCard: {
+    width: (width - 60) / 2,
+    height: 200,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  sampleCardRight: {
+    marginLeft: 16,
+  },
+  sampleImage: {
+    width: '100%',
+    height: '100%',
+  },
+  sampleOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 80,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+  },
+  sampleImageTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  sampleImageDesc: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 16,
   },
 });
 
