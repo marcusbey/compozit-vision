@@ -15,8 +15,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { useContentStore } from '../../stores/contentStore';
-import { NavigationHelpers } from '../../navigation/NavigationHelpers';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 import { geminiVisionService } from '../../services/geminiVisionService';
+import { 
+  enhancedAIProcessingService, 
+  DesignGenerationRequest, 
+  ProcessingProgress,
+  ReferenceInfluence,
+  ColorPaletteInfluence 
+} from '../../services/enhancedAIProcessingService';
 
 // Design tokens
 const tokens = {
@@ -74,34 +81,34 @@ const PROCESSING_STAGES: ProcessingStage[] = [
     status: 'pending',
   },
   {
+    id: 'analyze-references',
+    title: 'Processing Your References',
+    description: 'Analyzing your selected reference images and color palettes',
+    estimatedTime: 25,
+    icon: 'images',
+    status: 'pending',
+  },
+  {
     id: 'generate-concepts',
     title: 'Generating Design Concepts',
-    description: 'Creating multiple design variations based on your preferences',
-    estimatedTime: 30,
+    description: 'Creating personalized design variations using your influences',
+    estimatedTime: 35,
     icon: 'color-palette',
     status: 'pending',
   },
   {
-    id: 'apply-style',
-    title: 'Applying Your Style',
-    description: 'Incorporating your selected style and color preferences',
+    id: 'apply-influences',
+    title: 'Applying Your Influences',
+    description: 'Incorporating reference styles, colors, and mood preferences',
     estimatedTime: 20,
     icon: 'brush',
     status: 'pending',
   },
   {
-    id: 'furniture-matching',
-    title: 'Matching Furniture',
-    description: 'Finding furniture pieces that fit your space and budget',
-    estimatedTime: 25,
-    icon: 'home',
-    status: 'pending',
-  },
-  {
     id: 'final-rendering',
     title: 'Creating Final Design',
-    description: 'Rendering high-quality visualizations of your new space',
-    estimatedTime: 20,
+    description: 'Rendering high-quality visualizations with all influences applied',
+    estimatedTime: 25,
     icon: 'create',
     status: 'pending',
   },
@@ -120,15 +127,21 @@ export const AIProcessingScreen: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [processingJob, setProcessingJob] = useState<ProcessingProgress | null>(null);
+  const [canCancel, setCanCancel] = useState(true);
+  const [showInfluenceDetails, setShowInfluenceDetails] = useState(false);
   
   // Animation values
   const progressAnimation = new Animated.Value(0);
   const pulseAnimation = new Animated.Value(1);
 
   useEffect(() => {
-    startProcessing();
+    startEnhancedProcessing();
     return () => {
       // Cleanup any ongoing processes
+      if (jobId && canCancel) {
+        enhancedAIProcessingService.cancelProcessingJob(jobId).catch(console.error);
+      }
     };
   }, []);
 
@@ -152,37 +165,180 @@ export const AIProcessingScreen: React.FC = () => {
     };
   }, [isProcessing, isPaused, currentStageIndex, stages]);
 
-  const startProcessing = useCallback(async () => {
+  const startEnhancedProcessing = useCallback(async () => {
     try {
       setIsProcessing(true);
       setHasError(false);
       
-      // Generate a job ID for tracking
-      const newJobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      // Build request from journey and content stores
+      const request = buildProcessingRequest();
+      
+      if (!request) {
+        throw new Error('Unable to build processing request. Missing required data.');
+      }
+      
+      // Start enhanced processing
+      const newJobId = await enhancedAIProcessingService.startEnhancedDesignGeneration(request);
       setJobId(newJobId);
       
-      // Start processing stages
-      for (let i = 0; i < stages.length; i++) {
-        await processStage(i);
-        
-        if (hasError) {
-          break;
-        }
-      }
+      // Poll for progress updates
+      startProgressPolling(newJobId);
       
-      if (!hasError) {
-        // Processing completed successfully
-        setOverallProgress(100);
-        setTimeout(() => {
-          NavigationHelpers.navigateToScreen('results');
-        }, 2000);
-      }
-      
-    } catch (error) {
-      console.error('Processing failed:', error);
+    } catch (error: any) {
+      console.error('Enhanced processing failed:', error);
       handleProcessingError(error);
     }
-  }, [stages, hasError]);
+  }, [journeyStore, contentStore]);
+
+  const buildProcessingRequest = (): DesignGenerationRequest | null => {
+    const wizard = journeyStore.projectWizard;
+    const content = contentStore;
+    
+    // Validate required data
+    if (!wizard.selectedSamplePhoto && !journeyStore.project.capturedPhotoUrl) {
+      console.error('No photo available for processing');
+      return null;
+    }
+    
+    if (!wizard.selectedStyleId || !wizard.categoryType || !wizard.selectedRooms) {
+      console.error('Missing wizard selections');
+      return null;
+    }
+    
+    // Build reference influences
+    const referenceInfluences: ReferenceInfluence[] = wizard.selectedReferences
+      .map(refId => {
+        const reference = content.userReferences.find(ref => ref.id === refId);
+        if (!reference) return null;
+        
+        return {
+          referenceId: refId,
+          imageUrl: reference.image_url,
+          styleInfluence: 0.8, // High influence for style elements
+          colorInfluence: 0.6, // Medium influence for colors
+          moodInfluence: 0.7,  // High influence for mood
+        };
+      })
+      .filter(Boolean) as ReferenceInfluence[];
+    
+    // Build color palette influences
+    const colorPaletteInfluences: ColorPaletteInfluence[] = (wizard.selectedPalettes || [])
+      .map(paletteId => {
+        const palette = content.userPalettes.find(p => p.id === paletteId);
+        if (!palette) return null;
+        
+        return {
+          paletteId,
+          colors: palette.colors,
+          influence: 0.8,
+          paletteType: 'primary' as const,
+        };
+      })
+      .filter(Boolean) as ColorPaletteInfluence[];
+    
+    return {
+      originalPhotoUrl: wizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl!,
+      categoryType: wizard.categoryType,
+      selectedRooms: wizard.selectedRooms,
+      styleId: wizard.selectedStyleId!,
+      styleName: wizard.selectedStyleName || 'Modern',
+      referenceInfluences,
+      colorPaletteInfluences,
+      processingMode: 'balanced',
+      qualityLevel: 'standard',
+      budgetRange: journeyStore.project.budgetRange ? {
+        min: journeyStore.project.budgetRange.min,
+        max: journeyStore.project.budgetRange.max
+      } : undefined,
+    };
+  };
+
+  const startProgressPolling = (jobId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const progress = enhancedAIProcessingService.getProcessingStatus(jobId);
+        
+        if (!progress) {
+          clearInterval(pollInterval);
+          return;
+        }
+        
+        setProcessingJob(progress);
+        setOverallProgress(progress.progress);
+        setEstimatedTimeRemaining(Math.ceil(progress.estimatedTimeRemainingMs / 1000));
+        
+        // Update stages based on progress status
+        updateStagesFromProgress(progress);
+        
+        // Check if completed or failed
+        if (progress.status === 'completed') {
+          clearInterval(pollInterval);
+          setIsProcessing(false);
+          setCanCancel(false);
+          
+          // Navigate to results after a brief delay
+          setTimeout(() => {
+            NavigationHelpers.navigateToScreen('results');
+          }, 2000);
+        } else if (progress.status === 'failed') {
+          clearInterval(pollInterval);
+          setHasError(true);
+          setIsProcessing(false);
+          handleProcessingError(new Error(progress.error || 'Processing failed'));
+        }
+        
+      } catch (error) {
+        console.error('Error polling progress:', error);
+      }
+    }, 2000); // Poll every 2 seconds
+    
+    // Store interval for cleanup
+    (window as any).processingPollInterval = pollInterval;
+  };
+  
+  const updateStagesFromProgress = (progress: ProcessingProgress) => {
+    const stageMap: Record<string, string> = {
+      'analyzing_photo': 'analyze-photo',
+      'analyzing_references': 'analyze-references',
+      'generating_concepts': 'generate-concepts',
+      'applying_influences': 'apply-influences',
+      'rendering': 'final-rendering',
+    };
+    
+    const currentStageId = stageMap[progress.status] || progress.status;
+    const currentStageIndex = stages.findIndex(s => s.id === currentStageId);
+    
+    if (currentStageIndex >= 0) {
+      setCurrentStageIndex(currentStageIndex);
+      
+      setStages(prev => prev.map((stage, idx) => ({
+        ...stage,
+        status: idx < currentStageIndex ? 'completed' : 
+                idx === currentStageIndex ? 'active' : 'pending'
+      })));
+    }
+  };
+
+  const cancelProcessing = async () => {
+    if (jobId && canCancel) {
+      try {
+        await enhancedAIProcessingService.cancelProcessingJob(jobId);
+        setIsProcessing(false);
+        setCanCancel(false);
+        setHasError(true);
+      } catch (error) {
+        console.error('Error cancelling job:', error);
+      }
+    }
+  };
+
+  const retryProcessing = async () => {
+    setHasError(false);
+    setOverallProgress(0);
+    setElapsedTime(0);
+    setStages(PROCESSING_STAGES.map(stage => ({ ...stage, status: 'pending' })));
+    await startEnhancedProcessing();
+  };
 
   const processStage = async (stageIndex: number) => {
     return new Promise<void>((resolve, reject) => {
@@ -240,15 +396,7 @@ export const AIProcessingScreen: React.FC = () => {
   };
 
   const handleRetry = () => {
-    setHasError(false);
-    setOverallProgress(0);
-    setElapsedTime(0);
-    setEstimatedTimeRemaining(110);
-    setCurrentStageIndex(0);
-    
-    setStages(PROCESSING_STAGES.map(stage => ({ ...stage, status: 'pending' })));
-    
-    startProcessing();
+    retryProcessing();
   };
 
   const handlePause = () => {
@@ -256,6 +404,34 @@ export const AIProcessingScreen: React.FC = () => {
   };
 
   const handleCancel = () => {
+    cancelProcessing();
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const renderProcessingHeader = () => (
+    <View style={styles.header}>
+      <View style={styles.headerContent}>
+        <Text style={styles.headerTitle}>
+          {hasError ? 'Processing Failed' : 
+           overallProgress === 100 ? 'Design Complete!' : 
+           isProcessing ? 'Creating Your Design' : 'Preparing...'}
+        </Text>
+        <Text style={styles.headerSubtitle}>
+          {hasError ? 'Something went wrong during processing' :
+           overallProgress === 100 ? 'Your personalized design is ready to view' :
+           isProcessing ? 'AI is analyzing and generating your design' :
+           'Setting up processing pipeline'}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const oldHandleCancel = () => {
     Alert.alert(
       'Cancel Processing?',
       'Are you sure you want to cancel? You\'ll lose your current progress.',
@@ -352,6 +528,140 @@ export const AIProcessingScreen: React.FC = () => {
     </View>
   );
 
+  const renderInfluencesSummary = () => {
+    const wizard = journeyStore.projectWizard;
+    const content = contentStore;
+    
+    // Get selected references and palettes
+    const selectedReferences = wizard.selectedReferences
+      .map(refId => content.userReferences.find(ref => ref.id === refId))
+      .filter(Boolean);
+    
+    const selectedPalettes = (wizard.selectedPalettes || [])
+      .map(paletteId => content.userPalettes.find(p => p.id === paletteId))
+      .filter(Boolean);
+    
+    if (selectedReferences.length === 0 && selectedPalettes.length === 0) {
+      return null;
+    }
+    
+    return (
+      <View style={styles.influencesCard}>
+        <TouchableOpacity 
+          style={styles.influencesHeader}
+          onPress={() => setShowInfluenceDetails(!showInfluenceDetails)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.influencesHeaderContent}>
+            <Ionicons name="color-palette" size={20} color={tokens.color.brand} />
+            <Text style={styles.influencesTitle}>
+              Your Design Influences ({selectedReferences.length + selectedPalettes.length})
+            </Text>
+          </View>
+          <Ionicons 
+            name={showInfluenceDetails ? "chevron-up" : "chevron-down"} 
+            size={20} 
+            color={tokens.color.textSecondary} 
+          />
+        </TouchableOpacity>
+        
+        {showInfluenceDetails && (
+          <View style={styles.influencesDetails}>
+            {/* Reference Images */}
+            {selectedReferences.length > 0 && (
+              <View style={styles.influenceSection}>
+                <Text style={styles.influenceSectionTitle}>
+                  Reference Images ({selectedReferences.length})
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View style={styles.influenceItems}>
+                    {selectedReferences.map((ref, index) => (
+                      <View key={ref.id} style={styles.referenceItem}>
+                        <View style={styles.referenceImageContainer}>
+                          {/* Placeholder for reference image */}
+                          <View style={styles.referenceImagePlaceholder}>
+                            <Ionicons name="image" size={16} color={tokens.color.textMuted} />
+                          </View>
+                        </View>
+                        <Text style={styles.referenceTitle} numberOfLines={1}>
+                          {ref.title || `Reference ${index + 1}`}
+                        </Text>
+                        <View style={styles.influenceIndicators}>
+                          <View style={styles.influenceIndicator}>
+                            <Text style={styles.influenceLabel}>Style</Text>
+                            <View style={styles.influenceBar}>
+                              <View style={[styles.influenceBarFill, { width: '80%' }]} />
+                            </View>
+                          </View>
+                          <View style={styles.influenceIndicator}>
+                            <Text style={styles.influenceLabel}>Color</Text>
+                            <View style={styles.influenceBar}>
+                              <View style={[styles.influenceBarFill, { width: '60%' }]} />
+                            </View>
+                          </View>
+                          <View style={styles.influenceIndicator}>
+                            <Text style={styles.influenceLabel}>Mood</Text>
+                            <View style={styles.influenceBar}>
+                              <View style={[styles.influenceBarFill, { width: '70%' }]} />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+            
+            {/* Color Palettes */}
+            {selectedPalettes.length > 0 && (
+              <View style={styles.influenceSection}>
+                <Text style={styles.influenceSectionTitle}>
+                  Color Palettes ({selectedPalettes.length})
+                </Text>
+                <View style={styles.paletteItems}>
+                  {selectedPalettes.map((palette, index) => (
+                    <View key={palette.id} style={styles.paletteItem}>
+                      <View style={styles.paletteColors}>
+                        {palette.colors.slice(0, 4).map((color, colorIndex) => (
+                          <View
+                            key={colorIndex}
+                            style={[styles.colorSwatch, { backgroundColor: color }]}
+                          />
+                        ))}
+                        {palette.colors.length > 4 && (
+                          <View style={styles.colorCount}>
+                            <Text style={styles.colorCountText}>+{palette.colors.length - 4}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={styles.paletteTitle} numberOfLines={1}>
+                        {palette.name || `Palette ${index + 1}`}
+                      </Text>
+                      <View style={styles.paletteInfluence}>
+                        <Text style={styles.influenceLabel}>Influence: Strong</Text>
+                        <View style={styles.influenceBar}>
+                          <View style={[styles.influenceBarFill, { width: '80%' }]} />
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+            
+            <View style={styles.processingNote}>
+              <Ionicons name="information-circle-outline" size={16} color={tokens.color.textMuted} />
+              <Text style={styles.processingNoteText}>
+                These influences will be analyzed and applied to create your personalized design.
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   const renderStagesList = () => (
     <View style={styles.stagesSection}>
       <Text style={styles.stagesTitle}>Processing Stages</Text>
@@ -434,6 +744,7 @@ export const AIProcessingScreen: React.FC = () => {
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderProgressCard()}
+        {renderInfluencesSummary()}
         {renderStagesList()}
       </ScrollView>
       
@@ -768,6 +1079,155 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: -1,
+  },
+  
+  // Influences Summary Styles
+  influencesCard: {
+    backgroundColor: tokens.color.surface,
+    borderRadius: tokens.radius.lg,
+    marginBottom: tokens.spacing.lg,
+    ...tokens.shadow.e1,
+  },
+  influencesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: tokens.spacing.lg,
+  },
+  influencesHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  influencesTitle: {
+    ...tokens.type.h3,
+    color: tokens.color.textPrimary,
+    marginLeft: tokens.spacing.sm,
+  },
+  influencesDetails: {
+    borderTopWidth: 1,
+    borderTopColor: tokens.color.borderSoft,
+    padding: tokens.spacing.lg,
+  },
+  influenceSection: {
+    marginBottom: tokens.spacing.xl,
+  },
+  influenceSectionTitle: {
+    ...tokens.type.body,
+    color: tokens.color.textPrimary,
+    fontWeight: '600',
+    marginBottom: tokens.spacing.md,
+  },
+  influenceItems: {
+    flexDirection: 'row',
+    gap: tokens.spacing.md,
+  },
+  referenceItem: {
+    width: 120,
+    alignItems: 'center',
+  },
+  referenceImageContainer: {
+    width: 100,
+    height: 80,
+    borderRadius: tokens.radius.md,
+    overflow: 'hidden',
+    marginBottom: tokens.spacing.sm,
+    ...tokens.shadow.e1,
+  },
+  referenceImagePlaceholder: {
+    flex: 1,
+    backgroundColor: tokens.color.borderSoft,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  referenceTitle: {
+    ...tokens.type.small,
+    color: tokens.color.textPrimary,
+    textAlign: 'center',
+    marginBottom: tokens.spacing.sm,
+  },
+  influenceIndicators: {
+    width: '100%',
+  },
+  influenceIndicator: {
+    marginBottom: tokens.spacing.xs,
+  },
+  influenceLabel: {
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
+    fontSize: 10,
+  },
+  influenceBar: {
+    height: 2,
+    backgroundColor: tokens.color.borderSoft,
+    borderRadius: 1,
+    marginTop: 2,
+  },
+  influenceBarFill: {
+    height: '100%',
+    backgroundColor: tokens.color.brand,
+    borderRadius: 1,
+  },
+  paletteItems: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: tokens.spacing.md,
+  },
+  paletteItem: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: tokens.color.bgApp,
+    borderRadius: tokens.radius.md,
+    padding: tokens.spacing.md,
+  },
+  paletteColors: {
+    flexDirection: 'row',
+    marginBottom: tokens.spacing.sm,
+    alignItems: 'center',
+  },
+  colorSwatch: {
+    width: 20,
+    height: 20,
+    borderRadius: tokens.radius.sm,
+    marginRight: tokens.spacing.xs,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+  },
+  colorCount: {
+    backgroundColor: tokens.color.borderSoft,
+    borderRadius: tokens.radius.sm,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  colorCountText: {
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
+    fontSize: 8,
+  },
+  paletteTitle: {
+    ...tokens.type.small,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.xs,
+  },
+  paletteInfluence: {
+    alignItems: 'flex-start',
+  },
+  processingNote: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: tokens.color.bgApp,
+    padding: tokens.spacing.md,
+    borderRadius: tokens.radius.md,
+    marginTop: tokens.spacing.md,
+  },
+  processingNoteText: {
+    ...tokens.type.small,
+    color: tokens.color.textMuted,
+    marginLeft: tokens.spacing.sm,
+    flex: 1,
+    lineHeight: 18,
   },
 });
 
