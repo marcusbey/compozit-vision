@@ -69,7 +69,7 @@ export class GeminiVisionService {
     }
     
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-pro-vision-latest' });
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
 
   public static getInstance(): GeminiVisionService {

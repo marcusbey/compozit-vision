@@ -44,17 +44,54 @@ const tokens = {
 
 const { width } = Dimensions.get('window');
 
-export const ReferencesColorsScreen: React.FC = () => {
+interface ReferencesColorsScreenProps {
+  route?: {
+    params?: {
+      projectName?: string;
+      roomType?: string;
+      selectedStyle?: string;
+    };
+  };
+}
+
+export const ReferencesColorsScreen: React.FC<ReferencesColorsScreenProps> = ({ route }) => {
   const journeyStore = useJourneyStore();
 
   useEffect(() => {
+    // Store the selected style from route parameters
+    if (route?.params?.selectedStyle) {
+      const { selectedStyle } = route.params;
+      
+      // Map style ID to style name
+      const styleMapping: Record<string, string> = {
+        'minimalist': 'Minimalist',
+        'modern': 'Modern',
+        'scandinavian': 'Scandinavian',
+        'traditional': 'Traditional'
+      };
+      
+      const styleName = styleMapping[selectedStyle] || selectedStyle;
+      
+      console.log('🎨 Storing selected style from navigation:', {
+        styleId: selectedStyle,
+        styleName: styleName
+      });
+      
+      // Update the journey store with the selected style
+      journeyStore.updateProjectWizard({
+        styleId: selectedStyle,
+        styleName: styleName,
+        currentWizardStep: 'references_palettes'
+      });
+    }
+
     // Automatically navigate to the Pinterest-style reference images screen
     const timer = setTimeout(() => {
       NavigationHelpers.navigateToScreen('referenceImages');
     }, 100);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [route?.params?.selectedStyle, journeyStore]);
 
   return (
     <SafeAreaView style={styles.container}>
