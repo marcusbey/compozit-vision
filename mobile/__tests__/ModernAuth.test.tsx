@@ -54,7 +54,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 jest.spyOn(Alert, 'alert');
 
 // Import the app component after mocks
-import FullAppWithoutNavigation from '../FullAppWithoutNavigation';
+import FullAppWithoutNavigation from '../app-variations/FullAppWithoutNavigation';
 
 describe('Modern Auth Screen', () => {
   beforeEach(() => {
@@ -77,9 +77,9 @@ describe('Modern Auth Screen', () => {
 
   it('should attempt login first, then register if user does not exist', async () => {
     // Mock login failure (user doesn't exist)
-    mockLogin.mockRejectedValueOnce(new Error('Invalid login credentials'));
+    (mockLogin as jest.MockedFunction<any>).mockRejectedValueOnce(new Error('Invalid login credentials'));
     // Mock successful registration
-    mockRegister.mockResolvedValueOnce(undefined);
+    (mockRegister as jest.MockedFunction<any>).mockResolvedValueOnce(undefined);
 
     mockUseUserStore.mockReturnValue({
       user: null,
@@ -113,7 +113,7 @@ describe('Modern Auth Screen', () => {
 
   it('should handle existing user login successfully', async () => {
     // Mock successful login
-    mockLogin.mockResolvedValueOnce(undefined);
+    (mockLogin as jest.MockedFunction<any>).mockResolvedValueOnce(undefined);
 
     const email = 'existing@example.com';
     const password = 'password123';
@@ -127,7 +127,7 @@ describe('Modern Auth Screen', () => {
   it('should handle weak password error appropriately', async () => {
     // Mock weak password error
     const weakPasswordError = new Error('Password should be at least 6 characters');
-    mockLogin.mockRejectedValueOnce(weakPasswordError);
+    (mockLogin as jest.MockedFunction<any>).mockRejectedValueOnce(weakPasswordError);
 
     const email = 'user@example.com';
     const password = '123'; // Weak password
@@ -145,8 +145,8 @@ describe('Modern Auth Screen', () => {
   it('should handle database setup errors gracefully', async () => {
     // Mock database setup error
     const dbError = new Error('Database setup incomplete. Please run the Supabase schema first.');
-    mockLogin.mockRejectedValueOnce(new Error('Invalid login credentials'));
-    mockRegister.mockRejectedValueOnce(dbError);
+    (mockLogin as jest.MockedFunction<any>).mockRejectedValueOnce(new Error('Invalid login credentials'));
+    (mockRegister as jest.MockedFunction<any>).mockRejectedValueOnce(dbError);
 
     const email = 'user@example.com';
     const password = 'password123';

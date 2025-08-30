@@ -43,7 +43,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 jest.spyOn(Alert, 'alert');
 
 // Import the app component after mocks
-import FullAppWithoutNavigation from '../FullAppWithoutNavigation';
+import FullAppWithoutNavigation from '../app-variations/FullAppWithoutNavigation';
 
 describe('AuthScreen', () => {
   beforeEach(() => {
@@ -157,7 +157,7 @@ describe('AuthScreen', () => {
       register: mockRegister,
       logout: jest.fn(),
       isLoading: false,
-      error: 'Invalid credentials',
+      error: 'Invalid credentials' as any,
       initializeAuth: jest.fn(),
     });
 
