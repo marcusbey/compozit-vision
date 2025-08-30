@@ -78,7 +78,7 @@ class GeminiService {
     
     // Use different models for different tasks
     this.analysisModel = this.client.getGenerativeModel({ model: 'gemini-1.5-flash' }); // For room analysis
-    this.imageGenModel = this.client.getGenerativeModel({ model: 'gemini-2.5-flash-image-preview' }); // For image generation
+    this.imageGenModel = this.client.getGenerativeModel({ model: 'gemini-1.5-flash' }); // For image generation
   }
 
   /**
