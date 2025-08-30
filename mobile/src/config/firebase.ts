@@ -5,7 +5,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // Configuration Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyBoshxDWl5-eN-H2GoHeN2qiJkpV5Txz9s",
+  apiKey: process.env.FIREBASE_API_KEY || "YOUR_FIREBASE_API_KEY",
   authDomain: "compozit-3b609.firebaseapp.com",
   projectId: "compozit-3b609",
   storageBucket: "compozit-3b609.firebasestorage.app",

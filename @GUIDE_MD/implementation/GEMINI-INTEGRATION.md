@@ -107,7 +107,7 @@ UI Visualization & Results
 
 ```typescript
 // Environment configuration
-GEMINI_API_KEY=AIzaSyDlpmDsB2p-ZWi8cXRLYkZE76n3hTxiVkw
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
 
 // Service initialization
 const service = getGeminiService(apiKey);

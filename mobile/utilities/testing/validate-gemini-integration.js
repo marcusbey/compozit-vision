@@ -19,7 +19,7 @@ async function validateIntegration() {
   }
 
   const envContent = fs.readFileSync(envPath, 'utf8');
-  const hasGeminiKey = envContent.includes('GEMINI_API_KEY=AIzaSyDlpmDsB2p-ZWi8cXRLYkZE76n3hTxiVkw');
+  const hasGeminiKey = envContent.includes('GEMINI_API_KEY=') && !envContent.includes('YOUR_GEMINI_API_KEY');
   
   if (!hasGeminiKey) {
     console.error('❌ GEMINI_API_KEY not found in .env file');

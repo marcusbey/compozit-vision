@@ -14,7 +14,7 @@ export async function testGeminiIntegration(): Promise<void> {
 
     // Test 1: Service Initialization
     console.log('🔧 Testing service initialization...');
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDlpmDsB2p-ZWi8cXRLYkZE76n3hTxiVkw';
+    const apiKey = process.env.GEMINI_API_KEY || 'YOUR_GEMINI_API_KEY_HERE';
     
     if (!apiKey) {
       throw new Error('❌ GEMINI_API_KEY not found in environment variables');

@@ -17,7 +17,7 @@ The Google Gemini 2.5 Flash API integration for the Compozit Vision photo-to-pro
    - Usage statistics tracking
 
 2. **✅ Environment Configuration**
-   - API key properly configured in `.env`: `AIzaSyDlpmDsB2p-ZWi8cXRLYkZE76n3hTxiVkw`
+   - API key properly configured in `.env`: `YOUR_GEMINI_API_KEY_HERE`
    - Production-ready environment variable setup
    - Secure key management
 
