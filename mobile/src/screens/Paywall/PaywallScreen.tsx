@@ -11,73 +11,84 @@ import {
   Dimensions,
   Alert,
   Modal,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
+import { PLAN_TIERS, getWeeklyPrice, getYearlySavings, getPaymentProductId, PaymentFrequency } from '../../config/planTiers';
 
-// Design Tokens - Warm Color Palette
+// Design Tokens - Following @STYLE-GUIDE.json
 const tokens = {
   color: {
     bgApp: '#FBF9F4',
     bgSecondary: '#F5F1E8',
-    bgSurface: '#FEFEFE',
+    surface: '#FEFEFE',
     textPrimary: '#2D2B28',
     textSecondary: '#8B7F73',
     textMuted: '#B8AFA4',
     textInverse: '#FEFEFE',
-    accent: '#2D2B28',
+    borderSoft: '#E6DDD1',
     brand: '#D4A574',
     brandLight: '#E8C097',
-    success: '#7FB069',
-    danger: '#E07A5F',
-    border: '#E6DDD1',
+    brandDark: '#B8935F',
+    accent: '#2D2B28',
+    accentSoft: '#5A564F',
     scrim: 'rgba(45,43,40,0.45)',
+    scrimHeavy: 'rgba(45,43,40,0.65)',
+    success: '#7FB069',
+    error: '#E07A5F',
+    warning: '#F2CC8F',
   },
   spacing: {
     xs: 4,
     sm: 8,
     md: 12,
     lg: 16,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
+    xl: 24,
+    xxl: 32,
+    xxxl: 48, // MANDATORY 48px spacing for buttons
   },
   radius: {
-    sm: 6,
-    md: 8,
-    lg: 12,
-    xl: 16,
-    xxl: 20,
-    full: 9999,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    pill: 999,
   },
   shadow: {
-    sm: {
+    e1: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.08,
-      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
       elevation: 2,
     },
-    md: {
+    e2: {
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.12,
-      shadowRadius: 8,
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
       elevation: 4,
+    },
+    e3: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.12,
+      shadowRadius: 20,
+      elevation: 8,
     },
   },
   typography: {
-    h1: { fontSize: 32, fontWeight: '700' as const, lineHeight: 40 },
-    h2: { fontSize: 28, fontWeight: '700' as const, lineHeight: 36 },
-    h3: { fontSize: 24, fontWeight: '600' as const, lineHeight: 32 },
-    h4: { fontSize: 20, fontWeight: '600' as const, lineHeight: 28 },
-    body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 },
-    bodySmall: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
+    display: { fontSize: 32, fontWeight: '700' as const, lineHeight: 40 },
+    h1: { fontSize: 28, fontWeight: '600' as const, lineHeight: 36 },
+    h2: { fontSize: 22, fontWeight: '600' as const, lineHeight: 28 },
+    h3: { fontSize: 18, fontWeight: '500' as const, lineHeight: 24 },
+    body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 22 },
+    small: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
     caption: { fontSize: 12, fontWeight: '400' as const, lineHeight: 16 },
-    button: { fontSize: 16, fontWeight: '600' as const, lineHeight: 24 },
   },
 };
 
@@ -85,6 +96,7 @@ const { width, height } = Dimensions.get('window');
 
 interface PaywallScreenProps {
   navigation?: any;
+  route?: any;
   onSelectPlan?: (planId: string) => void;
   onContinueWithFree?: () => void;
   onBack?: () => void;
@@ -92,17 +104,25 @@ interface PaywallScreenProps {
 
 const PaywallScreen: React.FC<PaywallScreenProps> = ({ 
   navigation,
+  route,
   onSelectPlan, 
   onContinueWithFree,
   onBack 
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const [selectedPlan, setSelectedPlan] = useState<string>('yearly');
+  const [selectedFrequency, setSelectedFrequency] = useState<PaymentFrequency>('monthly');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
   
   const journeyStore = useJourneyStore();
   const { isAuthenticated, user } = useUserStore();
+  
+  // Get selected plan from route params or journey store
+  const selectedPlan = route?.params?.selectedPlan || 
+    PLAN_TIERS[journeyStore.subscription?.selectedPlanTier || 'pro'];
+  
+  console.log('💰 PaymentFrequencyScreen - Selected plan:', selectedPlan);
 
   useEffect(() => {
     Animated.parallel([
@@ -119,37 +139,114 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
     ]).start();
   }, []);
 
-  const handleSelectPlan = async (planId: string) => {
-    setSelectedPlan(planId);
+  const handleSelectFrequency = async (frequency: PaymentFrequency) => {
+    setSelectedFrequency(frequency);
     
-    // Show success modal for demonstration
-    setShowSuccessModal(true);
+    // Calculate pricing based on frequency
+    const monthlyPrice = selectedPlan.monthlyPrice;
+    const yearlyPrice = selectedPlan.yearlyPrice;
     
-    // Update journey store
-    const planData = {
-      yearly: { name: 'Yearly Access', price: '$49.99/year', credits: 'Unlimited' },
-      weekly: { name: 'Weekly Access', price: '$12.99/week', credits: 'Unlimited' }
-    }[planId];
+    let finalPrice: number;
+    let displayPrice: string;
+    
+    switch (frequency) {
+      case 'yearly':
+        finalPrice = yearlyPrice;
+        displayPrice = `$${yearlyPrice}/year`;
+        break;
+      default:
+        finalPrice = monthlyPrice;
+        displayPrice = `$${monthlyPrice}/month`;
+    }
 
+    // In test mode, skip payment and just provide credits
+    if (__DEV__) {
+      console.log('🧪 Test Mode: Skipping payment, providing plan credits directly');
+      
+      // Update user store with plan credits immediately
+      const { updateUserPlan } = useUserStore.getState();
+      const creditsForPlan = selectedPlan.id === 'basic' ? 100 : 
+                            selectedPlan.id === 'pro' ? 500 : 1500;
+      
+      await updateUserPlan(selectedPlan.id, creditsForPlan).catch(error => {
+        console.log('⚠️ Failed to update user plan locally:', error);
+      });
+      
+      console.log(`✅ Test Mode: User plan updated: ${selectedPlan.name} with ${creditsForPlan} credits`);
+      
+      // Update journey store
+      journeyStore.updateSubscription({
+        selectedPlanId: selectedPlan.id,
+        selectedPlanTier: selectedPlan.id,
+        planName: selectedPlan.name,
+        planPrice: finalPrice,
+        paymentFrequency: frequency,
+        selectedAt: new Date().toISOString(),
+        hasPayment: true // Mark as paid in test mode
+      });
+
+      journeyStore.completeStep('paymentFrequency');
+      
+      // Navigate directly to project wizard
+      NavigationHelpers.navigateToScreen('projectWizardStart', {
+        planSelected: true,
+        planDetails: {
+          tier: selectedPlan.name,
+          frequency: frequency,
+          price: finalPrice,
+        }
+      });
+      
+      return; // Skip payment modal in test mode
+    }
+
+    // Production payment flow
+    let paymentEmail = 'user@example.com'; // Would get from Apple/Google Pay
+
+    // Update journey store with payment frequency and email
     journeyStore.updateSubscription({
-      selectedPlanId: planId,
-      planName: planData?.name || 'Premium',
-      planPrice: planData?.price || '$49.99',
+      selectedPlanId: selectedPlan.id,
+      selectedPlanTier: selectedPlan.id,
+      planName: selectedPlan.name,
+      planPrice: finalPrice,
+      paymentFrequency: frequency,
       selectedAt: new Date().toISOString(),
       hasPayment: true
     });
 
-    journeyStore.completeStep('paywall');
+    // Store payment email in authentication
+    journeyStore.updateAuthentication({
+      paymentEmail: paymentEmail
+    });
+
+    journeyStore.completeStep('paymentFrequency');
+    
+    // Show success modal for demonstration
+    setShowSuccessModal(true);
   };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     
-    // Navigate to payment pending screen for proper flow
-    NavigationHelpers.navigateToScreen('paymentPending', {
+    // Update user store with plan credits after successful payment
+    const { updateUserPlan } = useUserStore.getState();
+    const creditsForPlan = selectedPlan.id === 'basic' ? 100 : 
+                          selectedPlan.id === 'pro' ? 500 : 1500;
+    
+    updateUserPlan(selectedPlan.id, creditsForPlan).catch(error => {
+      console.log('⚠️ Failed to update user plan locally:', error);
+      // Continue navigation anyway in demo mode
+    });
+    
+    console.log(`✅ User plan updated: ${selectedPlan.name} with ${creditsForPlan} credits`);
+    
+    // Navigate to project wizard - authentication will be handled before AI processing
+    NavigationHelpers.navigateToScreen('projectWizardStart', {
+      planSelected: true,
       planDetails: {
-        name: journeyStore.subscription?.planName || 'Premium',
-        price: journeyStore.subscription?.planPrice || '$49.99',
+        tier: selectedPlan.name,
+        frequency: selectedFrequency,
+        price: journeyStore.subscription?.planPrice,
       }
     });
   };
@@ -163,6 +260,14 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
       selectedAt: new Date().toISOString(),
       hasPayment: false
     });
+    
+    // Give user 3 free credits for trial
+    const { updateUserPlan } = useUserStore.getState();
+    updateUserPlan('free', 3).catch(error => {
+      console.log('⚠️ Failed to update free trial credits:', error);
+    });
+    
+    console.log('✅ Free trial: 3 credits provided');
     
     journeyStore.completeStep('paywall');
     NavigationHelpers.navigateToScreen('projectWizardStart');
@@ -224,17 +329,83 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
             }
           ]}
         >
-          {/* Features List */}
-          <View style={styles.featuresContainer}>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
-              <Text style={styles.featureText}>Faster Rendering</Text>
+          {/* Selected Plan Header */}
+          <View style={styles.selectedPlanHeader}>
+            <View style={[styles.planIcon, { backgroundColor: `${selectedPlan.color}20` }]}>
+              <Ionicons name={selectedPlan.icon as any} size={24} color={selectedPlan.color} />
             </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
-              <Text style={styles.featureText}>Ad-free Experience</Text>
+            <View style={styles.planInfo}>
+              <Text style={styles.selectedPlanTitle}>{selectedPlan.name} Plan</Text>
+              <Text style={styles.selectedPlanDescription}>{selectedPlan.description}</Text>
             </View>
           </View>
+
+          {/* Test Mode Email Input */}
+          {__DEV__ && (
+            <View style={styles.testEmailContainer}>
+              <Text style={styles.testEmailLabel}>Test Mode - Enter Email:</Text>
+              <TextInput
+                style={styles.testEmailInput}
+                placeholder="test@example.com"
+                value={testEmail}
+                onChangeText={setTestEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+          )}
+
+          {/* Payment Frequency Options */}
+          <Text style={styles.frequencyTitle}>Choose your billing plan</Text>
+
+          {/* Monthly Option */}
+          <TouchableOpacity 
+            style={[styles.frequencyCard, selectedFrequency === 'monthly' && styles.selectedFrequencyCard]}
+            onPress={() => handleSelectFrequency('monthly')}
+            activeOpacity={0.9}
+          >
+            <View style={styles.frequencyHeader}>
+              <View>
+                <Text style={styles.frequencyName}>Monthly</Text>
+                <Text style={styles.weeklyPriceSubtext}>Just ${getWeeklyPrice(selectedPlan.monthlyPrice)}/week</Text>
+              </View>
+              {selectedFrequency === 'monthly' && (
+                <Ionicons name="checkmark-circle" size={24} color={tokens.color.success} />
+              )}
+            </View>
+            <Text style={styles.frequencyPrice}>${selectedPlan.monthlyPrice}/month</Text>
+            <Text style={styles.frequencyDescription}>Billed monthly • Cancel anytime</Text>
+          </TouchableOpacity>
+
+          {/* Yearly Option */}
+          <TouchableOpacity 
+            style={[styles.frequencyCard, selectedFrequency === 'yearly' && styles.selectedFrequencyCard]}
+            onPress={() => handleSelectFrequency('yearly')}
+            activeOpacity={0.9}
+          >
+            <View style={styles.bestOfferBadge}>
+              <Text style={styles.bestOfferText}>SAVE {getYearlySavings(selectedPlan.monthlyPrice, selectedPlan.yearlyPrice)}%</Text>
+            </View>
+            <View style={styles.frequencyHeader}>
+              <View>
+                <Text style={styles.frequencyName}>Yearly</Text>
+                <Text style={styles.weeklyPriceSubtext}>Just ${(selectedPlan.yearlyPrice / 52).toFixed(2)}/week</Text>
+              </View>
+              {selectedFrequency === 'yearly' && (
+                <Ionicons name="checkmark-circle" size={24} color={tokens.color.success} />
+              )}
+            </View>
+            <Text style={styles.frequencyPrice}>${selectedPlan.yearlyPrice}/year</Text>
+            <Text style={styles.frequencyDescription}>
+              Save ${(selectedPlan.monthlyPrice * 12 - selectedPlan.yearlyPrice)} vs monthly • Best value
+            </Text>
+          </TouchableOpacity>
+
+          {/* Mandatory Spacing Buffer - prevents cramped feeling */}
+          <View style={styles.spacingBuffer} />
+
+          {/* Visual Separator */}
+          <View style={styles.sectionDivider} />
 
           {/* Free Trial Toggle */}
           <TouchableOpacity 
@@ -246,54 +417,8 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
               <View style={styles.freeTrialToggle}>
                 <View style={styles.toggleSlider} />
               </View>
-              <Text style={styles.freeTrialText}>Free trial</Text>
+              <Text style={styles.freeTrialText}>Try free version instead</Text>
             </View>
-          </TouchableOpacity>
-
-          {/* Yearly Access Plan */}
-          <TouchableOpacity 
-            style={[styles.planCard, selectedPlan === 'yearly' && styles.selectedPlan]}
-            onPress={() => handleSelectPlan('yearly')}
-            activeOpacity={0.9}
-          >
-            <View style={styles.bestOfferBadge}>
-              <Text style={styles.bestOfferText}>BEST OFFER</Text>
-            </View>
-            
-            <View style={styles.planHeader}>
-              <Text style={styles.planTitle}>YEARLY ACCESS</Text>
-              <View style={styles.priceContainer}>
-                <Text style={styles.weeklyPrice}>$0.96</Text>
-                <Text style={styles.weeklyLabel}>per week</Text>
-              </View>
-              <Text style={styles.yearlyPrice}>Just $49.99 per year</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Weekly Access Plan */}
-          <TouchableOpacity 
-            style={[styles.planCard, styles.weeklyPlan, selectedPlan === 'weekly' && styles.selectedPlan]}
-            onPress={() => handleSelectPlan('weekly')}
-            activeOpacity={0.9}
-          >
-            <View style={styles.planHeader}>
-              <Text style={styles.planTitle}>WEEKLY ACCESS</Text>
-              <View style={styles.priceContainer}>
-                <Text style={styles.weeklyPriceHigher}>then $12.99</Text>
-                <Text style={styles.weeklyLabel}>per week</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* No Payment Option */}
-          <View style={styles.noPaymentContainer}>
-            <Ionicons name="checkmark-circle" size={20} color={tokens.color.success} />
-            <Text style={styles.noPaymentText}>No Payment Now</Text>
-          </View>
-
-          {/* Continue Button */}
-          <TouchableOpacity style={styles.continueButton} activeOpacity={0.9}>
-            <Text style={styles.continueButtonText}>→</Text>
           </TouchableOpacity>
 
           {/* Terms and Cancel */}
@@ -407,10 +532,123 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-end',
-    paddingBottom: 40,
+    paddingBottom: tokens.spacing.xl,
   },
   content: {
-    paddingHorizontal: 20,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.xl,
+  },
+  spacingBuffer: {
+    height: tokens.spacing.xxxl, // 48px mandatory spacing buffer
+    marginVertical: tokens.spacing.lg,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    marginHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.xl,
+  },
+  selectedPlanHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  planIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  planInfo: {
+    flex: 1,
+  },
+  selectedPlanTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  selectedPlanDescription: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 14,
+  },
+  testEmailContainer: {
+    marginBottom: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  testEmailLabel: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  testEmailInput: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#1C1C1C',
+  },
+  frequencyTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  frequencyCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    position: 'relative',
+  },
+  selectedFrequencyCard: {
+    borderColor: '#4CAF50',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+  },
+  frequencyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  frequencyName: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  weeklyPriceSubtext: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 14,
+    fontWeight: '400',
+    fontStyle: 'italic',
+  },
+  frequencyPrice: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 4,
+    marginTop: 8,
+  },
+  frequencyDescription: {
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 14,
   },
   featuresContainer: {
     marginBottom: 20,
@@ -427,11 +665,18 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   freeTrialContainer: {
-    marginBottom: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: tokens.radius.lg,
+    paddingVertical: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.xxl,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   freeTrialContent: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   freeTrialToggle: {
     width: 50,

@@ -302,8 +302,8 @@ export const BudgetSetupScreen: React.FC = () => {
                 onValueChange={(value) => handleCustomRangeChange(value, true)}
                 minimumTrackTintColor="#007AFF"
                 maximumTrackTintColor="#E5E5EA"
-                thumbStyle={styles.sliderThumb}
-                trackStyle={styles.sliderTrack}
+                // thumbStyle and trackStyle props not supported by @react-native-community/slider
+                // Use thumbTintColor and track colors instead
               />
             </View>
 
@@ -320,8 +320,8 @@ export const BudgetSetupScreen: React.FC = () => {
                 onValueChange={(value) => handleCustomRangeChange(value, false)}
                 minimumTrackTintColor="#007AFF"
                 maximumTrackTintColor="#E5E5EA"
-                thumbStyle={styles.sliderThumb}
-                trackStyle={styles.sliderTrack}
+                // thumbStyle and trackStyle props not supported by @react-native-community/slider
+                // Use thumbTintColor and track colors instead
               />
             </View>
 

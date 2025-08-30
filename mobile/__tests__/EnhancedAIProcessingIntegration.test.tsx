@@ -43,7 +43,7 @@ const mockImageAnalysis = {
 describe('EnhancedAIProcessingService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (geminiVisionService.analyzeImage as jest.Mock).mockResolvedValue(mockImageAnalysis);
+    (geminiVisionService.analyzeImage as unknown as jest.Mock).mockResolvedValue(mockImageAnalysis);
   });
 
   describe('Design Generation Request Building', () => {
@@ -199,7 +199,7 @@ describe('EnhancedAIProcessingService', () => {
     });
 
     it('should handle reference analysis failures gracefully', async () => {
-      (geminiVisionService.analyzeImage as jest.Mock)
+      (geminiVisionService.analyzeImage as unknown as jest.Mock)
         .mockResolvedValueOnce(mockImageAnalysis) // Original photo succeeds
         .mockRejectedValueOnce(new Error('Analysis failed')) // Reference fails
         .mockResolvedValueOnce(mockImageAnalysis); // Second reference succeeds
@@ -361,7 +361,7 @@ describe('EnhancedAIProcessingService', () => {
 
   describe('Error Handling', () => {
     it('should handle original photo analysis failure', async () => {
-      (geminiVisionService.analyzeImage as jest.Mock).mockRejectedValueOnce(
+      (geminiVisionService.analyzeImage as unknown as jest.Mock).mockRejectedValueOnce(
         new Error('Failed to analyze original photo')
       );
 

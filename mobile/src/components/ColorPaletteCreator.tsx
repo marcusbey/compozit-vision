@@ -479,7 +479,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             onValueChange={(value) => handleSliderChange(value, 'h')}
             minimumTrackTintColor={tokens.color.brand}
             maximumTrackTintColor={tokens.color.borderSoft}
-            thumbStyle={styles.sliderThumb}
+            thumbTintColor={tokens.color.brand}
           />
         </View>
 
@@ -493,7 +493,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             onValueChange={(value) => handleSliderChange(value, 's')}
             minimumTrackTintColor={tokens.color.brand}
             maximumTrackTintColor={tokens.color.borderSoft}
-            thumbStyle={styles.sliderThumb}
+            thumbTintColor={tokens.color.brand}
           />
         </View>
 
@@ -507,7 +507,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             onValueChange={(value) => handleSliderChange(value, 'l')}
             minimumTrackTintColor={tokens.color.brand}
             maximumTrackTintColor={tokens.color.borderSoft}
-            thumbStyle={styles.sliderThumb}
+            thumbTintColor={tokens.color.brand}
           />
         </View>
       </View>
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.color.scrim,
     paddingHorizontal: tokens.spacing.xs,
     paddingVertical: tokens.spacing.xs,
-    borderRadius: tokens.radius.xs,
+    borderRadius: tokens.radius.sm,
     fontSize: 10,
   },
   colorProperties: {
@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   presetColorSwatch: {
     width: 24,
     height: 24,
-    borderRadius: tokens.radius.xs,
+    borderRadius: tokens.radius.sm,
     borderWidth: 1,
     borderColor: tokens.color.borderSoft,
   },
@@ -874,11 +874,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 40,
   },
-  sliderThumb: {
-    backgroundColor: tokens.color.brand,
-    width: 24,
-    height: 24,
-  },
+  // sliderThumb style removed - use thumbTintColor prop instead
   harmonySection: {
     backgroundColor: tokens.color.surface,
     borderRadius: tokens.radius.lg,

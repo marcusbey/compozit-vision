@@ -96,10 +96,10 @@ describe('PhotoCaptureScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
     
     // Mock file system responses
-    (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+    (FileSystem.getInfoAsync as unknown as jest.Mock).mockResolvedValue({
       exists: true,
       size: 1000000,
     });
@@ -163,7 +163,7 @@ describe('PhotoCaptureScreen', () => {
       const mockRequestPermission = jest.fn(() => 
         Promise.resolve({ granted: false })
       );
-      (useCameraPermissions as jest.Mock).mockReturnValueOnce([
+      (useCameraPermissions as unknown as jest.Mock).mockReturnValueOnce([
         null,
         mockRequestPermission,
       ]);
@@ -194,9 +194,9 @@ describe('PhotoCaptureScreen', () => {
   describe('Photo Import', () => {
     it('should handle photo import successfully', async () => {
       const mockImageUri = 'file://test-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
@@ -231,7 +231,7 @@ describe('PhotoCaptureScreen', () => {
     });
 
     it('should handle permission denial for photo import', async () => {
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'denied' });
 
       const { getByText } = render(
@@ -249,9 +249,9 @@ describe('PhotoCaptureScreen', () => {
     });
 
     it('should handle cancelled photo selection', async () => {
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: true,
       });
 
@@ -270,15 +270,15 @@ describe('PhotoCaptureScreen', () => {
   describe('Photo Quality Assessment', () => {
     it('should analyze photo quality and show assessment modal for low quality', async () => {
       const mockImageUri = 'file://low-quality-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
       
       // Mock low quality image
-      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      (FileSystem.getInfoAsync as unknown as jest.Mock).mockResolvedValue({
         exists: true,
         size: 100000, // Small file size
       });
@@ -301,15 +301,15 @@ describe('PhotoCaptureScreen', () => {
 
     it('should not show quality modal for high quality images', async () => {
       const mockImageUri = 'file://high-quality-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
       
       // Mock high quality image
-      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+      (FileSystem.getInfoAsync as unknown as jest.Mock).mockResolvedValue({
         exists: true,
         size: 2000000, // Large file size
       });
@@ -330,9 +330,9 @@ describe('PhotoCaptureScreen', () => {
 
     it('should calculate quality scores correctly', async () => {
       const mockImageUri = 'file://test-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
@@ -404,9 +404,9 @@ describe('PhotoCaptureScreen', () => {
   describe('Navigation', () => {
     it('should navigate to style selection on continue', async () => {
       const mockImageUri = 'file://test-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
@@ -455,9 +455,9 @@ describe('PhotoCaptureScreen', () => {
 
     it('should handle retake photo', async () => {
       const mockImageUri = 'file://test-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
@@ -486,15 +486,15 @@ describe('PhotoCaptureScreen', () => {
   describe('Error Handling', () => {
     it('should handle photo analysis errors gracefully', async () => {
       const mockImageUri = 'file://error-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
       
       // Mock file system error
-      (FileSystem.getInfoAsync as jest.Mock).mockRejectedValue(
+      (FileSystem.getInfoAsync as unknown as jest.Mock).mockRejectedValue(
         new Error('File system error')
       );
 
@@ -512,9 +512,9 @@ describe('PhotoCaptureScreen', () => {
 
     it('should handle image dimension errors', async () => {
       const mockImageUri = 'file://dimension-error-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });
@@ -574,9 +574,9 @@ describe('PhotoCaptureScreen', () => {
   describe('Performance', () => {
     it('should not cause memory leaks with large images', async () => {
       const mockImageUri = 'file://large-image.jpg';
-      (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock)
+      (ImagePicker.requestMediaLibraryPermissionsAsync as unknown as jest.Mock)
         .mockResolvedValue({ status: 'granted' });
-      (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      (ImagePicker.launchImageLibraryAsync as unknown as jest.Mock).mockResolvedValue({
         canceled: false,
         assets: [{ uri: mockImageUri }],
       });

@@ -117,7 +117,7 @@ export const WelcomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#007AFF" />
       <LinearGradient
-        colors={['#007AFF', '#5856D6', '#AF52DE']}
+        colors={['#007AFF', '#5856D6', '#AF52DE'] as [string, string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.background}
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    backdropFilter: 'blur(10px)',
+    // backdropFilter not supported in React Native
   },
   featureIcon: {
     width: 50,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   featureTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '600' as const,
     color: 'white',
     marginBottom: 4,
   },

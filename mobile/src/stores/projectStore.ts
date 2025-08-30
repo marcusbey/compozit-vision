@@ -22,6 +22,7 @@ interface ProjectState {
   createProject: (name: string, description?: string) => Promise<void>;
   subscribeToProjects: () => Promise<void>;
   unsubscribeFromProjects: () => void;
+  reset: () => void;
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
@@ -373,5 +374,19 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       set({ subscription: null });
       console.log('Unsubscribed from project updates');
     }
+  },
+
+  reset: () => {
+    const state = get();
+    if (state.subscription) {
+      state.subscription.unsubscribe();
+    }
+    set({
+      projects: [],
+      currentProject: null,
+      isLoading: false,
+      error: null,
+      subscription: null,
+    });
   },
 }));

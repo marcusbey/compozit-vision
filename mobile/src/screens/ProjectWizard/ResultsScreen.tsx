@@ -18,7 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { useProjectStore } from '../../stores/projectStore';
-import { NavigationHelpers } from '../../navigation/NavigationHelpers';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
 // Design tokens
 const tokens = {

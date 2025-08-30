@@ -34,7 +34,7 @@ describe('FavoriteButton', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useFavoritesStore as jest.Mock).mockReturnValue(mockFavoritesStore);
+    (useFavoritesStore as unknown as jest.Mock).mockReturnValue(mockFavoritesStore);
     mockFavoritesStore.getFavoriteStatus.mockReturnValue(false);
     mockFavoritesStore.toggleFavorite.mockResolvedValue(true);
   });

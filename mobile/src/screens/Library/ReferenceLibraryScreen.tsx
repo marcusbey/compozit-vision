@@ -243,8 +243,8 @@ const ReferenceLibraryScreen: React.FC<ReferenceLibraryScreenProps> = ({ navigat
         case 'mostUsed':
           return b.times_used - a.times_used;
         case 'alphabetical':
-          const nameA = ('user_title' in a) ? a.user_title || '' : a.name;
-          const nameB = ('user_title' in b) ? b.user_title || '' : b.name;
+          const nameA = ('user_title' in a) ? a.user_title || '' : ('title' in a ? a.title : a.name);
+          const nameB = ('user_title' in b) ? b.user_title || '' : ('title' in b ? b.title : b.name);
           return nameA.localeCompare(nameB);
         default:
           return 0;

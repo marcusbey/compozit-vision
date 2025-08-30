@@ -7,10 +7,11 @@ import { jest } from '@jest/globals';
 import GeminiService, { getGeminiService, analyzeRoomWithGemini, RoomAnalysisInput } from '../geminiService';
 
 // Mock Google Generative AI
+const mockGenerateContent = jest.fn();
 jest.mock('@google/generative-ai', () => ({
   GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
     getGenerativeModel: jest.fn().mockReturnValue({
-      generateContent: jest.fn()
+      generateContent: mockGenerateContent
     })
   }))
 }));
@@ -136,11 +137,11 @@ describe('GeminiService', () => {
       };
 
       const mockModel = {
-        generateContent: jest.fn().mockResolvedValue(mockResponse)
+        generateContent: jest.fn().mockResolvedValue(mockResponse) as jest.MockedFunction<any>
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -163,11 +164,11 @@ describe('GeminiService', () => {
       };
 
       const mockModel = {
-        generateContent: jest.fn().mockResolvedValue(mockResponse)
+        generateContent: jest.fn().mockResolvedValue(mockResponse) as jest.MockedFunction<any>
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -212,7 +213,7 @@ describe('GeminiService', () => {
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -234,8 +235,8 @@ describe('GeminiService', () => {
     it('should retry on transient errors', async () => {
       const mockModel = {
         generateContent: jest.fn()
-          .mockRejectedValueOnce(new Error('Network error'))
-          .mockRejectedValueOnce(new Error('Temporary failure'))
+          .mockRejectedValueOnce(new Error('Network error') as any)
+          .mockRejectedValueOnce(new Error('Temporary failure') as any)
           .mockResolvedValue({
             response: {
               text: jest.fn().mockReturnValue(JSON.stringify({
@@ -252,7 +253,7 @@ describe('GeminiService', () => {
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -270,7 +271,7 @@ describe('GeminiService', () => {
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -318,11 +319,11 @@ describe('GeminiService', () => {
       };
 
       const mockModel = {
-        generateContent: jest.fn().mockResolvedValue(mockResponse)
+        generateContent: jest.fn().mockResolvedValue(mockResponse) as jest.MockedFunction<any>
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 
@@ -369,7 +370,7 @@ describe('GeminiService', () => {
       };
 
       const { GoogleGenerativeAI } = require('@google/generative-ai');
-      GoogleGenerativeAI.mockImplementation(() => ({
+      (GoogleGenerativeAI as jest.MockedClass<any>).mockImplementation(() => ({
         getGenerativeModel: jest.fn().mockReturnValue(mockModel)
       }));
 

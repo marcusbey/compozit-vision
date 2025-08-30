@@ -476,7 +476,7 @@ describe('Enhanced AI Processing - Performance Validation', () => {
           }, 100);
         }, [startMeasurement]);
 
-        return <div testID="test-component">Test</div>;
+        return <div data-testid="test-component">Test</div>;
       };
 
       const { getByTestId } = render(<TestComponent />);
@@ -511,7 +511,7 @@ describe('Enhanced AI Processing - Performance Validation', () => {
       // This would test lazy loading in a real scenario
       const LazyComponent = React.lazy(() => 
         Promise.resolve({
-          default: () => <div testID="lazy-component">Lazy</div>
+          default: () => <div data-testid="lazy-component">Lazy</div>
         })
       );
 

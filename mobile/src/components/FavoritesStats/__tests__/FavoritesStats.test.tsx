@@ -32,7 +32,7 @@ describe('FavoritesStats', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useFavoritesStore as jest.Mock).mockReturnValue(mockFavoritesStore);
+    (useFavoritesStore as unknown as jest.Mock).mockReturnValue(mockFavoritesStore);
   });
 
   describe('Initial Render', () => {
@@ -88,7 +88,7 @@ describe('FavoritesStats', () => {
         collections: 0,
       };
 
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         stats: zeroStats,
       });
@@ -197,7 +197,7 @@ describe('FavoritesStats', () => {
 
   describe('Loading and Error States', () => {
     it('should handle loading state', () => {
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         isLoading: true,
       });
@@ -209,7 +209,7 @@ describe('FavoritesStats', () => {
     });
 
     it('should handle error state', () => {
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         error: 'Failed to load stats',
       });
@@ -220,7 +220,7 @@ describe('FavoritesStats', () => {
     });
 
     it('should still show data when there is an error', () => {
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         error: 'Network error',
       });
@@ -309,7 +309,7 @@ describe('FavoritesStats', () => {
 
   describe('Data Validation', () => {
     it('should handle missing stats gracefully', () => {
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         stats: null,
       });
@@ -330,7 +330,7 @@ describe('FavoritesStats', () => {
         collections: 0,
       };
 
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         stats: negativeStats,
       });
@@ -351,7 +351,7 @@ describe('FavoritesStats', () => {
         collections: 999,
       };
 
-      (useFavoritesStore as jest.Mock).mockReturnValue({
+      (useFavoritesStore as unknown as jest.Mock).mockReturnValue({
         ...mockFavoritesStore,
         stats: largeStats,
       });

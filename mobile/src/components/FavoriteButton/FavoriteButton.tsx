@@ -117,7 +117,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       Animated.parallel([
         Animated.spring(scaleAnim, {
           toValue: 0.85,
-          duration: 100,
+          tension: 300,
+          friction: 8,
           useNativeDriver: true,
         }),
         Animated.timing(rotateAnim, {
@@ -129,7 +130,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       Animated.parallel([
         Animated.spring(scaleAnim, {
           toValue: 1.1,
-          duration: 200,
+          tension: 100,
+          friction: 6,
           useNativeDriver: true,
         }),
         Animated.timing(rotateAnim, {
@@ -140,7 +142,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       ]),
       Animated.spring(scaleAnim, {
         toValue: 1,
-        duration: 200,
+        tension: 150,
+        friction: 7,
         useNativeDriver: true,
       }),
     ]).start();

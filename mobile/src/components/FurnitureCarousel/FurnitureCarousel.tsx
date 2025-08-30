@@ -7,13 +7,11 @@ import {
   SafeAreaView,
 } from 'react-native';
 import {
-  PanGestureHandler,
-  State,
+  Gesture,
+  GestureDetector,
   PanGestureHandlerGestureEvent,
-  PanGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -80,7 +78,7 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
   const opacity = useSharedValue(1);
 
   // Refs
-  const panRef = useRef<PanGestureHandler>(null);
+  // Gesture ref not needed with new API
 
   // Get current category and styles
   const currentCategory = categories[carouselState.currentCategoryIndex];
@@ -102,12 +100,13 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
   }, [translateX, translateY, rotate, scale, opacity]);
 
   // Handle swipe gesture detection
-  const detectSwipeGesture = useCallback((
+  const detectSwipeGesture = (
     translationX: number,
     translationY: number,
     velocityX: number,
     velocityY: number
   ): SwipeGesture | null => {
+    'worklet';
     const absX = Math.abs(translationX);
     const absY = Math.abs(translationY);
     const absVelX = Math.abs(velocityX);
@@ -135,7 +134,7 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
       distance: direction === 'left' || direction === 'right' ? translationX : translationY,
       isValidSwipe: true,
     };
-  }, []);
+  };
 
   // Handle card actions
   const handleCardAction = useCallback((action: CarouselAction) => {
@@ -228,20 +227,20 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
     animationDuration,
   ]);
 
-  // Gesture handler
-  const panGestureHandler = useAnimatedGestureHandler<
-    PanGestureHandlerGestureEvent,
-    { startX: number; startY: number }
-  >({
-    onStart: (_, ctx) => {
-      ctx.startX = translateX.value;
-      ctx.startY = translateY.value;
-    },
-    onActive: (event, ctx) => {
+  // Gesture handler using new Gesture API
+  const panGestureHandler = Gesture.Pan()
+    .onBegin(() => {
+      'worklet';
+      // Store starting position using shared values
+      const startX = translateX.value;
+      const startY = translateY.value;
+    })
+    .onUpdate((event) => {
+      'worklet';
       if (!carouselState.gestureEnabled) return;
 
-      translateX.value = ctx.startX + event.translationX;
-      translateY.value = ctx.startY + event.translationY;
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
 
       // Calculate rotation based on horizontal movement
       const rotationIntensity = event.translationX / screenWidth;
@@ -257,8 +256,9 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
       // Calculate opacity based on horizontal movement
       const opacityIntensity = Math.abs(event.translationX) / screenWidth;
       opacity.value = Math.max(0.7, 1 - opacityIntensity * 0.3);
-    },
-    onEnd: (event) => {
+    })
+    .onEnd((event) => {
+      'worklet';
       if (!carouselState.gestureEnabled) return;
 
       const gesture = detectSwipeGesture(
@@ -300,8 +300,7 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
         // Snap back to center
         resetCardPosition();
       }
-    },
-  });
+    });
 
   // Animated style for the card
   const cardAnimatedStyle = useAnimatedStyle(() => ({
@@ -351,11 +350,7 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
 
       {/* Card Container */}
       <View style={styles.cardContainer}>
-        <PanGestureHandler
-          ref={panRef}
-          onGestureEvent={panGestureHandler}
-          enabled={carouselState.gestureEnabled && !carouselState.isTransitioning}
-        >
+        <GestureDetector gesture={panGestureHandler}>
           <Animated.View style={[styles.cardWrapper, cardAnimatedStyle]}>
             <StyleCard
               style={currentStyle}
@@ -364,7 +359,7 @@ export const FurnitureCarousel: React.FC<FurnitureCarouselProps> = ({
               onSkip={() => handleActionPress('TAP_X')}
             />
           </Animated.View>
-        </PanGestureHandler>
+        </GestureDetector>
       </View>
 
       {/* Action Buttons */}

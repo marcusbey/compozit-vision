@@ -114,6 +114,8 @@ const { width, height } = Dimensions.get('window');
 interface OnboardingScreen3Props {
   onNext?: () => void;
   onBack?: () => void;
+  navigation?: any;
+  route?: any;
 }
 
 const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack }) => {
@@ -143,19 +145,57 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={tokens.color.bgApp} translucent={false} />
+      <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.3)" translucent />
       
       <View style={styles.gradient}>
+        {/* Video Background - Human & AI Collaboration */}
+        <View style={styles.videoBackground}>
+          {/* Video placeholder for human-AI collaboration */}
+          <LinearGradient
+            colors={[
+              'rgba(45, 43, 40, 0.85)',
+              'rgba(45, 43, 40, 0.65)',
+              'rgba(45, 43, 40, 0.9)'
+            ]}
+            locations={[0, 0.5, 1]}
+            style={styles.videoGradientOverlay}
+          />
+          
+          {/* Mock Human-AI Collaboration Visual */}
+          <View style={styles.collaborationDemo}>
+            <View style={styles.humanSide}>
+              <View style={styles.humanAvatar}>
+                <Ionicons name="person" size={24} color="#FFFFFF" />
+              </View>
+              <View style={styles.designElements}>
+                <View style={styles.designElement} />
+                <View style={[styles.designElement, styles.designElement2]} />
+              </View>
+            </View>
+            
+            <View style={styles.aiSide}>
+              <View style={styles.aiAvatar}>
+                <Ionicons name="sparkles" size={24} color={tokens.color.brandLight} />
+              </View>
+              <View style={styles.precisionGrid}>
+                <View style={styles.measurementLine} />
+                <View style={[styles.measurementLine, styles.measurementLine2]} />
+                <View style={styles.accuracyIndicator} />
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding2')} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} />
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '100%' }]} />
+              <View style={[styles.progressFill, { width: '75%' }]} />
             </View>
-            <Text style={styles.progressText}>3 of 3</Text>
+            <Text style={styles.progressText}>3 of 4</Text>
           </View>
           <View style={{ width: 40 }} />
         </View>
@@ -185,64 +225,68 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
               ]}
             >
               <View style={styles.professionalBadge}>
-                <Ionicons name="star" size={24} color={tokens.color.brand} />
+                <Ionicons name="star" size={24} color={tokens.color.brandLight} />
                 <Text style={styles.badgeText}>Professional Grade</Text>
               </View>
             </Animated.View>
 
-            <Text style={styles.title}>Ready for{'\n'}Professional Results?</Text>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>Ready for{'\n'}Professional Results?</Text>
+            </View>
             
-            <Text style={styles.subtitle}>
-              Join thousands of real estate agents, designers, and architects who trust Compozit Vision for their projects.
-            </Text>
+            <View style={styles.subtitleContainer}>
+              <Text style={styles.subtitle}>
+                Join thousands of real estate agents, designers, and architects who trust Compozit Vision for precision and accuracy.
+              </Text>
+            </View>
 
-            {/* Professional Features */}
+            {/* Professional Features - Precision & Accuracy Focus */}
             <View style={styles.featuresContainer}>
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="scan-outline" size={28} color={tokens.color.blue} />
+                    <Ionicons name="scan-outline" size={28} color={tokens.color.brandLight} />
                   </View>
-                  <Text style={styles.featureTitle}>Advanced Room Analysis</Text>
+                  <Text style={styles.featureTitle}>Millimeter-Precise Scanning</Text>
                 </View>
                 <Text style={styles.featureDescription}>
-                  AI detects room type, dimensions, lighting, and existing furniture with 95% accuracy
+                  Advanced AI scans detect exact room dimensions, lighting conditions, and spatial relationships with 98.5% accuracy
                 </Text>
               </View>
 
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="color-palette-outline" size={28} color={tokens.color.blue} />
+                    <Ionicons name="color-palette-outline" size={28} color={tokens.color.brandLight} />
                   </View>
-                  <Text style={styles.featureTitle}>Style Customization</Text>
+                  <Text style={styles.featureTitle}>Expert Color Matching</Text>
                 </View>
                 <Text style={styles.featureDescription}>
-                  Choose multiple design styles, furniture preferences, and custom atmosphere settings
+                  Professional-grade color analysis ensures perfect palette coordination with existing elements and lighting
                 </Text>
               </View>
 
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="storefront-outline" size={28} color={tokens.color.blue} />
+                    <Ionicons name="pricetags-outline" size={28} color={tokens.color.brandLight} />
                   </View>
-                  <Text style={styles.featureTitle}>Smart Product Matching</Text>
+                  <Text style={styles.featureTitle}>Real-Time Price Alignment</Text>
                 </View>
                 <Text style={styles.featureDescription}>
-                  Get exact furniture matches with prices, availability, and purchase links from trusted retailers
+                  Instant price matching across 500+ retailers with live inventory and delivery tracking for perfect budget planning
                 </Text>
               </View>
 
               <View style={styles.professionalFeature}>
                 <View style={styles.featureHeader}>
                   <View style={styles.featureIcon}>
-                    <Ionicons name="calculator-outline" size={28} color={tokens.color.blue} />
+                    <Ionicons name="library-outline" size={28} color={tokens.color.brandLight} />
                   </View>
-                  <Text style={styles.featureTitle}>Budget Planning</Text>
+                  <Text style={styles.featureTitle}>Curated References Library</Text>
                 </View>
                 <Text style={styles.featureDescription}>
-                  Detailed cost breakdowns by category with budget optimization suggestions
+                  Access thousands of professionally selected design references, textures, and style combinations for authentic results
                 </Text>
               </View>
             </View>
@@ -284,7 +328,7 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('paywall')}
+            onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding4')}
             activeOpacity={0.9}
           >
             <LinearGradient
@@ -310,11 +354,98 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: tokens.color.bgApp,
+    backgroundColor: '#1a1a1a',
   },
   gradient: {
     flex: 1,
-    backgroundColor: tokens.color.bgApp,
+    position: 'relative',
+  },
+  // Video background styles
+  videoBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#1a1a1a',
+  },
+  videoGradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  collaborationDemo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: 40,
+    opacity: 0.4,
+  },
+  humanSide: {
+    alignItems: 'center',
+  },
+  aiSide: {
+    alignItems: 'center',
+  },
+  humanAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  aiAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(212, 165, 116, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  designElements: {
+    width: 80,
+    height: 100,
+  },
+  designElement: {
+    width: '100%',
+    height: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    marginBottom: 10,
+    borderRadius: 4,
+  },
+  designElement2: {
+    width: '70%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  precisionGrid: {
+    width: 80,
+    height: 100,
+    position: 'relative',
+  },
+  measurementLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: 'rgba(212, 165, 116, 0.6)',
+    marginBottom: 15,
+  },
+  measurementLine2: {
+    width: '60%',
+    backgroundColor: 'rgba(212, 165, 116, 0.4)',
+  },
+  accuracyIndicator: {
+    position: 'absolute',
+    right: 0,
+    top: 20,
+    width: 10,
+    height: 10,
+    backgroundColor: tokens.color.brandLight,
+    borderRadius: 5,
   },
   header: {
     flexDirection: 'row',
@@ -323,17 +454,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.xl,
     paddingTop: tokens.spacing.md,
     paddingBottom: tokens.spacing.xl,
+    zIndex: 10,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: tokens.borderRadius.xl,
-    backgroundColor: tokens.color.bgSurface,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: tokens.color.border,
-    ...tokens.shadow.sm,
   },
   progressContainer: {
     flex: 1,
@@ -341,20 +470,34 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 4,
-    backgroundColor: tokens.color.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 2,
     marginBottom: tokens.spacing.sm,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: tokens.color.brand,
+    backgroundColor: tokens.color.brandLight,
     borderRadius: 2,
   },
   progressText: {
     fontSize: tokens.typography.fontSize.sm,
-    color: tokens.color.textSecondary,
+    color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     fontWeight: tokens.typography.fontWeight.medium as any,
+  },
+  titleContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: tokens.borderRadius.lg,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingVertical: tokens.spacing.lg,
+    marginBottom: tokens.spacing.lg,
+  },
+  subtitleContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: tokens.borderRadius.md,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.md,
+    marginBottom: tokens.spacing['3xl'],
   },
   scrollView: {
     flex: 1,

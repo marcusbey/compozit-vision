@@ -1,13 +1,77 @@
 // Social Authentication Provider Integration
-import { 
-  GoogleSignin, 
-  statusCodes as GoogleStatusCodes 
-} from '@react-native-google-signin/google-signin';
-import { appleAuth } from '@invertase/react-native-apple-authentication';
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+import { Platform, Alert } from 'react-native';
 import { supabase } from '../supabase/client';
 import { AuthResult, AuthError, AuthErrorCode, User } from './types';
-import { Platform } from 'react-native';
+
+// Mock Google Sign-In for development
+// TODO: Install and configure @react-native-google-signin/google-signin for production
+const GoogleSignin = {
+  configure: (config: any) => {
+    console.log('Google Sign-In configured (mock):', config);
+  },
+  hasPlayServices: async () => Promise.resolve(true),
+  signIn: async () => {
+    return new Promise((resolve, reject) => {
+      Alert.alert(
+        'Google Sign-In',
+        'Google Sign-In is not configured. Would you like to continue with mock authentication?',
+        [
+          { text: 'Cancel', style: 'cancel', onPress: () => reject(new Error('Sign in cancelled')) },
+          { text: 'Continue', onPress: () => resolve({ idToken: 'mock-id-token' }) }
+        ]
+      );
+    });
+  },
+  signOut: async () => Promise.resolve(),
+  isSignedIn: async () => Promise.resolve(false),
+  getCurrentUser: async () => Promise.resolve(null)
+};
+
+const GoogleStatusCodes = {
+  SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE'
+};
+
+// Mock Apple Auth for development
+const appleAuth = {
+  Operation: { LOGIN: 'LOGIN' },
+  Scope: { EMAIL: 'EMAIL', FULL_NAME: 'FULL_NAME' },
+  Error: { CANCELED: 'CANCELED' },
+  performRequest: async (options: any) => {
+    return new Promise((resolve, reject) => {
+      Alert.alert(
+        'Apple Sign-In',
+        'Apple Sign-In is not configured. Would you like to continue with mock authentication?',
+        [
+          { text: 'Cancel', style: 'cancel', onPress: () => reject(new Error('Sign in cancelled')) },
+          { text: 'Continue', onPress: () => resolve({ identityToken: 'mock-identity-token' }) }
+        ]
+      );
+    });
+  }
+};
+
+// Mock Facebook SDK for development
+const LoginManager = {
+  logInWithPermissions: async (permissions: string[]) => {
+    return new Promise((resolve, reject) => {
+      Alert.alert(
+        'Facebook Sign-In',
+        'Facebook Sign-In is not configured. Would you like to continue with mock authentication?',
+        [
+          { text: 'Cancel', style: 'cancel', onPress: () => resolve({ isCancelled: true }) },
+          { text: 'Continue', onPress: () => resolve({ isCancelled: false }) }
+        ]
+      );
+    });
+  },
+  logOut: () => console.log('Facebook logout (mock)')
+};
+
+const AccessToken = {
+  getCurrentAccessToken: async () => Promise.resolve({ accessToken: 'mock-access-token' })
+};
 
 export class SocialAuth {
   /**

@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import AIProcessingScreen from '../src/screens/ProjectWizard/AIProcessingScreen';
 import { useJourneyStore } from '../src/stores/journeyStore';
 import { useContentStore } from '../src/stores/contentStore';
-import { NavigationHelpers } from '../src/navigation/NavigationHelpers';
+import { NavigationHelpers } from '../src/navigation/SafeJourneyNavigator';
 import { geminiVisionService } from '../src/services/geminiVisionService';
 
 // Mock dependencies
@@ -72,9 +72,9 @@ const mockNavigationHelpers = {
 describe('AIProcessingScreen Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
-    (useContentStore as jest.Mock).mockReturnValue(mockContentStore);
-    (NavigationHelpers as jest.Mock).mockImplementation(() => mockNavigationHelpers);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useContentStore as unknown as jest.Mock).mockReturnValue(mockContentStore);
+    (NavigationHelpers as unknown as jest.Mock).mockImplementation(() => mockNavigationHelpers);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
   });
 
@@ -308,7 +308,7 @@ describe('AIProcessingScreen Integration Tests', () => {
       });
       
       // Simulate user confirming cancellation
-      const alertCall = (Alert.alert as jest.Mock).mock.calls[0];
+      const alertCall = (Alert.alert as unknown as jest.Mock).mock.calls[0];
       const confirmCallback = alertCall[2][1].onPress;
       confirmCallback();
       
@@ -479,7 +479,7 @@ describe('AI Processing Error Scenarios', () => {
 
   it('should handle network failures gracefully', async () => {
     // Mock network failure
-    (geminiVisionService.analyzeImage as jest.Mock).mockRejectedValue(
+    (geminiVisionService.analyzeImage as unknown as jest.Mock).mockRejectedValue(
       new Error('Network error')
     );
 
@@ -492,7 +492,7 @@ describe('AI Processing Error Scenarios', () => {
 
   it('should handle API rate limiting', async () => {
     // Mock rate limiting error
-    (geminiVisionService.analyzeImage as jest.Mock).mockRejectedValue(
+    (geminiVisionService.analyzeImage as unknown as jest.Mock).mockRejectedValue(
       new Error('Rate limit exceeded')
     );
 

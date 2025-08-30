@@ -545,7 +545,7 @@ describe('🎯 Critical Path Validation Tests', () => {
 
       // Should consume credit
       await waitFor(() => {
-        expect(mockUserStore().consumeToken).toHaveBeenCalled();
+        expect((mockUserStore() as any).consumeToken).toHaveBeenCalled();
       });
 
       // Should call AI service with complete parameters
@@ -615,14 +615,14 @@ describe('🎯 Critical Path Validation Tests', () => {
       }, { timeout: 20000 });
 
       // Should refund credit on failure
-      expect(mockUserStore().updateUserTokens).toHaveBeenCalledWith(5); // Original amount
+      expect((mockUserStore() as any).updateUserTokens).toHaveBeenCalledWith(5); // Original amount
     });
 
     it('should validate AI output quality and safety', async () => {
       const AIService = require('../src/services/aiProcessing').AIProcessingService;
       
       // Mock AI response with quality validation
-      AIService.generateDesign.mockImplementation(async (params) => {
+      AIService.generateDesign.mockImplementation(async (params: any) => {
         // Simulate quality checks
         const result = {
           designId: 'design-123',
@@ -722,7 +722,7 @@ describe('🎯 Critical Path Validation Tests', () => {
       );
 
       // Simulate app restoration
-      mockAsyncStorage.getItem.mockImplementation((key) => {
+      (mockAsyncStorage.getItem as jest.MockedFunction<any>).mockImplementation((key: string) => {
         if (key === 'userJourneyData') {
           return Promise.resolve(JSON.stringify({
             project: { 
@@ -751,7 +751,7 @@ describe('🎯 Critical Path Validation Tests', () => {
 
     it('should handle database synchronization conflicts', async () => {
       // Mock local data newer than server
-      mockAsyncStorage.getItem.mockImplementation((key) => {
+      (mockAsyncStorage.getItem as jest.MockedFunction<any>).mockImplementation((key: string) => {
         if (key === 'userJourneyData') {
           return Promise.resolve(JSON.stringify({
             project: { photoUri: 'local://image.jpg' },
@@ -764,13 +764,13 @@ describe('🎯 Critical Path Validation Tests', () => {
       // Mock server data older than local
       mockSupabaseFrom.select.mockImplementationOnce(() => ({
         eq: () => ({
-          single: () => Promise.resolve({
+          single: jest.fn().mockResolvedValue({
             data: { 
               project_data: { photoUri: 'server://image.jpg' },
               updated_at: '2024-01-01T10:00:00Z', // Older
             },
             error: null
-          })
+          }) as any
         })
       }));
 
@@ -816,7 +816,7 @@ describe('🎯 Critical Path Validation Tests', () => {
       // Simulate backup creation
       const createBackup = async (data: any) => {
         const backupKey = `backup_${Date.now()}`;
-        await mockAsyncStorage.setItem(backupKey, JSON.stringify(data));
+        await (mockAsyncStorage.setItem as any)(backupKey, JSON.stringify(data));
         return backupKey;
       };
 
@@ -827,7 +827,7 @@ describe('🎯 Critical Path Validation Tests', () => {
       );
 
       // Simulate data corruption
-      mockAsyncStorage.getItem.mockImplementation((key) => {
+      (mockAsyncStorage.getItem as jest.MockedFunction<any>).mockImplementation((key: string) => {
         if (key === 'userJourneyData') {
           return Promise.resolve(null); // Corrupted/missing
         }
@@ -839,9 +839,9 @@ describe('🎯 Critical Path Validation Tests', () => {
 
       // Should recover from backup
       const recoverFromBackup = async () => {
-        const backup = await mockAsyncStorage.getItem(backupKey);
+        const backup = await (mockAsyncStorage.getItem as any)(backupKey);
         if (backup) {
-          await mockAsyncStorage.setItem('userJourneyData', backup);
+          await (mockAsyncStorage.setItem as any)('userJourneyData', backup);
           return true;
         }
         return false;
@@ -888,7 +888,7 @@ describe('🎯 Critical Path Validation Tests', () => {
     });
 
     it('should validate memory usage during critical operations', () => {
-      const initialMemory = performance.memory?.usedJSHeapSize || 0;
+      const initialMemory = (performance as any).memory?.usedJSHeapSize || 0;
       
       // Simulate heavy operation (AI processing)
       const screens = [];
@@ -899,7 +899,7 @@ describe('🎯 Critical Path Validation Tests', () => {
       // Cleanup
       screens.forEach(screen => screen.unmount());
 
-      const finalMemory = performance.memory?.usedJSHeapSize || 0;
+      const finalMemory = (performance as any).memory?.usedJSHeapSize || 0;
       const memoryIncrease = finalMemory - initialMemory;
 
       // Memory increase should be reasonable (under 100MB)
@@ -977,8 +977,7 @@ describe('🎯 Critical Path Validation Tests', () => {
         isScreenReaderEnabled: false,
       };
 
-      jest.spyOn(AccessibilityInfo, 'isHighContrastEnabled').mockResolvedValue(true);
-      jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
+      jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled' as any).mockResolvedValue(true);
 
       const processingScreen = render(<ProcessingScreen navigation={mockNavigation} route={mockRoute} />);
       
@@ -1166,7 +1165,7 @@ describe('🎯 Critical Path Validation Tests', () => {
       });
 
       // Detect corruption and recover
-      const journeyState = mockJourneyStore();
+      const journeyState = mockJourneyStore() as any;
       if (!journeyState.project || !journeyState.progress) {
         mockResetToSafeState();
       }

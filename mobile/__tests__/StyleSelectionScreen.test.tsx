@@ -149,7 +149,7 @@ const mockDatabaseStyles = [
 describe('StyleSelectionScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
   });
 
@@ -164,7 +164,7 @@ describe('StyleSelectionScreen', () => {
         error: null
       });
 
-      (supabase.from as jest.Mock).mockImplementation(() => ({
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => ({
         select: mockSelect,
         eq: mockEq,
         order: mockOrder,
@@ -190,7 +190,7 @@ describe('StyleSelectionScreen', () => {
         error: null
       });
 
-      (supabase.from as jest.Mock).mockImplementation(() => ({
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => ({
         select: mockSelect,
         eq: mockEq,
         order: mockOrder,
@@ -206,7 +206,7 @@ describe('StyleSelectionScreen', () => {
     });
 
     it('should fall back to predefined styles when database fails', async () => {
-      (supabase.from as jest.Mock).mockImplementation(() => {
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => {
         throw new Error('Database error');
       });
 
@@ -223,7 +223,7 @@ describe('StyleSelectionScreen', () => {
 
   describe('Space Context Display', () => {
     it('should show selected spaces context when rooms are selected', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -240,7 +240,7 @@ describe('StyleSelectionScreen', () => {
     it('should show single space name when only one room selected', async () => {
       mockJourneyStore.projectWizard.selectedRooms = ['living-room'];
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -256,7 +256,7 @@ describe('StyleSelectionScreen', () => {
 
   describe('Filter Functionality', () => {
     beforeEach(async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -292,7 +292,7 @@ describe('StyleSelectionScreen', () => {
 
     it('should show empty state with fallback option when no styles match', async () => {
       // Mock empty result
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -309,7 +309,7 @@ describe('StyleSelectionScreen', () => {
 
   describe('Style Selection', () => {
     beforeEach(async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -353,7 +353,7 @@ describe('StyleSelectionScreen', () => {
 
   describe('Navigation', () => {
     beforeEach(async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -388,7 +388,7 @@ describe('StyleSelectionScreen', () => {
 
   describe('Loading States', () => {
     it('should show loading indicator while fetching styles', () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockImplementation(() => new Promise(() => {})), // Never resolves
@@ -400,7 +400,7 @@ describe('StyleSelectionScreen', () => {
     });
 
     it('should hide loading state when styles load', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),
@@ -419,7 +419,7 @@ describe('StyleSelectionScreen', () => {
     it('should handle database errors gracefully', async () => {
       const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockRejectedValue(new Error('Database error')),
@@ -445,7 +445,7 @@ describe('StyleSelectionScreen', () => {
         name: `Style ${i}`,
       }));
 
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: largeStylesList, error: null }),
@@ -484,7 +484,7 @@ describe('Style Filtering Logic', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
   });
 
@@ -492,7 +492,7 @@ describe('Style Filtering Logic', () => {
     it(description, async () => {
       mockJourneyStore.projectWizard.selectedRooms = selectedRooms;
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: mockDatabaseStyles, error: null }),

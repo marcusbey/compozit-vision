@@ -156,9 +156,9 @@ const mockNavigationHelpers = {
 describe('References and Color System Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
-    (useContentStore as jest.Mock).mockReturnValue(mockContentStore);
-    (NavigationHelpers as jest.Mock).mockImplementation(() => mockNavigationHelpers);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useContentStore as unknown as jest.Mock).mockReturnValue(mockContentStore);
+    (NavigationHelpers as unknown as jest.Mock).mockImplementation(() => mockNavigationHelpers);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
     Object.assign(referenceImageService, mockReferenceImageService);
     Object.assign(colorExtractionService, mockColorExtractionService);
@@ -277,7 +277,7 @@ describe('References and Color System Integration Tests', () => {
           ...mockContentStore,
           userReferences: [],
         };
-        (useContentStore as jest.Mock).mockReturnValue(emptyContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(emptyContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         
@@ -305,7 +305,7 @@ describe('References and Color System Integration Tests', () => {
             message: 'Uploading image...',
           },
         };
-        (useContentStore as jest.Mock).mockReturnValue(uploadingContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(uploadingContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         
@@ -335,7 +335,7 @@ describe('References and Color System Integration Tests', () => {
           ...mockContentStore,
           userPalettes: [],
         };
-        (useContentStore as jest.Mock).mockReturnValue(emptyContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(emptyContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         const colorsTab = getByText('Colors');
@@ -365,7 +365,7 @@ describe('References and Color System Integration Tests', () => {
             extractedColors: null,
           },
         };
-        (useContentStore as jest.Mock).mockReturnValue(extractingContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(extractingContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         const colorsTab = getByText('Colors');
@@ -386,7 +386,7 @@ describe('References and Color System Integration Tests', () => {
             },
           },
         };
-        (useContentStore as jest.Mock).mockReturnValue(extractedContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(extractedContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         const colorsTab = getByText('Colors');
@@ -408,7 +408,7 @@ describe('References and Color System Integration Tests', () => {
             },
           },
         };
-        (useContentStore as jest.Mock).mockReturnValue(extractedContentStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(extractedContentStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         const colorsTab = getByText('Colors');
@@ -430,7 +430,7 @@ describe('References and Color System Integration Tests', () => {
           selectedReferences: [],
           selectedPalettes: [],
         };
-        (useContentStore as jest.Mock).mockReturnValue(noSelectionStore);
+        (useContentStore as unknown as jest.Mock).mockReturnValue(noSelectionStore);
 
         const { getByText } = render(<ReferencesColorsScreen />);
         
@@ -782,7 +782,7 @@ describe('References and Color System Integration Tests', () => {
         ...mockContentStore,
         userReferences: manyReferences,
       };
-      (useContentStore as jest.Mock).mockReturnValue(largeContentStore);
+      (useContentStore as unknown as jest.Mock).mockReturnValue(largeContentStore);
 
       const { getByText } = render(<ReferencesColorsScreen />);
       

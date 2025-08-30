@@ -41,7 +41,7 @@ import { NavigationProps } from '../../types';
 // Import theme and utilities
 import { theme } from '../../theme';
 import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
-import { announceForAccessibility } from '../../utils/accessibility';
+import { announceForScreenReader } from '../../utils/accessibility';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -210,7 +210,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
     setState(prev => ({ ...prev, isLoading: true, error: undefined }));
     
     try {
-      announceForAccessibility('Analyzing your space...');
+      announceForScreenReader('Analyzing your space...');
       
       const analysis = await spaceAnalysisService.analyzeSpace({
         imageUri,
@@ -225,7 +225,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         isLoading: false,
       }));
 
-      announceForAccessibility(`Space analysis complete. Detected ${analysis.roomType} with ${analysis.confidence * 100}% confidence.`);
+      announceForScreenReader(`Space analysis complete. Detected ${analysis.roomType} with ${analysis.confidence * 100}% confidence.`);
     } catch (error) {
       console.error('Space analysis failed:', error);
       setState(prev => ({
@@ -234,7 +234,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         isLoading: false,
       }));
       
-      announceForAccessibility('Space analysis failed. Please try again.');
+      announceForScreenReader('Space analysis failed. Please try again.');
     }
   };
 
@@ -245,7 +245,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
       step: 'ambiance_selection',
     }));
     
-    announceForAccessibility(`Selected ${styles.length} style${styles.length !== 1 ? 's' : ''}: ${styles.join(', ')}`);
+    announceForScreenReader(`Selected ${styles.length} style${styles.length !== 1 ? 's' : ''}: ${styles.join(', ')}`);
   }, []);
 
   const handleAmbianceSelection = useCallback((ambiance: string) => {
@@ -255,7 +255,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
       step: 'furniture_selection',
     }));
     
-    announceForAccessibility(`Selected ${ambiance} ambiance`);
+    announceForScreenReader(`Selected ${ambiance} ambiance`);
   }, []);
 
   const handleFurnitureSelection = useCallback((category: string, furniture: FurnitureStyle) => {
@@ -267,11 +267,11 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
       },
     }));
     
-    announceForAccessibility(`Added ${furniture.name} to ${category} selection`);
+    announceForScreenReader(`Added ${furniture.name} to ${category} selection`);
   }, []);
 
   const handleFurnitureSkip = useCallback((category: string) => {
-    announceForAccessibility(`Skipped ${category} selection`);
+    announceForScreenReader(`Skipped ${category} selection`);
   }, []);
 
   const handleCategoryComplete = useCallback((category: string) => {
@@ -279,10 +279,10 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
     
     if (nextCategoryIndex < FURNITURE_CATEGORIES.length) {
       setCurrentFurnitureCategory(nextCategoryIndex);
-      announceForAccessibility(`Moving to ${FURNITURE_CATEGORIES[nextCategoryIndex].name} selection`);
+      announceForScreenReader(`Moving to ${FURNITURE_CATEGORIES[nextCategoryIndex].name} selection`);
     } else {
       setState(prev => ({ ...prev, step: 'custom_prompt' }));
-      announceForAccessibility('Furniture selection complete. You can now add a custom prompt.');
+      announceForScreenReader('Furniture selection complete. You can now add a custom prompt.');
     }
   }, [currentFurnitureCategory]);
 
@@ -292,7 +292,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
       customPrompt: prompt.text,
     }));
     
-    announceForAccessibility('Custom prompt added');
+    announceForScreenReader('Custom prompt added');
   }, []);
 
   const generateEnhancedDesign = async () => {
@@ -318,7 +318,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
     setState(prev => ({ ...prev, step: 'generating', isLoading: true }));
     
     try {
-      announceForAccessibility('Generating your enhanced design...');
+      announceForScreenReader('Generating your enhanced design...');
       
       const request: EnhancedDesignRequest = {
         imageUri,
@@ -341,7 +341,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         isLoading: false,
       }));
 
-      announceForAccessibility('Design generation complete!');
+      announceForScreenReader('Design generation complete!');
 
       // Navigate to results
       navigation.navigate('results', {
@@ -365,7 +365,7 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
         step: 'custom_prompt', // Go back to last valid step
       }));
       
-      announceForAccessibility('Design generation failed. Please try again.');
+      announceForScreenReader('Design generation failed. Please try again.');
     }
   };
 
@@ -528,7 +528,6 @@ export const EnhancedAIProcessingScreen: React.FC<EnhancedAIProcessingScreenProp
           onStyleSkip={handleFurnitureSkip}
           onCategoryComplete={handleCategoryComplete}
           onAllCategoriesComplete={() => setState(prev => ({ ...prev, step: 'custom_prompt' }))}
-          testID="furniture-carousel"
         />
       </View>
     );

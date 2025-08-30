@@ -181,8 +181,11 @@ export interface ContentState {
   getStyleById: (id: string) => DesignStyle | undefined;
   getPopularStyles: () => DesignStyle[];
   getFeaturedReferences: () => ReferenceImage[];
-  getTrendingPalettes: () => ColorPalette[];
+  getTrendingPalettes: () => ColorPaletteOld[];
   getFilteredReferences: (roomId?: string, styleId?: string) => ReferenceImage[];
+  
+  // Reset method for backward compatibility with tests
+  reset: () => void;
 }
 
 // Create the content store
@@ -846,5 +849,50 @@ export const useContentStore = create<ContentState>((set, get) => ({
     }
     
     return filtered;
+  },
+
+  // Reset method for tests
+  reset: () => {
+    set({
+      categories: [],
+      rooms: [],
+      styles: [],
+      referenceImages: [],
+      colorPalettes: [],
+      examplePhotos: [],
+      userReferences: [],
+      userPalettes: [],
+      selectedReferences: [],
+      selectedPalettes: [],
+      uploadProgress: {
+        isUploading: false,
+        progress: 0,
+        stage: '',
+        message: '',
+      },
+      colorExtraction: {
+        isExtracting: false,
+      },
+      loading: {
+        categories: false,
+        rooms: false,
+        styles: false,
+        references: false,
+        palettes: false,
+        examplePhotos: false,
+        userReferences: false,
+        userPalettes: false,
+      },
+      errors: {
+        categories: null,
+        rooms: null,
+        styles: null,
+        references: null,
+        palettes: null,
+        examplePhotos: null,
+        userReferences: null,
+        userPalettes: null,
+      },
+    });
   },
 }));

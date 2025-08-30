@@ -13,6 +13,13 @@ jest.mock('../src/stores/journeyStore');
 jest.mock('../src/navigation/SafeJourneyNavigator');
 jest.mock('../src/services/supabase', () => ({
   supabase: {
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      order: jest.fn().mockReturnThis(),
+      update: jest.fn().mockReturnThis(),
+      single: jest.fn().mockReturnThis(),
+    })),
     rpc: jest.fn(),
   },
 }));
@@ -53,33 +60,39 @@ const mockNavigationHelpers = {
 describe('CategorySelectionScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
-    (useContentStore as jest.Mock).mockReturnValue(mockContentStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useContentStore as unknown as jest.Mock).mockReturnValue(mockContentStore);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
   });
 
   describe('Screen Initialization', () => {
     it('should render screen correctly', async () => {
       // Mock successful database response
-      (supabase.rpc as jest.Mock).mockResolvedValue({
-        data: [
-          {
-            id: '1',
-            name: 'Interior Design',
-            slug: 'interior-design',
-            description: 'Transform your indoor spaces with style and functionality',
-            category_type: 'interior',
-            icon_name: 'home',
-            color_scheme: { primary: '#C9A98C', secondary: '#B9906F' },
-            display_order: 1,
-            is_featured: true,
-            usage_count: 5,
-            popularity_score: 0.9,
-            complexity_level: 3,
-          }
-        ],
-        error: null
-      });
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: '1',
+              name: 'Interior Design',
+              slug: 'interior-design',
+              description: 'Transform your indoor spaces with style and functionality',
+              category_type: 'interior',
+              icon_name: 'home',
+              color_scheme: { primary: '#C9A98C', secondary: '#B9906F' },
+              display_order: 1,
+              is_featured: true,
+              usage_count: 5,
+              popularity_score: 0.9,
+              complexity_level: 3,
+            }
+          ],
+          error: null
+        })
+      };
+
+      (supabase.from as unknown as jest.Mock).mockReturnValue(mockQuery);
 
       const { getByText } = render(<CategorySelectionScreen />);
       
@@ -89,18 +102,24 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should load categories from database on mount', async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
-        data: [],
-        error: null
-      });
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({
+          data: [],
+          error: null
+        })
+      };
+
+      (supabase.from as unknown as jest.Mock).mockReturnValue(mockQuery);
 
       render(<CategorySelectionScreen />);
       
       await waitFor(() => {
-        expect(supabase.rpc).toHaveBeenCalledWith('get_categories_by_type', {
-          p_category_type: null,
-          p_include_inactive: false
-        });
+        expect(supabase.from).toHaveBeenCalledWith('categories');
+        expect(mockQuery.select).toHaveBeenCalled();
+        expect(mockQuery.eq).toHaveBeenCalledWith('is_active', true);
+        expect(mockQuery.order).toHaveBeenCalledWith('display_order', { ascending: true });
       });
     });
 
@@ -113,27 +132,32 @@ describe('CategorySelectionScreen', () => {
 
   describe('Category Type Filtering', () => {
     beforeEach(async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
-        data: [
-          {
-            id: '1',
-            name: 'Interior Design',
-            category_type: 'interior',
-            icon_name: 'home',
-            display_order: 1,
-            color_scheme: { primary: '#C9A98C' }
-          },
-          {
-            id: '2',
-            name: 'Garden Design',
-            category_type: 'garden',
-            icon_name: 'leaf',
-            display_order: 2,
-            color_scheme: { primary: '#7FB069' }
-          }
-        ],
-        error: null
-      });
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        order: jest.fn().mockResolvedValue({
+          data: [
+            {
+              id: '1',
+              name: 'Interior Design',
+              category_type: 'interior',
+              icon_name: 'home',
+              display_order: 1,
+              color_scheme: { primary: '#C9A98C' }
+            },
+            {
+              id: '2',
+              name: 'Garden Design',
+              category_type: 'garden',
+              icon_name: 'leaf',
+              display_order: 2,
+              color_scheme: { primary: '#7FB069' }
+            }
+          ],
+          error: null
+        })
+      };
+      (supabase.from as unknown as jest.Mock).mockReturnValue(mockQuery);
     });
 
     it('should show filter chips for category types', async () => {
@@ -147,7 +171,7 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should filter categories when type is selected', async () => {
-      (supabase.rpc as jest.Mock)
+      (supabase.rpc as unknown as jest.Mock)
         .mockResolvedValueOnce({
           data: [
             { id: '1', name: 'Interior Design', category_type: 'interior' },
@@ -182,7 +206,7 @@ describe('CategorySelectionScreen', () => {
 
   describe('Category Selection', () => {
     beforeEach(async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
         data: [
           {
             id: '1',
@@ -240,7 +264,7 @@ describe('CategorySelectionScreen', () => {
 
   describe('Continue Action', () => {
     beforeEach(async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
         data: [
           {
             id: '1',
@@ -266,7 +290,7 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should navigate to space definition when category selected', async () => {
-      (supabase.rpc as jest.Mock)
+      (supabase.rpc as unknown as jest.Mock)
         .mockResolvedValueOnce({
           data: [{ id: '1', name: 'Interior Design', slug: 'interior-design', category_type: 'interior', icon_name: 'home', color_scheme: { primary: '#C9A98C' } }],
           error: null
@@ -298,7 +322,7 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should increment category usage count on selection', async () => {
-      (supabase.rpc as jest.Mock)
+      (supabase.rpc as unknown as jest.Mock)
         .mockResolvedValueOnce({
           data: [{ id: '1', name: 'Interior Design', slug: 'interior-design', category_type: 'interior' }],
           error: null
@@ -324,7 +348,7 @@ describe('CategorySelectionScreen', () => {
 
   describe('Error Handling', () => {
     it('should show error message when database fails', async () => {
-      (supabase.rpc as jest.Mock).mockRejectedValue(
+      (supabase.rpc as unknown as jest.Mock).mockRejectedValue(
         new Error('Database connection failed')
       );
 
@@ -337,7 +361,7 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should fall back to hardcoded categories on error', async () => {
-      (supabase.rpc as jest.Mock).mockRejectedValue(
+      (supabase.rpc as unknown as jest.Mock).mockRejectedValue(
         new Error('Database error')
       );
 
@@ -352,7 +376,7 @@ describe('CategorySelectionScreen', () => {
     });
 
     it('should handle retry action', async () => {
-      (supabase.rpc as jest.Mock)
+      (supabase.rpc as unknown as jest.Mock)
         .mockRejectedValueOnce(new Error('Database error'))
         .mockResolvedValueOnce({
           data: [{ id: '1', name: 'Test Category' }],
@@ -390,7 +414,7 @@ describe('CategorySelectionScreen', () => {
 
   describe('Empty State', () => {
     it('should show empty state when no categories found', async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
         data: [],
         error: null
       });
@@ -406,7 +430,7 @@ describe('CategorySelectionScreen', () => {
 
   describe('Accessibility', () => {
     it('should have proper accessibility labels', async () => {
-      (supabase.rpc as jest.Mock).mockResolvedValue({
+      (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
         data: [{ id: '1', name: 'Interior Design', description: 'Transform spaces' }],
         error: null
       });
@@ -423,7 +447,7 @@ describe('CategorySelectionScreen', () => {
 
 describe('Database Integration', () => {
   it('should call correct database function with parameters', async () => {
-    (supabase.rpc as jest.Mock).mockResolvedValue({
+    (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
       data: [],
       error: null
     });
@@ -457,7 +481,7 @@ describe('Database Integration', () => {
       }
     ];
 
-    (supabase.rpc as jest.Mock).mockResolvedValue({
+    (supabase.rpc as unknown as jest.Mock).mockResolvedValue({
       data: mockCategories,
       error: null
     });

@@ -33,6 +33,9 @@ export type JourneyScreens =
   | 'onboarding1' 
   | 'onboarding2' 
   | 'onboarding3'
+  | 'onboarding4'
+  | 'planSelection'
+  | 'paymentFrequency'
   | 'paywall'
   | 'paymentPending'
   | 'paymentVerified'
@@ -42,6 +45,8 @@ export type JourneyScreens =
   | 'roomSelection'
   | 'photoCapture'
   | 'styleSelection'
+  | 'referenceImages'
+  | 'colorPalettes'
   | 'referencesColors'
   | 'aiProcessing'
   | 'results'
@@ -54,7 +59,9 @@ export type JourneyScreens =
   | 'myProjects'
   | 'profile'
   | 'plans'
-  | 'projectSettings';
+  | 'projectSettings'
+  | 'referenceLibrary'
+  | 'myPalettes';
 
 // Safe screen imports with error handling
 const screenImports: Record<JourneyScreens, () => Promise<{ default: React.ComponentType<any> }>> = {
@@ -62,6 +69,9 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   onboarding1: () => import('../screens/Onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
   onboarding2: () => import('../screens/Onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
   onboarding3: () => import('../screens/Onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
+  onboarding4: () => import('../screens/Onboarding/OnboardingScreen4').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen4 not found" /> })),
+  planSelection: () => import('../screens/PlanSelection/PlanSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="PlanSelectionScreen not found" /> })),
+  paymentFrequency: () => import('../screens/Paywall/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentFrequencyScreen not found" /> })),
   paywall: () => import('../screens/Paywall/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
   paymentPending: () => import('../screens/Payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
   paymentVerified: () => import('../screens/Payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
@@ -71,6 +81,8 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   roomSelection: () => import('../screens/ProjectWizard/RoomSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="RoomSelectionScreen not found" /> })),
   photoCapture: () => import('../screens/PhotoCapture/PhotoCaptureScreen').catch(() => ({ default: () => <ErrorScreen error="PhotoCaptureScreen not found" /> })),
   styleSelection: () => import('../screens/ProjectWizard/StyleSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="StyleSelectionScreen not found" /> })),
+  referenceImages: () => import('../screens/ReferenceImages/ReferenceImagesScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceImagesScreen not found" /> })),
+  colorPalettes: () => import('../screens/ColorPalettes/ColorPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="ColorPalettesScreen not found" /> })),
   referencesColors: () => import('../screens/ProjectWizard/ReferencesColorsScreen').catch(() => ({ default: () => <ErrorScreen error="ReferencesColorsScreen not found" /> })),
   aiProcessing: () => import('../screens/ProjectWizard/AIProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="AIProcessingScreen not found" /> })),
   results: () => import('../screens/ProjectWizard/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
@@ -84,6 +96,8 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   profile: () => import('../screens/Profile/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
   plans: () => import('../screens/Plans/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
   projectSettings: () => import('../screens/ProjectSettings/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
+  referenceLibrary: () => import('../screens/Library/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
+  myPalettes: () => import('../screens/Palettes/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
 };
 
 const SafeJourneyNavigator: React.FC = () => {
@@ -173,7 +187,7 @@ const SafeJourneyNavigator: React.FC = () => {
         if (savedJourney && savedJourney.currentScreen) {
           // Validate the saved screen is a valid continuation point
           const validContinueScreens: JourneyScreens[] = [
-            'paywall', 'photoCapture', 'descriptions', 'furniture', 'budget', 'auth', 'checkout'
+            'planSelection', 'paymentFrequency', 'paywall', 'projectWizardStart', 'photoCapture', 'descriptions', 'furniture', 'budget', 'auth', 'checkout'
           ];
           
           const savedScreen = savedJourney.currentScreen as JourneyScreens;
@@ -183,9 +197,9 @@ const SafeJourneyNavigator: React.FC = () => {
           }
         }
         
-        // Default to paywall for users who completed onboarding
-        console.log('💳 Returning user -> Paywall');
-        return 'paywall';
+        // Default to plan selection for users who completed onboarding
+        console.log('🎯 Returning user -> Plan Selection');
+        return 'planSelection';
       } else {
         console.log('🎯 New user flow -> Onboarding1');
         return 'onboarding1';
@@ -294,3 +308,4 @@ export const NavigationHelpers = {
 };
 
 export default SafeJourneyNavigator;
+export { SafeJourneyNavigator };

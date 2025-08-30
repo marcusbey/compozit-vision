@@ -1,4 +1,21 @@
 // Furniture-related types for mobile app
+
+export type RoomType = 
+  | 'living_room'
+  | 'bedroom'
+  | 'kitchen'
+  | 'dining_room'
+  | 'bathroom'
+  | 'home_office'
+  | 'guest_room'
+  | 'nursery'
+  | 'hallway'
+  | 'outdoor_space'
+  | 'basement'
+  | 'attic'
+  | 'laundry_room'
+  | 'closet'
+  | 'pantry';
 export interface FurnitureStyle {
   id: string;
   name: string;

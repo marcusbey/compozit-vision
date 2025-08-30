@@ -40,12 +40,21 @@ const ProfileScreen = ({ navigation }: any) => {
     );
   };
 
+  const libraryItems = [
+    { id: 'referenceLibrary', title: 'Reference Library', icon: 'images-outline', screen: 'referenceLibrary' },
+    { id: 'myPalettes', title: 'My Color Palettes', icon: 'color-palette-outline', screen: 'myPalettes' },
+  ];
+
   const menuItems = [
     { id: 'account', title: 'Account Information', icon: 'person-outline' },
     { id: 'preferences', title: 'Preferences', icon: 'settings-outline' },
     { id: 'help', title: 'Help & Support', icon: 'help-circle-outline' },
     { id: 'about', title: 'About', icon: 'information-circle-outline' },
   ];
+
+  const handleLibraryPress = (screen: string) => {
+    navigation.navigate(screen);
+  };
 
   const handleMenuPress = (itemId: string) => {
     Alert.alert('Coming Soon', `The "${itemId}" section will be available soon`);
@@ -89,6 +98,23 @@ const ProfileScreen = ({ navigation }: any) => {
               <Text style={styles.statLabel}>Plan • Upgrade ›</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Library</Text>
+          {libraryItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.menuItem}
+              onPress={() => handleLibraryPress(item.screen)}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name={item.icon as any} size={20} color="#D4A574" style={styles.menuIcon} />
+                <Text style={styles.menuTitle}>{item.title}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
+            </TouchableOpacity>
+          ))}
         </View>
 
         <View style={styles.section}>

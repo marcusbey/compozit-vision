@@ -129,7 +129,7 @@ const EnhancedStyleCard: React.FC<EnhancedStyleCardProps> = ({
               </View>
             ) : (
               <LinearGradient
-                colors={metadata?.colorPalette.slice(0, 2) || [colors.gray[700], colors.gray[600]]}
+                colors={metadata?.colorPalette?.slice(0, 2) as [string, string] || [colors.gray[700], colors.gray[600]] as [string, string]}
                 style={styles.fallbackGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}

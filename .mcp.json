@@ -13,7 +13,7 @@
       "env": {
         "STRIPE_SECRET_KEY": "sk_test_PLACEHOLDER_REMOVED",
         "STRIPE_PUBLISHABLE_KEY": "pk_test_PLACEHOLDER_REMOVED",
-        "STRIPE_WEBHOOK_SECRET": "whsec_YOUR_WEBHOOK_SECRET_HERE"
+        "STRIPE_WEBHOOK_SECRET": "whsec_xHrchKFjyn4jKWt03lPUoKoHRzVEs1em"
       },
       "transport": {
         "type": "stdio"
@@ -43,8 +43,8 @@
       "provider": "supabase",
       "type": "database",
       "priority": "high",
-      "command": "npx",
-      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--project-ref=xmkkhdxhzopgfophlyjd"],
+      "command": "node",
+      "args": ["./node_modules/@supabase/mcp-server-supabase/dist/index.js"],
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_9f8f7463ee69fbc550b71557012baa2e968ba2ca",
         "SUPABASE_PROJECT_REF": "xmkkhdxhzopgfophlyjd",
@@ -232,7 +232,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "YOUR_APIFY_TOKEN_HERE"
+        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
       },
       "capabilities": [
         "price_monitoring",
@@ -270,7 +270,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "YOUR_APIFY_TOKEN_HERE"
+        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
       },
       "capabilities": [
         "pin_extraction",
@@ -308,7 +308,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "YOUR_APIFY_TOKEN_HERE"
+        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
       },
       "capabilities": [
         "post_extraction",
@@ -344,7 +344,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "YOUR_APIFY_TOKEN_HERE"
+        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
       },
       "capabilities": [
         "property_listings",
@@ -445,7 +445,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "YOUR_APIFY_TOKEN_HERE"
+        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
       },
       "capabilities": [
         "product_search",

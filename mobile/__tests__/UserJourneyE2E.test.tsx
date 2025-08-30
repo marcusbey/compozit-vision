@@ -796,7 +796,7 @@ describe('🚀 Complete End-to-End User Journey Tests', () => {
         }
       }));
 
-      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation} route={mockRoute} />);
+      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       
       await waitFor(() => {
         expect(screen.getByText('My Projects')).toBeTruthy();
@@ -1298,6 +1298,20 @@ describe('🚀 Complete End-to-End User Journey Tests', () => {
               ],
               error: null
             }))
+          })),
+          single: jest.fn(() => Promise.resolve({ 
+            data: { 
+              id: 'mock-user-id', 
+              email: 'test@example.com',
+              full_name: 'Test User',
+              credits_remaining: 10,
+              subscription_tier: 'free',
+              subscription_status: 'active',
+              preferences: {},
+              created_at: '2024-01-01',
+              updated_at: '2024-01-01'
+            },
+            error: null 
           }))
         }))
       }));
@@ -1307,7 +1321,7 @@ describe('🚀 Complete End-to-End User Journey Tests', () => {
         user: { id: 'user-123', email: 'user@example.com' }
       }));
 
-      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation} route={mockRoute} />);
+      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       
       await waitFor(() => {
         expect(screen.getByText('Living Room Design')).toBeTruthy();

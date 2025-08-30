@@ -299,7 +299,7 @@ describe('🧭 Navigation Integration Tests', () => {
 
     it('should navigate to projects for returning users', async () => {
       // Mock returning authenticated user
-      mockAsyncStorage.getItem.mockImplementation((key) => {
+      (mockAsyncStorage.getItem as jest.MockedFunction<any>).mockImplementation((key: string) => {
         if (key === 'hasSeenWelcome') return Promise.resolve('true');
         if (key === 'hasCompletedOnboarding') return Promise.resolve('true');
         return Promise.resolve(null);
@@ -630,7 +630,7 @@ describe('🧭 Navigation Integration Tests', () => {
         error: 'Session expired',
       }));
 
-      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation} route={mockRoute} />);
+      const projectsScreen = render(<MyProjectsScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       
       // Should redirect to auth on session expiration
       await waitFor(() => {

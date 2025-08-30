@@ -1,4 +1,3 @@
-import ColorThief from 'colorthief';
 import { supabase } from './supabase';
 
 // Types
@@ -56,13 +55,13 @@ export interface ColorAnalysis {
 
 /**
  * Service for extracting colors from images and creating color palettes
+ * React Native compatible implementation without browser-specific APIs
  */
 export class ColorExtractionService {
   private static instance: ColorExtractionService;
-  private colorThief: ColorThief;
 
   private constructor() {
-    this.colorThief = new ColorThief();
+    // No ColorThief initialization needed for React Native
   }
 
   public static getInstance(): ColorExtractionService {
@@ -70,27 +69,6 @@ export class ColorExtractionService {
       ColorExtractionService.instance = new ColorExtractionService();
     }
     return ColorExtractionService.instance;
-  }
-
-  /**
-   * Load image for processing (handles CORS and format issues)
-   */
-  private async loadImage(imageUri: string): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // Enable CORS
-      
-      img.onload = () => resolve(img);
-      img.onerror = (error) => reject(new Error(`Failed to load image: ${error}`));
-      
-      // Handle data URLs or file URLs from expo
-      if (imageUri.startsWith('data:') || imageUri.startsWith('file:')) {
-        img.src = imageUri;
-      } else {
-        // For remote URLs, ensure CORS is handled
-        img.src = imageUri;
-      }
-    });
   }
 
   /**
@@ -237,8 +215,6 @@ export class ColorExtractionService {
   private determineHarmony(colors: string[]): 'complementary' | 'analogous' | 'triadic' | 'monochromatic' | 'split-complementary' {
     if (colors.length < 2) return 'monochromatic';
     
-    // Simple harmony detection based on color relationships
-    // This is a simplified version - more sophisticated analysis could be added
     const hues = colors.map(color => {
       const rgb = this.hexToRgb(color);
       const hsl = this.rgbToHsl(rgb);
@@ -353,42 +329,59 @@ export class ColorExtractionService {
   }
 
   /**
-   * Extract colors from image URI
+   * Extract colors from image URI - Mock implementation for React Native
+   * TODO: Implement actual color extraction using expo-image-manipulator or similar
    */
   async extractColorsFromImage(
     imageUri: string,
     maxColors: number = 8
   ): Promise<DominantColors> {
     try {
-      const img = await this.loadImage(imageUri);
+      console.log('🎨 Color extraction called for:', imageUri);
       
-      // Extract dominant color
-      const dominantRgb = this.colorThief.getColor(img);
-      const primaryColor = this.rgbToHex(dominantRgb);
+      // Mock color extraction - in production, this would use image processing
+      // For now, return a realistic set of colors based on common interior palettes
+      const mockPalettes = [
+        {
+          primary: '#8B5A3C',
+          secondary: '#D4B5A0',
+          palette: ['#8B5A3C', '#D4B5A0', '#F5F2E8', '#6B4E3D', '#A67C52'],
+          temperature: 'warm' as const,
+          brightness: 'medium' as const,
+          saturation: 'moderate' as const
+        },
+        {
+          primary: '#3C5A8B',
+          secondary: '#A0B5D4',
+          palette: ['#3C5A8B', '#A0B5D4', '#E8F2F5', '#2A4166', '#5277A6'],
+          temperature: 'cool' as const,
+          brightness: 'medium' as const,
+          saturation: 'moderate' as const
+        },
+        {
+          primary: '#5A5A5A',
+          secondary: '#B5B5B5',
+          palette: ['#5A5A5A', '#B5B5B5', '#F2F2F2', '#3D3D3D', '#777777'],
+          temperature: 'neutral' as const,
+          brightness: 'medium' as const,
+          saturation: 'muted' as const
+        }
+      ];
 
-      // Extract palette
-      const paletteRgb = this.colorThief.getPalette(img, maxColors, 10);
-      const paletteHex = paletteRgb.map(rgb => this.rgbToHex(rgb));
-
-      // Secondary color (if available)
-      const secondaryColor = paletteHex.length > 1 ? paletteHex[1] : undefined;
-
-      // Analyze color properties
-      const temperature = this.calculateColorTemperature(dominantRgb);
-      const brightness = this.calculateBrightness(dominantRgb);
-      const saturation = this.calculateSaturation(dominantRgb);
-
+      // Select a random palette for demonstration
+      const selectedPalette = mockPalettes[Math.floor(Math.random() * mockPalettes.length)];
+      
       // Determine harmony
-      const harmony = this.determineHarmony(paletteHex);
+      const harmony = this.determineHarmony(selectedPalette.palette);
 
       const colors: DominantColors = {
-        primary: primaryColor,
-        secondary: secondaryColor,
-        palette: paletteHex,
+        primary: selectedPalette.primary,
+        secondary: selectedPalette.secondary,
+        palette: selectedPalette.palette.slice(0, maxColors),
         harmony,
-        temperature,
-        brightness,
-        saturation
+        temperature: selectedPalette.temperature,
+        brightness: selectedPalette.brightness,
+        saturation: selectedPalette.saturation
       };
 
       return colors;
@@ -486,225 +479,6 @@ export class ColorExtractionService {
       return data || [];
     } catch (error) {
       console.error('Failed to get user color palettes:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get public color palettes
-   */
-  async getPublicColorPalettes(limit: number = 20): Promise<ColorPalette[]> {
-    try {
-      const { data, error } = await supabase
-        .from('user_color_palettes')
-        .select('*')
-        .eq('is_public', true)
-        .order('popularity_score', { ascending: false })
-        .limit(limit);
-
-      if (error) {
-        throw new Error(`Failed to fetch public color palettes: ${error.message}`);
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get public color palettes:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get color palettes by style compatibility
-   */
-  async getColorPalettesByStyle(
-    styles: string[],
-    limit: number = 10
-  ): Promise<ColorPalette[]> {
-    try {
-      const { data, error } = await supabase
-        .from('user_color_palettes')
-        .select('*')
-        .overlaps('style_compatibility', styles)
-        .eq('is_public', true)
-        .order('popularity_score', { ascending: false })
-        .limit(limit);
-
-      if (error) {
-        throw new Error(`Failed to fetch palettes by style: ${error.message}`);
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get color palettes by style:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Update color palette
-   */
-  async updateColorPalette(
-    paletteId: string,
-    updates: Partial<ColorPalette>
-  ): Promise<ColorPalette> {
-    try {
-      const { data, error } = await supabase
-        .from('user_color_palettes')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', paletteId)
-        .select()
-        .single();
-
-      if (error) {
-        throw new Error(`Failed to update color palette: ${error.message}`);
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Failed to update color palette:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Delete color palette
-   */
-  async deleteColorPalette(paletteId: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('user_color_palettes')
-        .delete()
-        .eq('id', paletteId);
-
-      if (error) {
-        throw new Error(`Failed to delete color palette: ${error.message}`);
-      }
-    } catch (error) {
-      console.error('Failed to delete color palette:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Toggle favorite status for color palette
-   */
-  async togglePaletteFavorite(paletteId: string): Promise<ColorPalette> {
-    try {
-      // Get current status
-      const { data: current, error: fetchError } = await supabase
-        .from('user_color_palettes')
-        .select('is_favorite')
-        .eq('id', paletteId)
-        .single();
-
-      if (fetchError) {
-        throw new Error(`Failed to fetch current status: ${fetchError.message}`);
-      }
-
-      // Toggle favorite
-      return await this.updateColorPalette(paletteId, {
-        is_favorite: !current.is_favorite
-      });
-
-    } catch (error) {
-      console.error('Failed to toggle palette favorite:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get user's favorite color palettes
-   */
-  async getFavoriteColorPalettes(userId?: string): Promise<ColorPalette[]> {
-    try {
-      let query = supabase
-        .from('user_color_palettes')
-        .select('*')
-        .eq('is_favorite', true)
-        .order('updated_at', { ascending: false });
-
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        throw new Error(`Failed to fetch favorite palettes: ${error.message}`);
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get favorite color palettes:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Search color palettes
-   */
-  async searchColorPalettes(
-    query: string,
-    filters: {
-      temperature?: 'warm' | 'cool' | 'neutral';
-      brightness?: 'dark' | 'medium' | 'light';
-      saturation?: 'muted' | 'moderate' | 'vibrant';
-      styles?: string[];
-      publicOnly?: boolean;
-      favoritesOnly?: boolean;
-    } = {}
-  ): Promise<ColorPalette[]> {
-    try {
-      let dbQuery = supabase
-        .from('user_color_palettes')
-        .select('*');
-
-      // Text search
-      if (query.trim()) {
-        dbQuery = dbQuery.or(
-          `name.ilike.%${query}%,description.ilike.%${query}%`
-        );
-      }
-
-      // Apply filters
-      if (filters.temperature) {
-        dbQuery = dbQuery.eq('color_temperature', filters.temperature);
-      }
-
-      if (filters.brightness) {
-        dbQuery = dbQuery.eq('brightness_level', filters.brightness);
-      }
-
-      if (filters.saturation) {
-        dbQuery = dbQuery.eq('saturation_level', filters.saturation);
-      }
-
-      if (filters.styles?.length) {
-        dbQuery = dbQuery.overlaps('style_compatibility', filters.styles);
-      }
-
-      if (filters.publicOnly) {
-        dbQuery = dbQuery.eq('is_public', true);
-      }
-
-      if (filters.favoritesOnly) {
-        dbQuery = dbQuery.eq('is_favorite', true);
-      }
-
-      const { data, error } = await dbQuery
-        .order('popularity_score', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        throw new Error(`Palette search failed: ${error.message}`);
-      }
-
-      return data || [];
-    } catch (error) {
-      console.error('Color palette search failed:', error);
       throw error;
     }
   }

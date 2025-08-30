@@ -191,7 +191,7 @@ describe('Manual Journey Validation', () => {
         currentScreen: string,
         context: {
           isAuthenticated: boolean;
-          hasCredits: boolean;
+          hasCredits: number;
           hasSeenOnboarding: boolean;
           selectedPlan?: string;
         }

@@ -143,18 +143,46 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
     // Set user in store
     setUser(userData);
 
-    // Link any pending payment accounts
-    const linkResult = await nativeAuthService.linkAccounts(result.userId);
-    if (linkResult.success && linkResult.linkedAccountId) {
-      console.log('✅ Payment account linked successfully');
-      // Update user with subscription info if linked
-      userData.currentPlan = 'pro'; // Will be updated based on actual plan
+    // Handle email linking if payment email differs from auth email
+    const journeyData = journeyStore.authentication;
+    const paymentEmail = journeyData.paymentEmail;
+    const authEmail = result.email;
+    let emailsLinked = false;
+
+    if (paymentEmail && paymentEmail !== authEmail) {
+      console.log('🔗 Linking payment email with auth email:', { paymentEmail, authEmail });
+      // In a real app, this would call a backend API to link the emails
+      // For now, we'll just mark them as linked
+      emailsLinked = true;
+      
+      // Link any pending payment accounts
+      const linkResult = await nativeAuthService.linkAccounts(result.userId);
+      if (linkResult.success && linkResult.linkedAccountId) {
+        console.log('✅ Payment account linked successfully');
+        // Update user with subscription info based on linked payment
+        const subscription = journeyStore.subscription;
+        if (subscription?.selectedPlanTier) {
+          userData.currentPlan = subscription.selectedPlanTier;
+          userData.nbToken = subscription.selectedPlanTier === 'basic' ? 100 : 
+                           subscription.selectedPlanTier === 'pro' ? 500 : 1500;
+        }
+      }
+    } else {
+      // Same email or no payment email, still try to link pending accounts
+      const linkResult = await nativeAuthService.linkAccounts(result.userId);
+      if (linkResult.success && linkResult.linkedAccountId) {
+        console.log('✅ Payment account linked successfully');
+        userData.currentPlan = 'pro'; // Will be updated based on actual plan
+      }
     }
 
     // Update journey with authentication info
     journeyStore.updateAuthentication({
       hasAccount: true,
       email: result.email,
+      authEmail: authEmail,
+      paymentEmail: paymentEmail, // Keep existing payment email
+      emailsLinked: emailsLinked,
       method,
       registeredAt: isLogin ? undefined : new Date().toISOString()
     });
@@ -173,12 +201,24 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
     const journeyProgress = journeyStore.progress;
     const isInPaywallFlow = journeyProgress.completedSteps.includes('paywall');
     
+    // Check if we came from paywall with specific routing instructions
+    const routeParams = route?.params;
+    const fromPaywall = routeParams?.from === 'paywall';
+    const nextScreen = routeParams?.nextScreen;
+    
+    if (fromPaywall && nextScreen) {
+      // User completed payment and authentication, proceed to intended destination
+      console.log('🎉 Paywall → Auth → Project Wizard flow completed');
+      NavigationHelpers.navigateToScreen(nextScreen);
+      return;
+    }
+    
     if (isLogin && !isInPaywallFlow) {
       // Existing user logging in directly → My Projects
       NavigationHelpers.navigateToScreen('myProjects');
     } else if (hasLinkedPayment || isInPaywallFlow) {
       // User with subscription or in paywall flow → Start project wizard
-      NavigationHelpers.navigateToScreen('categorySelection');
+      NavigationHelpers.navigateToScreen('projectWizardStart');
     } else if (user.nbToken <= 0) {
       // User without credits → Back to paywall
       Alert.alert(
@@ -188,7 +228,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
       );
     } else {
       // Default → Start project wizard
-      NavigationHelpers.navigateToScreen('categorySelection');
+      NavigationHelpers.navigateToScreen('projectWizardStart');
     }
   };
 
@@ -284,11 +324,20 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
                 {isLogin ? 'Sign In' : 'Create Account'}
               </Text>
               <Text style={styles.subtitle}>
-                {isLogin 
+                {route?.params?.message || (isLogin 
                   ? 'Sign in to continue your project' 
                   : 'Join Compozit Vision to transform your spaces'
-                }
+                )}
               </Text>
+              
+              {/* Show plan details if coming from paywall */}
+              {route?.params?.planDetails && (
+                <View style={styles.planDetailsContainer}>
+                  <Text style={styles.planDetailsText}>
+                    Selected Plan: {route.params.planDetails.name} ({route.params.planDetails.price})
+                  </Text>
+                </View>
+              )}
               
               {/* Development Mode Instructions */}
               {__DEV__ && (
@@ -707,6 +756,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8B7F73',
     lineHeight: 20,
+  },
+  planDetailsContainer: {
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(76, 175, 80, 0.3)',
+  },
+  planDetailsText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4CAF50',
+    textAlign: 'center',
   },
 });
 

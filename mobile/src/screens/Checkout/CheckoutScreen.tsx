@@ -91,6 +91,8 @@ const tokens = {
 };
 
 interface CheckoutScreenProps {
+  navigation?: any;
+  route?: any;
   selectedPlan?: {
     id: string;
     name: string;

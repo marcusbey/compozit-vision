@@ -9,13 +9,18 @@ import {
   Animated,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useContentStore } from '../../stores/contentStore';
 import { supabase } from '../../services/supabase';
 import { useJourneyStore } from '../../stores/journeyStore';
+import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
+import { useWizardValidation } from '../../hooks/useWizardValidation';
+import { ValidationErrorDisplay } from '../../components/ValidationErrorDisplay';
+import type { CategorySelectionValidationData } from '../../types/validation';
 
 // Import design tokens
 const tokens = {
@@ -84,6 +89,7 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
   const [loading, setLoading] = useState(true);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
   const [error, setError] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -91,6 +97,14 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
   const contentStore = useContentStore();
   const { loadCategories } = contentStore;
   const journeyStore = useJourneyStore();
+  const { currentPlan } = useUserStore();
+  
+  // Initialize validation for this step
+  const validation = useWizardValidation({
+    stepId: 'categorySelection',
+    autoValidate: false, // Only validate on submit
+    validateOnMount: false
+  });
 
   useEffect(() => {
     // Load categories from database
@@ -123,15 +137,41 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
       setLoading(true);
       setError(null);
       
-      // Use database function to get categories by type
-      const { data: categoriesData, error: dbError } = await supabase
-        .rpc('get_categories_by_type', {
-          p_category_type: selectedTypeFilter === 'all' ? null : selectedTypeFilter,
-          p_include_inactive: false
-        });
+      // Try to load categories from database using direct table query
+      let query = supabase
+        .from('categories')
+        .select(`
+          id,
+          name,
+          slug,
+          description,
+          category_type,
+          icon_name,
+          image_url,
+          thumbnail_url,
+          color_scheme,
+          display_order,
+          is_featured,
+          usage_count,
+          popularity_score,
+          complexity_level,
+          created_at
+        `)
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      // Apply category type filter if not 'all'
+      if (selectedTypeFilter !== 'all') {
+        query = query.eq('category_type', selectedTypeFilter);
+      }
+
+      const { data: categoriesData, error: dbError } = await query;
 
       if (dbError) {
-        throw new Error(`Database error: ${dbError.message}`);
+        console.warn('Database query failed, using fallback:', dbError.message);
+        // Fallback to hardcoded categories
+        await createFallbackCategories();
+        return;
       }
 
       if (categoriesData && categoriesData.length > 0) {
@@ -146,10 +186,10 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
           image_url: cat.image_url,
           thumbnail_url: cat.thumbnail_url,
           color_scheme: cat.color_scheme || { primary: tokens.color.brand, secondary: tokens.color.brandHover },
-          display_order: cat.display_order,
-          is_featured: cat.is_featured,
-          usage_count: cat.usage_count,
-          popularity_score: cat.popularity_score,
+          display_order: cat.display_order || 999,
+          is_featured: cat.is_featured || false,
+          usage_count: cat.usage_count || 0,
+          popularity_score: cat.popularity_score || 0,
           complexity_level: cat.complexity_level || 1,
           created_at: cat.created_at
         }));
@@ -160,7 +200,7 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
       }
     } catch (error) {
       console.error('Error loading categories:', error);
-      setError('Failed to load categories');
+      setError('Failed to load categories - using fallback data');
       
       // Fallback to hardcoded categories
       await createFallbackCategories();
@@ -255,30 +295,79 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
   };
 
   const handleContinue = async () => {
-    if (!selectedCategory) return;
+    if (!selectedCategory) {
+      Alert.alert('Selection Required', 'Please select a project category to continue.');
+      return;
+    }
     
-    const selected = categories.find(c => c.id === selectedCategory);
-    if (selected) {
-      try {
-        // Increment usage count in database
-        await supabase.rpc('increment_category_usage', {
-          p_category_id: selectedCategory
+    setIsValidating(true);
+    
+    try {
+      const selected = categories.find(c => c.id === selectedCategory);
+      if (!selected) return;
+      
+      // Prepare validation data
+      const validationData: CategorySelectionValidationData = {
+        selectedCategory,
+        categoryFeatures: [], // Could be enhanced based on category features
+        planCompatibility: {}, // Could be enhanced with actual plan compatibility check
+      };
+      
+      // Validate before proceeding
+      const result = await validation.validateStep(validationData, 'onSubmit');
+      
+      if (result.isValid) {
+        try {
+          // Increment usage count in database using direct table update
+          // First get the current usage count
+          const { data: categoryData, error: fetchError } = await supabase
+            .from('categories')
+            .select('usage_count')
+            .eq('id', selectedCategory)
+            .single();
+          
+          if (!fetchError && categoryData) {
+            // Update with incremented count
+            const { error: updateError } = await supabase
+              .from('categories')
+              .update({ 
+                usage_count: (categoryData.usage_count || 0) + 1,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', selectedCategory);
+            
+            if (updateError) {
+              console.warn('Failed to update category usage:', updateError.message);
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to update category usage:', error);
+        }
+        
+        // Update journey store with selected category
+        journeyStore.updateProjectWizard({
+          categoryId: selectedCategory,
+          categoryName: selected.name,
+          categoryType: selected.category_type,
+          categorySlug: selected.slug,
+          currentWizardStep: 'space_definition'
         });
-      } catch (error) {
-        console.warn('Failed to update category usage:', error);
+        
+        // Navigate to space definition screen (room selection)
+        NavigationHelpers.navigateToScreen('spaceDefinition');
+      } else {
+        // Validation failed - errors will be displayed by ValidationErrorDisplay
+        console.log('❌ Category selection validation failed:', result.errors);
       }
-      
-      // Update journey store with selected category
-      journeyStore.updateProjectWizard({
-        categoryId: selectedCategory,
-        categoryName: selected.name,
-        categoryType: selected.category_type,
-        categorySlug: selected.slug,
-        currentWizardStep: 'space_definition'
-      });
-      
-      // Navigate to space definition screen (room selection)
-      NavigationHelpers.navigateToScreen('spaceDefinition');
+    } catch (error) {
+      console.error('❌ Validation error:', error);
+      Alert.alert(
+        'Validation Error',
+        'There was an issue validating your selection. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -368,6 +457,17 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
           <Text style={styles.progressText}>Step 1 of 6</Text>
         </View>
 
+        {/* Validation Errors */}
+        {validation.validationResult && !validation.validationResult.isValid && (
+          <ValidationErrorDisplay
+            result={validation.validationResult}
+            recoveryActions={validation.recoveryActions}
+            onActionPress={validation.handleRecoveryAction}
+            showSummary={true}
+            style={styles.validationContainer}
+          />
+        )}
+        
         {/* Category Type Filter */}
         <View style={styles.filterContainer}>
           <Text style={styles.filterTitle}>Project Type</Text>
@@ -524,13 +624,16 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
           ]}
         >
           <TouchableOpacity
-            style={[styles.continueButton, !selectedCategory && styles.continueButtonDisabled]}
+            style={[
+              styles.continueButton,
+              (!selectedCategory || isValidating || validation.isValidating) && styles.continueButtonDisabled
+            ]}
             onPress={handleContinue}
             activeOpacity={0.9}
-            disabled={!selectedCategory}
+            disabled={!selectedCategory || isValidating || validation.isValidating}
           >
             <LinearGradient
-              colors={!selectedCategory 
+              colors={(!selectedCategory || isValidating || validation.isValidating)
                 ? [tokens.color.borderSoft, tokens.color.borderSoft] 
                 : [tokens.color.brand, tokens.color.brandHover]
               }
@@ -540,16 +643,26 @@ const CategorySelectionScreen: React.FC<CategorySelectionScreenProps> = ({ navig
             >
               <Text style={[
                 styles.continueButtonText,
-                !selectedCategory && styles.continueButtonTextDisabled
+                (!selectedCategory || isValidating || validation.isValidating) && styles.continueButtonTextDisabled
               ]}>
-                Continue
+                {(isValidating || validation.isValidating) ? 'Validating...' : 'Continue'}
               </Text>
-              <Ionicons 
-                name="arrow-forward" 
-                size={20} 
-                color={!selectedCategory ? tokens.color.textMuted : tokens.color.textInverse}
-                style={styles.continueButtonIcon}
-              />
+              {!(isValidating || validation.isValidating) && (
+                <Ionicons 
+                  name="arrow-forward" 
+                  size={20} 
+                  color={(!selectedCategory || isValidating || validation.isValidating) ? tokens.color.textMuted : tokens.color.textInverse}
+                  style={styles.continueButtonIcon}
+                />
+              )}
+              {(isValidating || validation.isValidating) && (
+                <Ionicons 
+                  name="hourglass" 
+                  size={20} 
+                  color={tokens.color.textInverse}
+                  style={styles.continueButtonIcon}
+                />
+              )}
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -846,6 +959,10 @@ const styles = StyleSheet.create({
   },
   continueButtonIcon: {
     marginLeft: tokens.spacing.xs,
+  },
+  validationContainer: {
+    marginHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.lg,
   },
 });
 

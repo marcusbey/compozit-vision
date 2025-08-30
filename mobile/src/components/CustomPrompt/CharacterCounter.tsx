@@ -29,7 +29,7 @@ export const CharacterCounter: React.FC<CharacterCounterProps> = ({
     const textColor = interpolateColor(
       progress,
       [0, 0.7, 0.9, 1],
-      [colors.gray[400], colors.gray[500], colors.secondary[500], colors.red?.[500] || '#EF4444']
+      [colors.gray[400], colors.gray[500], colors.secondary[500], colors.red[500]]
     );
 
     return {

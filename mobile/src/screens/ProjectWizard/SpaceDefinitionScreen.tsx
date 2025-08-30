@@ -16,6 +16,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useJourneyStore } from '../../stores/journeyStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 import { supabase } from '../../services/supabase';
+import { useWizardValidation } from '../../hooks/useWizardValidation';
+import { ValidationErrorDisplay } from '../../components/ValidationErrorDisplay';
+import type { SpaceDefinitionValidationData } from '../../types/validation';
 
 // Import design tokens
 const tokens = {
@@ -129,11 +132,19 @@ const SpaceDefinitionScreen: React.FC<SpaceDefinitionScreenProps> = ({ navigatio
   const [availableSpaces, setAvailableSpaces] = useState<Space[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAreaInput, setShowAreaInput] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   
   const journeyStore = useJourneyStore();
+  
+  // Initialize validation for this step
+  const validation = useWizardValidation({
+    stepId: 'spaceDefinition',
+    autoValidate: false,
+    validateOnMount: false
+  });
   const { projectWizard } = journeyStore;
 
   useEffect(() => {
@@ -237,7 +248,7 @@ const SpaceDefinitionScreen: React.FC<SpaceDefinitionScreenProps> = ({ navigatio
     });
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedSpaces.length === 0) {
       Alert.alert(
         'No Spaces Selected',
@@ -247,21 +258,42 @@ const SpaceDefinitionScreen: React.FC<SpaceDefinitionScreenProps> = ({ navigatio
       return;
     }
 
-    // Get space names for selected spaces
-    const selectedSpaceNames = selectedSpaces.map(slug => {
-      const space = availableSpaces.find(s => s.slug === slug);
-      return space?.name || slug;
-    });
+    try {
+      // Prepare validation data
+      const validationData: SpaceDefinitionValidationData = {
+        roomType: selectedSpaces[0], // Primary room
+        dimensions: undefined, // Could be enhanced with actual dimensions input
+        spaceCharacteristics: selectedSpaces,
+        lighting: undefined,
+        existingFeatures: []
+      };
+      
+      // Validate before proceeding
+      const result = await validation.validateStep(validationData, 'onSubmit');
+      
+      if (result.isValid) {
+        // Get space names for selected spaces
+        const selectedSpaceNames = selectedSpaces.map(slug => {
+          const space = availableSpaces.find(s => s.slug === slug);
+          return space?.name || slug;
+        });
 
-    // Update journey store with selected spaces
-    journeyStore.updateProjectWizard({
-      selectedRooms: selectedSpaces,
-      roomName: selectedSpaceNames.join(', '),
-      currentWizardStep: 'photo_capture',
-    });
+        // Update journey store with selected spaces
+        journeyStore.updateProjectWizard({
+          selectedRooms: selectedSpaces,
+          roomName: selectedSpaceNames.join(', '),
+          currentWizardStep: 'photo_capture',
+        });
 
-    // Navigate to photo capture
-    NavigationHelpers.navigateToScreen('photoCapture');
+        // Navigate to photo capture
+        NavigationHelpers.navigateToScreen('photoCapture');
+      } else {
+        console.log('❌ Space definition validation failed:', result.errors);
+      }
+    } catch (error) {
+      console.error('❌ Validation error:', error);
+      Alert.alert('Validation Error', 'Please try again.', [{ text: 'OK' }]);
+    }
   };
 
   const handleBack = () => {

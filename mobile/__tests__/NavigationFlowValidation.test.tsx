@@ -154,7 +154,7 @@ describe('Navigation Flow Validation', () => {
       const progressedJourney = {
         ...journeyProgress,
         onboardingComplete: true,
-        paywallDecision: 'free',
+        paywallDecision: null,
         photoTaken: true,
         budgetSelected: true,
       };

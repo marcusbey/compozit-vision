@@ -159,7 +159,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
               {/* Image de fond (Enhanced) */}
               <View style={styles.imageWrapper}>
                 <LinearGradient
-                  colors={['#e8e8e8', '#f5f5f5']}
+                  colors={['#e8e8e8', '#f5f5f5'] as [string, string]}
                   style={styles.imagePlaceholder}
                 >
                   <View style={styles.enhancedRoom}>
@@ -188,7 +188,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
                   ]}
                 >
                   <LinearGradient
-                    colors={['#d0d0d0', '#e0e0e0']}
+                    colors={['#d0d0d0', '#e0e0e0'] as [string, string]}
                     style={styles.originalRoom}
                   >
                     {/* Simulation d'une pièce originale simple */}
@@ -283,7 +283,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ navigation, route }) => {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#E8C097', '#D4A574']}
+              colors={['#E8C097', '#D4A574'] as [string, string]}
               style={styles.buttonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}

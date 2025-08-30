@@ -58,10 +58,10 @@ const tokens = {
     brand: { shadowColor: "#D4A574", shadowOpacity: 0.25, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   },
   gradient: {
-    brand: ["#E8C097", "#D4A574"],
-    accent: ["#2D2B28", "#5A564F"],
-    processing: ["#D4A574", "#B8935F"],
-    surface: ["#FEFEFE", "#F5F1E8"],
+    brand: ["#E8C097", "#D4A574"] as [string, string],
+    accent: ["#2D2B28", "#5A564F"] as [string, string],
+    processing: ["#D4A574", "#B8935F"] as [string, string],
+    surface: ["#FEFEFE", "#F5F1E8"] as [string, string],
   },
   type: {
     display: { fontSize: 32, lineHeight: 40, fontWeight: "700" as const },

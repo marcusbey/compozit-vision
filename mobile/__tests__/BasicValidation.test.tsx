@@ -189,8 +189,8 @@ describe('Basic User Journey Validation', () => {
         register: jest.fn(() => Promise.resolve({ success: true })),
       };
 
-      const loginResult = await mockAuthService.login('test@example.com', 'password');
-      const registerResult = await mockAuthService.register('new@example.com', 'password');
+      const loginResult = await (mockAuthService.login as jest.MockedFunction<any>)('test@example.com', 'password');
+      const registerResult = await (mockAuthService.register as jest.MockedFunction<any>)('new@example.com', 'password');
 
       expect(loginResult.success).toBe(true);
       expect(loginResult.user.id).toBe('123');

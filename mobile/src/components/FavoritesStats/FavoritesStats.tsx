@@ -127,10 +127,19 @@ const FavoritesStats: React.FC<FavoritesStatsProps> = ({
     const value = stats[item.key] as number;
     const percentage = getPercentage(value, stats.totalFavorites);
     
+    // Dynamic width based on view type
+    const cardWidth = showDetailedView ? (width - 80) / 2 - tokens.spacing.sm : 120;
+    
     return (
       <TouchableOpacity
         key={item.key}
-        style={[styles.statCard, { backgroundColor: `${item.color}15` }]}
+        style={[
+          styles.statCard, 
+          { 
+            backgroundColor: `${item.color}15`,
+            width: cardWidth
+          }
+        ]}
         onPress={() => onCategoryPress?.(item.key)}
         activeOpacity={0.8}
         accessibilityRole="button"
@@ -354,7 +363,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   statCard: {
-    width: showDetailedView ? (width - 80) / 2 - tokens.spacing.sm : 120,
     marginRight: tokens.spacing.md,
     marginBottom: tokens.spacing.md,
     borderRadius: tokens.radius.md,

@@ -199,26 +199,26 @@ describe('ReferenceLibraryScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    (useContentStore as jest.Mock).mockReturnValue(mockContentStore);
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
-    (useFavoritesStore as jest.Mock).mockReturnValue(mockFavoritesStore);
+    (useContentStore as unknown as jest.Mock).mockReturnValue(mockContentStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useFavoritesStore as unknown as jest.Mock).mockReturnValue(mockFavoritesStore);
     
     // Mock services
-    (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue(mockReferenceImages);
-    (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue(mockColorPalettes);
-    (referenceImageService.deleteReferenceImage as jest.Mock).mockResolvedValue(undefined);
-    (colorExtractionService.deleteColorPalette as jest.Mock).mockResolvedValue(undefined);
-    (referenceImageService.toggleFavorite as jest.Mock).mockResolvedValue({
+    (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue(mockReferenceImages);
+    (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue(mockColorPalettes);
+    (referenceImageService.deleteReferenceImage as unknown as jest.Mock).mockResolvedValue(undefined);
+    (colorExtractionService.deleteColorPalette as unknown as jest.Mock).mockResolvedValue(undefined);
+    (referenceImageService.toggleFavorite as unknown as jest.Mock).mockResolvedValue({
       ...mockReferenceImages[0],
       is_favorite: !mockReferenceImages[0].is_favorite,
     });
-    (colorExtractionService.togglePaletteFavorite as jest.Mock).mockResolvedValue({
+    (colorExtractionService.togglePaletteFavorite as unknown as jest.Mock).mockResolvedValue({
       ...mockColorPalettes[0],
       is_favorite: !mockColorPalettes[0].is_favorite,
     });
 
     // Mock useFocusEffect
-    (useFocusEffect as jest.Mock).mockImplementation((callback) => {
+    (useFocusEffect as unknown as jest.Mock).mockImplementation((callback) => {
       callback();
     });
   });
@@ -339,8 +339,8 @@ describe('ReferenceLibraryScreen', () => {
         { ...mockColorPalettes[0], last_used_at: recentDate },
       ];
 
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue(mockRecentRefs);
-      (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue(mockRecentPalettes);
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue(mockRecentRefs);
+      (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue(mockRecentPalettes);
 
       const { getByText } = render(
         <ReferenceLibraryScreen navigation={mockNavigation} />
@@ -636,8 +636,8 @@ describe('ReferenceLibraryScreen', () => {
 
   describe('Empty States', () => {
     it('should show empty state when no items exist', async () => {
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue([]);
-      (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue([]);
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue([]);
+      (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue([]);
 
       const { getByText } = render(
         <ReferenceLibraryScreen navigation={mockNavigation} />
@@ -654,8 +654,8 @@ describe('ReferenceLibraryScreen', () => {
       const noFavoritesRefs = mockReferenceImages.map(ref => ({ ...ref, is_favorite: false }));
       const noFavoritesPalettes = mockColorPalettes.map(palette => ({ ...palette, is_favorite: false }));
 
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue(noFavoritesRefs);
-      (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue(noFavoritesPalettes);
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue(noFavoritesRefs);
+      (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue(noFavoritesPalettes);
 
       const { getByText } = render(
         <ReferenceLibraryScreen navigation={mockNavigation} />
@@ -674,7 +674,7 @@ describe('ReferenceLibraryScreen', () => {
 
   describe('Error Handling', () => {
     it('should handle data loading errors gracefully', async () => {
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockRejectedValue(
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockRejectedValue(
         new Error('Failed to load references')
       );
 
@@ -691,7 +691,7 @@ describe('ReferenceLibraryScreen', () => {
     });
 
     it('should handle favorite toggle errors', async () => {
-      (referenceImageService.toggleFavorite as jest.Mock).mockRejectedValue(
+      (referenceImageService.toggleFavorite as unknown as jest.Mock).mockRejectedValue(
         new Error('Failed to toggle favorite')
       );
 
@@ -713,7 +713,7 @@ describe('ReferenceLibraryScreen', () => {
     });
 
     it('should handle delete errors', async () => {
-      (referenceImageService.deleteReferenceImage as jest.Mock).mockRejectedValue(
+      (referenceImageService.deleteReferenceImage as unknown as jest.Mock).mockRejectedValue(
         new Error('Failed to delete')
       );
 
@@ -733,7 +733,7 @@ describe('ReferenceLibraryScreen', () => {
       });
 
       // Confirm deletion
-      const alertCall = (Alert.alert as jest.Mock).mock.calls.find(
+      const alertCall = (Alert.alert as unknown as jest.Mock).mock.calls.find(
         call => call[0] === 'Delete Items'
       );
       if (alertCall) {
@@ -778,8 +778,8 @@ describe('ReferenceLibraryScreen', () => {
     });
 
     it('should navigate to references from empty state action', async () => {
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue([]);
-      (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue([]);
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue([]);
+      (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue([]);
 
       const { getByText } = render(
         <ReferenceLibraryScreen navigation={mockNavigation} />
@@ -828,8 +828,8 @@ describe('ReferenceLibraryScreen', () => {
         name: `Palette ${i}`,
       }));
 
-      (referenceImageService.getUserReferenceImages as jest.Mock).mockResolvedValue(largeReferenceSet);
-      (colorExtractionService.getUserColorPalettes as jest.Mock).mockResolvedValue(largePaletteSet);
+      (referenceImageService.getUserReferenceImages as unknown as jest.Mock).mockResolvedValue(largeReferenceSet);
+      (colorExtractionService.getUserColorPalettes as unknown as jest.Mock).mockResolvedValue(largePaletteSet);
 
       const startTime = Date.now();
       const { getByText } = render(

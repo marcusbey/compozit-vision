@@ -64,7 +64,7 @@ const mockNavigationHelpers = {
 describe('SpaceDefinitionScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useJourneyStore as jest.Mock).mockReturnValue(mockJourneyStore);
+    (useJourneyStore as unknown as jest.Mock).mockReturnValue(mockJourneyStore);
     Object.assign(NavigationHelpers, mockNavigationHelpers);
   });
 
@@ -86,7 +86,7 @@ describe('SpaceDefinitionScreen', () => {
         error: null
       });
 
-      (supabase.from as jest.Mock).mockImplementation(() => ({
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => ({
         select: mockSelect,
         eq: mockEq,
         order: mockOrder,
@@ -112,7 +112,7 @@ describe('SpaceDefinitionScreen', () => {
         error: null
       });
 
-      (supabase.from as jest.Mock).mockImplementation(() => ({
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => ({
         select: mockSelect,
         eq: mockEq,
         order: mockOrder,
@@ -127,7 +127,7 @@ describe('SpaceDefinitionScreen', () => {
     });
 
     it('should fall back to predefined spaces when database fails', async () => {
-      (supabase.from as jest.Mock).mockImplementation(() => {
+      (supabase.from as unknown as jest.Mock).mockImplementation(() => {
         throw new Error('Database error');
       });
 
@@ -146,7 +146,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should show interior spaces for interior category', async () => {
       mockJourneyStore.projectWizard.categoryType = 'interior';
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -164,7 +164,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should show garden spaces for garden category', async () => {
       mockJourneyStore.projectWizard.categoryType = 'garden';
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -182,7 +182,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should show surface options for surface category', async () => {
       mockJourneyStore.projectWizard.categoryType = 'surface';
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -200,7 +200,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Space Selection', () => {
     beforeEach(async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -257,7 +257,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Primary and Secondary Spaces', () => {
     it('should separate primary and secondary spaces', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({
@@ -290,7 +290,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Continue Action', () => {
     beforeEach(async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -346,7 +346,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should show category reminder with selection count', async () => {
       mockJourneyStore.projectWizard.categoryName = 'Interior Design';
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -362,7 +362,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should use category color for UI elements', async () => {
       mockJourneyStore.projectWizard.categoryType = 'garden';
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -379,7 +379,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Navigation', () => {
     it('should navigate back when back button pressed', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -400,7 +400,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Tips and Help', () => {
     it('should show tips section', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -416,7 +416,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Accessibility', () => {
     it('should have proper labels for screen readers', async () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -435,7 +435,7 @@ describe('SpaceDefinitionScreen', () => {
     it('should handle database errors gracefully', async () => {
       const consoleError = jest.spyOn(console, 'error').mockImplementation();
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockRejectedValue(new Error('Database error')),
@@ -454,7 +454,7 @@ describe('SpaceDefinitionScreen', () => {
 
   describe('Loading State', () => {
     it('should show loading indicator while fetching spaces', () => {
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockImplementation(() => new Promise(() => {})), // Never resolves
@@ -480,7 +480,7 @@ describe('Space Categories Integration', () => {
     it(`should show correct spaces for ${type} category`, async () => {
       mockJourneyStore.projectWizard.categoryType = type;
       
-      (supabase.from as jest.Mock).mockReturnValue({
+      (supabase.from as unknown as jest.Mock).mockReturnValue({
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
         order: jest.fn().mockResolvedValue({ data: [], error: null }),

@@ -6,27 +6,27 @@
   },
   "tokens": {
     "color": {
-      "bgApp": "#FBF9F4",
-      "bgSecondary": "#F5F1E8",
-      "surface": "#FEFEFE", 
-      "textPrimary": "#2D2B28",
-      "textSecondary": "#8B7F73",
-      "textMuted": "#B8AFA4",
-      "textInverse": "#FEFEFE",
-      "borderSoft": "#E6DDD1",
-      "borderWarm": "#D4C7B5",
-      "brand": "#D4A574",
-      "brandLight": "#E8C097",
-      "brandDark": "#B8935F",
-      "accent": "#2D2B28",
-      "accentSoft": "#5A564F",
-      "warm": "#E8C097",
-      "warmDark": "#D4A574",
-      "scrim": "rgba(45,43,40,0.45)",
-      "scrimHeavy": "rgba(45,43,40,0.65)",
-      "success": "#7FB069",
-      "error": "#E07A5F",
-      "warning": "#F2CC8F"
+      "bgApp": "#F4F0E8",
+      "bgSecondary": "#EDE5D8",
+      "surface": "#FFFFFF", 
+      "textPrimary": "#1F1D1A",
+      "textSecondary": "#6B5F53",
+      "textMuted": "#A89C91",
+      "textInverse": "#FFFFFF",
+      "borderSoft": "#D8CFC0",
+      "borderWarm": "#C2B4A2",
+      "brand": "#C8955E",
+      "brandLight": "#E0B583",
+      "brandDark": "#A67844",
+      "accent": "#1A1816",
+      "accentSoft": "#4A453F",
+      "warm": "#E0B583",
+      "warmDark": "#C8955E",
+      "scrim": "rgba(26,24,22,0.55)",
+      "scrimHeavy": "rgba(26,24,22,0.75)",
+      "success": "#6BA555",
+      "error": "#D86B4A",
+      "warning": "#EAB742"
     },
     "radius": {
       "sm": 8,
@@ -106,31 +106,58 @@
     }
   },
   "components": {
+    "glassMorphism": {
+      "light": {
+        "backgroundColor": "rgba(255, 255, 255, 0.1)",
+        "borderWidth": 1,
+        "borderColor": "rgba(255, 255, 255, 0.2)",
+        "backdropBlur": 12
+      },
+      "dark": {
+        "backgroundColor": "rgba(0, 0, 0, 0.3)",
+        "borderWidth": 1,
+        "borderColor": "rgba(255, 255, 255, 0.1)",
+        "backdropBlur": 12
+      },
+      "card": {
+        "backgroundColor": "rgba(255, 255, 255, 0.08)",
+        "borderWidth": 1,
+        "borderColor": "rgba(255, 255, 255, 0.18)",
+        "backdropBlur": 16
+      }
+    },
     "button": {
       "primary": {
-        "gradientColors": ["#E8C097", "#D4A574"],
+        "gradientColors": ["#C8955E", "#A67844"],
         "gradientStart": { "x": 0, "y": 0 },
         "gradientEnd": { "x": 1, "y": 1 },
-        "color": "#2D2B28",
-        "borderRadius": 999,
-        "height": 54,
+        "borderRadius": 28,
+        "height": 56,
         "pressedOpacity": 0.9,
-        "shadowColor": "#D4A574",
+        "shadowColor": "#1A1816",
         "shadowOpacity": 0.25,
-        "shadowRadius": 8,
-        "shadowOffset": { "width": 0, "height": 4 },
-        "elevation": 6
+        "shadowRadius": 16,
+        "shadowOffset": { "width": 0, "height": 6 },
+        "elevation": 8,
+        "textColor": "#FFFFFF",
+        "fontSize": 18,
+        "fontWeight": "700"
       },
       "secondary": {
-        "gradientColors": ["#F5F1E8", "#E6DDD1"],
+        "gradientColors": ["#EDE5D8", "#D8CFC0"],
         "gradientStart": { "x": 0, "y": 0 },
         "gradientEnd": { "x": 1, "y": 1 },
-        "color": "#2D2B28",
+        "color": "#1F1D1A",
         "borderRadius": 999,
         "height": 52,
-        "pressedOpacity": 0.9,
-        "borderWidth": 1,
-        "borderColor": "#D4C7B5"
+        "pressedOpacity": 0.85,
+        "borderWidth": 1.5,
+        "borderColor": "#C2B4A2",
+        "shadowColor": "#1A1816",
+        "shadowOpacity": 0.15,
+        "shadowRadius": 8,
+        "shadowOffset": { "width": 0, "height": 3 },
+        "elevation": 4
       },
       "ghost": {
         "backgroundColor": "transparent",
@@ -143,18 +170,18 @@
         "hoverBackgroundColor": "#F5F1E8"
       },
       "accent": {
-        "gradientColors": ["#2D2B28", "#5A564F"],
+        "gradientColors": ["#1A1816", "#4A453F"],
         "gradientStart": { "x": 0, "y": 0 },
         "gradientEnd": { "x": 1, "y": 1 },
-        "color": "#FEFEFE",
+        "color": "#FFFFFF",
         "borderRadius": 999,
         "height": 52,
-        "pressedOpacity": 0.9,
-        "shadowColor": "#2D2B28",
-        "shadowOpacity": 0.2,
-        "shadowRadius": 6,
-        "shadowOffset": { "width": 0, "height": 3 },
-        "elevation": 4
+        "pressedOpacity": 0.85,
+        "shadowColor": "#1A1816",
+        "shadowOpacity": 0.3,
+        "shadowRadius": 12,
+        "shadowOffset": { "width": 0, "height": 5 },
+        "elevation": 6
       }
     },
     "input": {
@@ -173,6 +200,75 @@
       "shadow": "e2",
       "borderWidth": 1,
       "borderColor": "#E8E2D8"
+    },
+    "onboarding": {
+      "backgroundGradient": {
+        "colors": ["#F4F0E8", "#EDE5D8", "#E6DDD1"],
+        "start": { "x": 0, "y": 0 },
+        "end": { "x": 1, "y": 1 }
+      },
+      "badge": {
+        "backgroundColor": "rgba(255, 255, 255, 0.25)",
+        "borderRadius": 24,
+        "paddingHorizontal": 20,
+        "paddingVertical": 10,
+        "borderWidth": 1.5,
+        "borderColor": "rgba(255, 255, 255, 0.4)",
+        "shadowColor": "#1A1816",
+        "shadowOpacity": 0.15,
+        "shadowRadius": 8,
+        "shadowOffset": { "width": 0, "height": 3 },
+        "elevation": 4
+      },
+      "featureCard": {
+        "backgroundColor": "rgba(255, 255, 255, 0.15)",
+        "borderRadius": 20,
+        "padding": 20,
+        "borderWidth": 1.5,
+        "borderColor": "rgba(255, 255, 255, 0.3)",
+        "backdropBlur": 20,
+        "shadowColor": "#1A1816",
+        "shadowOpacity": 0.2,
+        "shadowRadius": 12,
+        "shadowOffset": { "width": 0, "height": 4 },
+        "elevation": 6
+      },
+      "featureIcon": {
+        "size": 48,
+        "gradientColors": ["rgba(200, 149, 94, 0.25)", "rgba(166, 120, 68, 0.35)"],
+        "gradientStart": { "x": 0, "y": 0 },
+        "gradientEnd": { "x": 1, "y": 1 },
+        "borderRadius": 16,
+        "borderWidth": 1,
+        "borderColor": "rgba(200, 149, 94, 0.4)"
+      },
+      "titleContainer": {
+        "backgroundColor": "rgba(26, 24, 22, 0.4)",
+        "borderRadius": 16,
+        "paddingHorizontal": 24,
+        "paddingVertical": 16,
+        "backdropBlur": 12,
+        "borderWidth": 1,
+        "borderColor": "rgba(255, 255, 255, 0.15)"
+      },
+      "progressBar": {
+        "backgroundColor": "rgba(255, 255, 255, 0.3)",
+        "fillGradient": ["#C8955E", "#A67844"],
+        "height": 6,
+        "borderRadius": 3
+      }
+    },
+    "animation": {
+      "duration": {
+        "fast": 200,
+        "normal": 300,
+        "slow": 500,
+        "verySlow": 800
+      },
+      "easing": {
+        "default": "ease-in-out",
+        "bounce": "cubic-bezier(0.68, -0.55, 0.265, 1.55)"
+      }
     }
   }
 }

@@ -1,8 +1,34 @@
 // Biometric Authentication Handler
-import TouchID from 'react-native-touch-id';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { AuthError, AuthErrorCode, BiometricAuthOptions } from './types';
 import { TokenManager } from './TokenManager';
+
+// Mock TouchID functionality for development
+// TODO: Install and configure react-native-biometrics or react-native-touch-id for production
+const TouchID = {
+  isSupported: async (): Promise<string | null> => {
+    // Mock implementation - in production, this should check actual biometric availability
+    if (Platform.OS === 'ios') {
+      return 'FaceID'; // or 'TouchID' based on device
+    } else if (Platform.OS === 'android') {
+      return 'Biometrics';
+    }
+    return null;
+  },
+  authenticate: async (title: string, config: any): Promise<boolean> => {
+    // Mock implementation - shows alert instead of biometric prompt
+    return new Promise((resolve) => {
+      Alert.alert(
+        'Biometric Authentication',
+        'Biometric authentication is not configured. Would you like to continue?',
+        [
+          { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+          { text: 'Continue', onPress: () => resolve(true) }
+        ]
+      );
+    });
+  }
+};
 
 export class BiometricAuth {
   /**

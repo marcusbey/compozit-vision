@@ -92,7 +92,7 @@ describe('User Journey Validation Tests', () => {
   describe('🏠 Welcome Screen', () => {
     it('should render welcome screen correctly', () => {
       const { getByText } = render(
-        <WelcomeScreen navigation={mockNavigation} route={mockRoute} />
+        <WelcomeScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       // Should show welcome content
@@ -101,7 +101,7 @@ describe('User Journey Validation Tests', () => {
 
     it('should handle navigation to next screen', () => {
       const { getByText } = render(
-        <WelcomeScreen navigation={mockNavigation} route={mockRoute} />
+        <WelcomeScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       // Find and press continue/get started button
@@ -273,7 +273,7 @@ describe('User Journey Validation Tests', () => {
     it('should render screens within performance thresholds', () => {
       const start = performance.now();
       
-      render(<WelcomeScreen navigation={mockNavigation} route={mockRoute} />);
+      render(<WelcomeScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       
       const end = performance.now();
       expect(end - start).toBeLessThan(1000); // Should render in under 1 second
@@ -281,7 +281,7 @@ describe('User Journey Validation Tests', () => {
 
     it('should have proper accessibility structure', () => {
       const { getByLabelText, queryByLabelText, getByRole } = render(
-        <WelcomeScreen navigation={mockNavigation} route={mockRoute} />
+        <WelcomeScreen navigation={mockNavigation as any} route={mockRoute as any} />
       );
 
       // Screens should have some accessible elements
@@ -304,7 +304,7 @@ describe('User Journey Validation Tests', () => {
 
       // Screen should still render even with store errors
       expect(() => {
-        render(<WelcomeScreen navigation={mockNavigation} route={mockRoute} />);
+        render(<WelcomeScreen navigation={mockNavigation as any} route={mockRoute as any} />);
       }).not.toThrow();
     });
 

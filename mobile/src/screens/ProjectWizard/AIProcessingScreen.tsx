@@ -24,6 +24,9 @@ import {
   ReferenceInfluence,
   ColorPaletteInfluence 
 } from '../../services/enhancedAIProcessingService';
+import { useWizardValidation } from '../../hooks/useWizardValidation';
+import { ValidationErrorDisplay } from '../../components/ValidationErrorDisplay';
+import type { AIProcessingValidationData } from '../../types/validation';
 
 // Design tokens
 const tokens = {
@@ -130,6 +133,14 @@ export const AIProcessingScreen: React.FC = () => {
   const [processingJob, setProcessingJob] = useState<ProcessingProgress | null>(null);
   const [canCancel, setCanCancel] = useState(true);
   const [showInfluenceDetails, setShowInfluenceDetails] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  
+  // Initialize validation for this step
+  const validation = useWizardValidation({
+    stepId: 'aiProcessing',
+    autoValidate: false,
+    validateOnMount: false
+  });
   
   // Animation values
   const progressAnimation = new Animated.Value(0);
@@ -166,7 +177,28 @@ export const AIProcessingScreen: React.FC = () => {
   }, [isProcessing, isPaused, currentStageIndex, stages]);
 
   const startEnhancedProcessing = useCallback(async () => {
+    // First validate before starting processing
+    setIsValidating(true);
+    
     try {
+      // Prepare validation data
+      const validationData: AIProcessingValidationData = {
+        allRequiredDataPresent: !!(journeyStore.projectWizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl),
+        processingCreditsRequired: 5, // Base credit cost
+        customPrompt: undefined,
+        enhancementOptions: [],
+        processingComplexity: 'advanced' as const
+      };
+      
+      // Validate before proceeding
+      const result = await validation.validateStep(validationData, 'onSubmit');
+      
+      if (!result.isValid) {
+        console.log('❌ AI processing validation failed:', result.errors);
+        setIsValidating(false);
+        return;
+      }
+      
       setIsProcessing(true);
       setHasError(false);
       
@@ -181,14 +213,21 @@ export const AIProcessingScreen: React.FC = () => {
       const newJobId = await enhancedAIProcessingService.startEnhancedDesignGeneration(request);
       setJobId(newJobId);
       
+      // Update journey store
+      journeyStore.updateProjectWizard({
+        currentWizardStep: 'completed'
+      });
+      
       // Poll for progress updates
       startProgressPolling(newJobId);
       
     } catch (error: any) {
       console.error('Enhanced processing failed:', error);
       handleProcessingError(error);
+    } finally {
+      setIsValidating(false);
     }
-  }, [journeyStore, contentStore]);
+  }, [journeyStore, contentStore, validation]);
 
   const buildProcessingRequest = (): DesignGenerationRequest | null => {
     const wizard = journeyStore.projectWizard;
@@ -229,7 +268,7 @@ export const AIProcessingScreen: React.FC = () => {
         
         return {
           paletteId,
-          colors: palette.colors,
+          colors: palette.colors.colors, // Extract the string array from the colors object
           influence: 0.8,
           paletteType: 'primary' as const,
         };
@@ -431,42 +470,6 @@ export const AIProcessingScreen: React.FC = () => {
     </View>
   );
 
-  const oldHandleCancel = () => {
-    Alert.alert(
-      'Cancel Processing?',
-      'Are you sure you want to cancel? You\'ll lose your current progress.',
-      [
-        { text: 'Keep Processing', style: 'cancel' },
-        { 
-          text: 'Cancel', 
-          style: 'destructive',
-          onPress: () => {
-            setIsProcessing(false);
-            NavigationHelpers.goBack();
-          }
-        },
-      ]
-    );
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const renderProcessingHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.headerContent}>
-        <Text style={styles.headerTitle}>Creating Your Design</Text>
-        <Text style={styles.headerSubtitle}>
-          {hasError ? 'Processing Error' : 
-           overallProgress === 100 ? 'Complete!' : 
-           isPaused ? 'Paused' : 'Processing...'}
-        </Text>
-      </View>
-    </View>
-  );
 
   const renderProgressCard = () => (
     <View style={styles.progressCard}>
@@ -741,6 +744,17 @@ export const AIProcessingScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       {renderProcessingHeader()}
+      
+      {/* Validation Errors */}
+      {validation.validationResult && !validation.validationResult.isValid && !(isProcessing || isValidating) && (
+        <ValidationErrorDisplay
+          result={validation.validationResult}
+          recoveryActions={validation.recoveryActions}
+          onActionPress={validation.handleRecoveryAction}
+          showSummary={true}
+          style={styles.validationContainer}
+        />
+      )}
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderProgressCard()}
@@ -1228,6 +1242,10 @@ const styles = StyleSheet.create({
     marginLeft: tokens.spacing.sm,
     flex: 1,
     lineHeight: 18,
+  },
+  validationContainer: {
+    marginHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.lg,
   },
 });
 

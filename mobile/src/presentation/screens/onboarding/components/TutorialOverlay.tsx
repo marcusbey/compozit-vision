@@ -10,7 +10,7 @@ import {
   Modal,
   StatusBar,
 } from 'react-native';
-import { BlurView } from '@react-native-blur/blur';
+import { BlurView } from 'expo-blur';
 
 interface TutorialOverlayProps {
   visible: boolean;

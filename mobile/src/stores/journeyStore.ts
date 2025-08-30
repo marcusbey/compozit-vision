@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DatabaseService, { type JourneyStep } from '../services/database';
+import { 
+  ValidationResult,
+  WizardStepId,
+  WizardValidationState
+} from '../types/validation';
+import { wizardValidationService } from '../services/wizardValidationService';
 
 // Define the complete user journey data structure
 export interface UserJourneyData {
@@ -15,11 +21,14 @@ export interface UserJourneyData {
   // Plan Selection
   subscription: {
     selectedPlanId?: string;
+    selectedPlanTier?: 'basic' | 'pro' | 'enterprise';
     planName?: string;
-    planPrice?: string;
+    planPrice?: string | number;
+    paymentFrequency?: 'weekly' | 'monthly' | 'yearly';
     billingCycle: 'monthly' | 'yearly';
     useFreeCredits: boolean;
     selectedAt?: string;
+    hasPayment?: boolean;
   };
   
   // Project Details
@@ -89,6 +98,9 @@ export interface UserJourneyData {
   authentication: {
     hasAccount: boolean;
     email?: string;
+    paymentEmail?: string;
+    authEmail?: string;
+    emailsLinked?: boolean;
     registeredAt?: string;
     method?: 'email' | 'google' | 'apple';
   };
@@ -109,9 +121,16 @@ export interface JourneyState extends UserJourneyData {
   journeySteps: JourneyStep[];
   loadingSteps: boolean;
   
+  // Enhanced validation state
+  validationState: WizardValidationState;
+  
+  // State properties for backward compatibility
+  currentStep: string;
+  
   // Actions
   updateOnboarding: (data: Partial<UserJourneyData['onboarding']>) => void;
   updateSubscription: (data: Partial<UserJourneyData['subscription']>) => void;
+  updatePlanSelection: (data: Partial<UserJourneyData['subscription']>) => void;
   updateProject: (data: Partial<UserJourneyData['project']>) => void;
   updateProjectWizard: (data: Partial<UserJourneyData['projectWizard']>) => void;
   updatePreferences: (data: Partial<UserJourneyData['preferences']>) => void;
@@ -123,6 +142,7 @@ export interface JourneyState extends UserJourneyData {
   setCurrentStep: (step: number, screen: string) => void;
   completeStep: (stepName: string) => void;
   resetJourney: () => void;
+  reset: () => void; // Alias for resetJourney - for backward compatibility
   persistJourney: () => Promise<void>;
   loadJourney: () => Promise<void>;
   loadJourneySteps: () => Promise<void>;
@@ -133,11 +153,24 @@ export interface JourneyState extends UserJourneyData {
   getNextStep: (currentScreen: string) => JourneyStep | undefined;
   getPreviousStep: (currentScreen: string) => JourneyStep | undefined;
   
-  // Wizard validation methods
-  validateWizardStep: (stepName: string) => boolean;
-  canProgressToNextStep: (currentStep: string) => boolean;
+  // Enhanced validation methods
+  validateWizardStep: (stepId: WizardStepId) => Promise<ValidationResult>;
+  canProgressToNextStep: (currentStepId: WizardStepId) => boolean;
+  getValidationErrors: (stepId: WizardStepId) => ValidationResult | null;
+  getWizardProgress: () => { 
+    completed: number; 
+    total: number; 
+    percentage: number;
+    completedSteps: WizardStepId[];
+    blockedSteps: WizardStepId[];
+    currentStep: WizardStepId;
+    canResume: boolean;
+  };
+  updateValidationState: (stepId: WizardStepId, result: ValidationResult) => void;
+  resetValidation: () => void;
+  
+  // Legacy validation methods (for backward compatibility)
   getWizardValidationErrors: (stepName: string) => string[];
-  getWizardProgress: () => { completed: number; total: number; percentage: number };
 }
 
 // Default state
@@ -187,6 +220,20 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   // Database-driven state
   journeySteps: [],
   loadingSteps: false,
+  
+  // Initialize validation state
+  validationState: {
+    currentStep: 'projectWizardStart',
+    stepResults: {} as Record<WizardStepId, ValidationResult>,
+    overallValid: false,
+    completedSteps: [],
+    blockedSteps: [],
+    lastValidatedAt: {} as Record<WizardStepId, number>,
+    retryAttempts: {}
+  },
+
+  // Backward compatibility properties
+  currentStep: 'onboarding1',
 
   updateOnboarding: (data) => {
     const current = get().onboarding;
@@ -205,6 +252,17 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     set({ subscription: updated });
     get().persistJourney();
     console.log('💳 Subscription updated:', updated);
+  },
+
+  updatePlanSelection: (data) => {
+    const current = get().subscription;
+    const updated = { ...current, ...data };
+    if ((data.selectedPlanTier || data.selectedPlanId) && !current.selectedAt) {
+      updated.selectedAt = new Date().toISOString();
+    }
+    set({ subscription: updated });
+    get().persistJourney();
+    console.log('🎯 Plan selection updated:', updated);
   },
 
   updateProject: (data) => {
@@ -300,6 +358,10 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     set(defaultJourneyData);
     AsyncStorage.removeItem('userJourneyData');
     console.log('🔄 Journey reset to defaults');
+  },
+
+  reset: () => {
+    get().resetJourney();
   },
 
   persistJourney: async () => {
@@ -406,23 +468,157 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     return journeySteps[currentIndex - 1];
   },
 
-  // Wizard State Validation Methods
-  validateWizardStep: (stepName: string) => {
+  // Enhanced Validation Methods
+  validateWizardStep: async (stepId: WizardStepId): Promise<ValidationResult> => {
     const state = get();
-    const validationRules: Record<string, () => boolean> = {
-      category_selection: () => !!state.projectWizard.categoryId,
-      space_definition: () => !!(state.projectWizard.selectedRooms && state.projectWizard.selectedRooms.length > 0),
-      photo_capture: () => !!state.project.photoUri || !!state.projectWizard.selectedSamplePhoto,
-      style_selection: () => !!(state.onboarding.selectedStyles && state.onboarding.selectedStyles.length > 0),
-      references_selection: () => !!(state.projectWizard.selectedReferences && state.projectWizard.selectedReferences.length > 0),
+    
+    // Map journey store data to validation data format
+    const getValidationData = (stepId: WizardStepId) => {
+      switch (stepId) {
+        case 'projectWizardStart':
+          return {
+            projectName: undefined, // Optional for now
+            isAuthenticated: state.authentication.hasAccount,
+            availableCredits: 10, // Would come from user store
+            userPlan: 'free' // Would come from user store
+          };
+        case 'categorySelection':
+          return {
+            selectedCategory: state.projectWizard.categoryId,
+            categoryFeatures: [],
+            planCompatibility: {}
+          };
+        case 'spaceDefinition':
+          return {
+            roomType: state.projectWizard.roomId,
+            dimensions: undefined,
+            spaceCharacteristics: state.projectWizard.selectedRooms || [],
+            lighting: undefined,
+            existingFeatures: []
+          };
+        case 'styleSelection':
+          return {
+            selectedStyles: state.onboarding.selectedStyles,
+            styleCompatibility: {},
+            spaceTypeCompatibility: {}
+          };
+        case 'referencesColors':
+          return {
+            referenceImages: [],
+            colorPalettes: state.projectWizard.selectedPalettes?.map(id => ({
+              id,
+              colors: [],
+              source: 'user' as const
+            })) || [],
+            uploadStatus: {}
+          };
+        case 'aiProcessing':
+          return {
+            allRequiredDataPresent: true,
+            processingCreditsRequired: 5,
+            customPrompt: undefined,
+            enhancementOptions: [],
+            processingComplexity: 'basic' as const
+          };
+        default:
+          return {};
+      }
     };
 
-    const validator = validationRules[stepName];
-    return validator ? validator() : true;
+    try {
+      const validationData = getValidationData(stepId);
+      const result = await wizardValidationService.validateStep(stepId, validationData);
+      
+      // Update validation state in store
+      get().updateValidationState(stepId, result);
+      
+      return result;
+    } catch (error) {
+      const errorResult: ValidationResult = {
+        isValid: false,
+        errors: [{
+          ruleId: 'system-error',
+          field: 'validation',
+          severity: 'error',
+          message: 'Validation system error',
+          timestamp: Date.now()
+        }],
+        warnings: [],
+        infos: [],
+        summary: { errorCount: 1, warningCount: 0, blockers: ['validation'] }
+      };
+      
+      get().updateValidationState(stepId, errorResult);
+      return errorResult;
+    }
   },
 
-  canProgressToNextStep: (currentStep: string) => {
-    return get().validateWizardStep(currentStep);
+  canProgressToNextStep: (currentStepId: WizardStepId) => {
+    const state = get();
+    const stepResult = state.validationState.stepResults[currentStepId];
+    return stepResult ? stepResult.isValid : false;
+  },
+
+  getValidationErrors: (stepId: WizardStepId) => {
+    const state = get();
+    return state.validationState.stepResults[stepId] || null;
+  },
+
+  updateValidationState: (stepId: WizardStepId, result: ValidationResult) => {
+    const currentValidationState = get().validationState;
+    const updatedState = {
+      ...currentValidationState,
+      stepResults: {
+        ...currentValidationState.stepResults,
+        [stepId]: result
+      },
+      lastValidatedAt: {
+        ...currentValidationState.lastValidatedAt,
+        [stepId]: Date.now()
+      }
+    };
+
+    // Update completed steps
+    if (result.isValid && !updatedState.completedSteps.includes(stepId)) {
+      updatedState.completedSteps = [...updatedState.completedSteps, stepId];
+    } else if (!result.isValid && updatedState.completedSteps.includes(stepId)) {
+      updatedState.completedSteps = updatedState.completedSteps.filter(s => s !== stepId);
+    }
+
+    // Update blocked steps
+    const blockedSteps: WizardStepId[] = [];
+    const stepOrder: WizardStepId[] = [
+      'projectWizardStart', 'categorySelection', 'spaceDefinition',
+      'styleSelection', 'referencesColors', 'aiProcessing'
+    ];
+
+    for (const step of stepOrder) {
+      if (!wizardValidationService.canAccessStep(step)) {
+        blockedSteps.push(step);
+      }
+    }
+    updatedState.blockedSteps = blockedSteps;
+
+    // Update overall validity
+    updatedState.overallValid = Object.values(updatedState.stepResults)
+      .every(stepResult => stepResult.isValid);
+
+    set({ validationState: updatedState });
+  },
+
+  resetValidation: () => {
+    set({
+      validationState: {
+        currentStep: 'projectWizardStart',
+        stepResults: {} as Record<WizardStepId, ValidationResult>,
+        overallValid: false,
+        completedSteps: [],
+        blockedSteps: [],
+        lastValidatedAt: {} as Record<WizardStepId, number>,
+        retryAttempts: {}
+      }
+    });
+    wizardValidationService.resetValidation();
   },
 
   getWizardValidationErrors: (stepName: string) => {
@@ -462,14 +658,18 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
   getWizardProgress: () => {
     const state = get();
-    const completedSteps = state.projectWizard.completedWizardSteps || [];
-    const totalWizardSteps = 5; // category, room, photo, style, references
+    const { validationState } = state;
+    const totalWizardSteps = 6; // All 6 wizard steps
+    const completedSteps = validationState.completedSteps;
+    
     return {
       completed: completedSteps.length,
       total: totalWizardSteps,
       percentage: Math.round((completedSteps.length / totalWizardSteps) * 100),
-      currentStep: state.projectWizard.currentWizardStep || 'category_selection',
-      canResume: completedSteps.length > 0 && !state.projectWizard.wizardCompletedAt,
+      completedSteps,
+      blockedSteps: validationState.blockedSteps,
+      currentStep: validationState.currentStep,
+      canResume: completedSteps.length > 0 && !validationState.overallValid,
     };
   },
 

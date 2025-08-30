@@ -6,6 +6,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NavigationPersistenceService from '../services/navigation';
 
+// Import ScreenType for proper typing
+type ScreenType = 'onboarding1' | 'onboarding2' | 'onboarding3' | 'paywall' | 'photoCapture' | 'descriptions' | 'furniture' | 'budget' | 'auth' | 'checkout' | 'results' | 'myProjects' | 'profile' | 'demo' | 'welcome';
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
@@ -182,7 +185,7 @@ describe('NavigationPersistenceService', () => {
   describe('Navigation History Management', () => {
     
     test('should add screen to history', () => {
-      const currentHistory = ['onboarding1', 'onboarding2'];
+      const currentHistory: ScreenType[] = ['onboarding1', 'onboarding2'];
       const newHistory = NavigationPersistenceService.updateNavigationHistory(
         currentHistory,
         'onboarding3',
@@ -193,7 +196,7 @@ describe('NavigationPersistenceService', () => {
     });
 
     test('should replace current screen in history', () => {
-      const currentHistory = ['onboarding1', 'onboarding2'];
+      const currentHistory: ScreenType[] = ['onboarding1', 'onboarding2'];
       const newHistory = NavigationPersistenceService.updateNavigationHistory(
         currentHistory,
         'paywall',
@@ -204,7 +207,7 @@ describe('NavigationPersistenceService', () => {
     });
 
     test('should handle empty history when replacing', () => {
-      const currentHistory: string[] = [];
+      const currentHistory: ScreenType[] = [];
       const newHistory = NavigationPersistenceService.updateNavigationHistory(
         currentHistory,
         'onboarding1',
@@ -216,15 +219,15 @@ describe('NavigationPersistenceService', () => {
 
     test('should limit history size', () => {
       // Create a history with 21 items (over the MAX_HISTORY_SIZE of 20)
-      const longHistory = Array.from({ length: 21 }, (_, i) => `screen${i}`);
+      const longHistory = Array.from({ length: 21 }, (_, i) => `screen${i}`) as ScreenType[];
       const newHistory = NavigationPersistenceService.updateNavigationHistory(
         longHistory,
-        'newScreen',
+        'onboarding3' as ScreenType,
         false
       );
       
       expect(newHistory.length).toBe(20);
-      expect(newHistory[newHistory.length - 1]).toBe('newScreen');
+      expect(newHistory[newHistory.length - 1]).toBe('onboarding3');
     });
 
   });

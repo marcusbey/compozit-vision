@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BlurView } from '@react-native-blur/blur';
+import { BlurView } from 'expo-blur';
 
 const { width } = Dimensions.get('window');
 const TAB_BAR_HEIGHT = 83;

@@ -4,42 +4,87 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-// import { SvgUri } from 'react-native-svg'; // Commented out for now
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 
-import { AssetManager, StyleType, StyleMetadata } from '../../assets';
+// Import design tokens from the style guide
+import designTokens from '../../../@STYLE-GUIDE.json';
 
-const { width } = Dimensions.get('window');
+// Design System Tokens
+const tokens = {
+  color: designTokens.tokens.color,
+  spacing: designTokens.tokens.spacing,
+  radius: designTokens.tokens.radius,
+  shadow: designTokens.tokens.shadow,
+  typography: designTokens.tokens.typography,
+  components: designTokens.components,
+};
+
+const { width, height } = Dimensions.get('window');
 
 interface StyleSelectionScreenProps {
   navigation: any;
   route: any;
 }
 
-const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation, route }) => {
-  const [selectedStyle, setSelectedStyle] = useState('');
-  const { projectName, roomType } = route.params;
+interface StyleOption {
+  id: string;
+  name: string;
+  subtitle: string;
+  description: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  compatibility: string;
+}
 
-  // Get enhanced style data with illustrations
-  const styles_data = AssetManager.getAllStyles().slice(0, 4).map(({ style, metadata }) => ({
-    id: style,
-    name: metadata.name,
-    subtitle: metadata.mood,
-    description: metadata.description,
-    illustration: metadata.illustration,
-    colorPalette: metadata.colorPalette,
-    keyFeatures: metadata.keyFeatures,
-  }));
+const styleOptions: StyleOption[] = [
+  {
+    id: 'minimalist',
+    name: 'Minimalist',
+    subtitle: 'Beautiful Design',
+    description: 'Less is more philosophy with clean, uncluttered spaces',
+    icon: 'square-outline',
+    compatibility: '90% space compatibility'
+  },
+  {
+    id: 'modern',
+    name: 'Modern',
+    subtitle: 'Beautiful Design', 
+    description: 'Clean lines, minimalist approach, and contemporary elements',
+    icon: 'triangle-outline',
+    compatibility: '80% space compatibility'
+  },
+  {
+    id: 'scandinavian',
+    name: 'Scandinavian',
+    subtitle: 'Beautiful Design',
+    description: 'Light woods, neutral colors, and functional design',
+    icon: 'home-outline',
+    compatibility: '85% space compatibility'
+  },
+  {
+    id: 'traditional',
+    name: 'Traditional',
+    subtitle: 'Beautiful Design',
+    description: 'Classic elegance with timeless furniture and warm colors',
+    icon: 'library-outline',
+    compatibility: '75% space compatibility'
+  }
+];
+
+const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
+  const [selectedStyle, setSelectedStyle] = useState<string>('');
+  const { projectName, roomType } = route.params || {};
 
   const handleContinue = () => {
     if (selectedStyle) {
-      navigation.navigate('BudgetSelection', {
+      NavigationHelpers.navigateToScreen('referencesColors', {
         projectName,
         roomType,
         selectedStyle,
@@ -48,511 +93,384 @@ const StyleSelectionScreen: React.FC<StyleSelectionScreenProps> = ({ navigation,
   };
 
   const handleBack = () => {
-    navigation.goBack();
-  };
-
-  const renderStyleCard = (style: any) => {
-    const isSelected = selectedStyle === style.id;
-    
-    return (
-      <TouchableOpacity
-        key={style.id}
-        style={[
-          styles.styleCard,
-          isSelected && styles.styleCardSelected
-        ]}
-        onPress={() => setSelectedStyle(style.id)}
-        activeOpacity={0.8}
-      >
-        {/* Enhanced illustration */}
-        <View style={[
-          styles.styleImageContainer,
-          isSelected && styles.styleImageContainerSelected
-        ]}>
-          <LinearGradient
-            colors={style.colorPalette?.slice(0, 2) || ['#f8f9fa', '#e9ecef']}
-            style={styles.styleImageGradient}
-          >
-            {style.illustration ? (
-              <View style={styles.illustrationWrapper}>
-                {/* Style illustration placeholder */}
-                <Ionicons 
-                  name="home" 
-                  size={48} 
-                  color={isSelected ? '#D4A574' : '#8B7F73'} 
-                />
-              </View>
-            ) : (
-              renderStyleIllustration(style.id, isSelected)
-            )}
-          </LinearGradient>
-          
-          {/* Color palette preview */}
-          {style.colorPalette && (
-            <View style={styles.colorPalettePreview}>
-              {style.colorPalette.slice(0, 4).map((color, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.colorSwatch,
-                    { backgroundColor: color },
-                    isSelected && styles.colorSwatchSelected,
-                  ]}
-                />
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Contenu de la carte */}
-        <View style={styles.styleContent}>
-          <View style={styles.styleHeader}>
-            <Text style={[
-              styles.styleName,
-              isSelected && styles.styleNameSelected
-            ]}>
-              {style.name}
-            </Text>
-            <Text style={[
-              styles.styleSubtitle,
-              isSelected && styles.styleSubtitleSelected
-            ]}>
-              {style.subtitle}
-            </Text>
-          </View>
-          
-          <Text style={[
-            styles.styleDescription,
-            isSelected && styles.styleDescriptionSelected
-          ]}>
-            {style.description}
-          </Text>
-
-          {/* Indicateur de sélection */}
-          {isSelected && (
-            <View style={styles.selectedIndicator}>
-              <Ionicons name="checkmark-circle" size={24} color="#D4A574" />
-            </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  const getStyleGradient = (styleId: string): readonly [string, string] => {
-    switch (styleId) {
-      case 'modern':
-        return ['#f8f9fa', '#e9ecef'] as const;
-      case 'classic':
-        return ['#f5f3f0', '#e8e2db'] as const;
-      case 'eclectic':
-        return ['#fff3e0', '#ffe0b2'] as const;
-      case 'minimalist':
-        return ['#fafafa', '#f0f0f0'] as const;
-      default:
-        return ['#f8f9fa', '#e9ecef'] as const;
-    }
-  };
-
-  const renderStyleIllustration = (styleId: string, isSelected: boolean) => {
-    const iconColor = isSelected ? '#D4A574' : '#8B7F73';
-    
-    switch (styleId) {
-      case 'modern':
-        return (
-          <View style={styles.illustration}>
-            <View style={[styles.modernSofa, { backgroundColor: iconColor }]} />
-            <View style={[styles.modernTable, { backgroundColor: iconColor }]} />
-            <View style={[styles.modernLamp, { backgroundColor: iconColor }]} />
-          </View>
-        );
-      case 'classic':
-        return (
-          <View style={styles.illustration}>
-            <View style={[styles.classicChair, { backgroundColor: iconColor }]} />
-            <View style={[styles.classicTable, { backgroundColor: iconColor }]} />
-            <View style={[styles.classicPlant, { backgroundColor: iconColor }]} />
-          </View>
-        );
-      case 'eclectic':
-        return (
-          <View style={styles.illustration}>
-            <View style={[styles.eclecticSofa, { backgroundColor: iconColor }]} />
-            <View style={[styles.eclecticArt, { backgroundColor: iconColor }]} />
-            <View style={[styles.eclecticRug, { backgroundColor: iconColor }]} />
-          </View>
-        );
-      case 'minimalist':
-        return (
-          <View style={styles.illustration}>
-            <View style={[styles.minimalChair, { backgroundColor: iconColor }]} />
-            <View style={[styles.minimalTable, { backgroundColor: iconColor }]} />
-          </View>
-        );
-      default:
-        return null;
-    }
+    NavigationHelpers.goBack();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={true} />
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
-      <View style={styles.background}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#2D2B28" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Choose Style</Text>
-          <View style={styles.placeholder} />
+      {/* Background Gradient */}
+      <LinearGradient
+        colors={tokens.components.onboarding.backgroundGradient.colors}
+        start={tokens.components.onboarding.backgroundGradient.start}
+        end={tokens.components.onboarding.backgroundGradient.end}
+        style={styles.backgroundGradient}
+      />
+      
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={tokens.color.textPrimary} />
+        </TouchableOpacity>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Choose Your Style</Text>
+          <Text style={styles.headerSubtitle}>Step 3 of 6</Text>
         </View>
-
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Contenu principal */}
-          <View style={styles.content}>
-            <Text style={styles.title}>Interior Style</Text>
-            <Text style={styles.subtitle}>
-              Select the design style that matches your vision
-            </Text>
-
-            {/* Grille des styles */}
-            <View style={styles.stylesGrid}>
-              {styles_data.map(renderStyleCard)}
-            </View>
-          </View>
-        </ScrollView>
-
-        {/* Bouton Continue */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[
-              styles.continueButton,
-              !selectedStyle && styles.continueButtonDisabled
-            ]}
-            onPress={handleContinue}
-            activeOpacity={0.8}
-            disabled={!selectedStyle}
-          >
-            <LinearGradient
-              colors={selectedStyle ? ['#E8C097', '#D4A574'] : ['#B8AFA4', '#8B7F73']}
-              style={styles.buttonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="arrow-forward" size={20} color={selectedStyle ? '#2D2B28' : '#FEFEFE'} style={styles.buttonIcon} />
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+        <View style={styles.placeholder} />
       </View>
-    </SafeAreaView>
+
+      {/* Main Content */}
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 140 }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Project Info */}
+        <View style={styles.projectInfo}>
+          <Text style={styles.designingFor}>Designing for:</Text>
+          <Text style={styles.roomType}>{roomType || 'Balcony'}</Text>
+          <Text style={styles.spacesLabel}>For Your Spaces</Text>
+          <Text style={styles.popularLabel}>Popular</Text>
+          <Text style={styles.allStylesLabel}>All Styles</Text>
+        </View>
+
+        {/* Style Cards */}
+        <View style={styles.stylesContainer}>
+          {styleOptions.map((style, index) => {
+            const isSelected = selectedStyle === style.id;
+            
+            return (
+              <TouchableOpacity
+                key={style.id}
+                style={[
+                  styles.styleCard,
+                  isSelected && styles.styleCardSelected
+                ]}
+                onPress={() => setSelectedStyle(style.id)}
+                activeOpacity={0.9}
+              >
+                {/* Card Background */}
+                <LinearGradient
+                  colors={isSelected ? 
+                    [tokens.color.brandLight, tokens.color.brand] : 
+                    [tokens.color.surface, tokens.color.bgSecondary]
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.cardGradient}
+                >
+                  {/* Card Content */}
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeader}>
+                      <Text style={[
+                        styles.popularTag,
+                        isSelected && styles.popularTagSelected
+                      ]}>
+                        Popular
+                      </Text>
+                      {isSelected && (
+                        <Ionicons 
+                          name="checkmark-circle" 
+                          size={24} 
+                          color={tokens.color.textInverse} 
+                        />
+                      )}
+                    </View>
+
+                    <Text style={[
+                      styles.styleName,
+                      isSelected && styles.styleNameSelected
+                    ]}>
+                      {style.name}
+                    </Text>
+
+                    <Text style={[
+                      styles.styleSubtitle,
+                      isSelected && styles.styleSubtitleSelected
+                    ]}>
+                      {style.subtitle}
+                    </Text>
+
+                    <Text style={[
+                      styles.styleDescription,
+                      isSelected && styles.styleDescriptionSelected
+                    ]}>
+                      {style.description}
+                    </Text>
+
+                    <Text style={[
+                      styles.styleCompatibility,
+                      isSelected && styles.styleCompatibilitySelected
+                    ]}>
+                      {style.compatibility}
+                    </Text>
+
+                    {isSelected && (
+                      <Text style={styles.continueText}>
+                        Continue to References & Colors
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Icon */}
+                  <View style={styles.iconContainer}>
+                    <Ionicons 
+                      name={style.icon} 
+                      size={32} 
+                      color={isSelected ? tokens.color.textInverse : tokens.color.textSecondary} 
+                    />
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* Fixed Bottom Button */}
+      <View style={[styles.fixedBottomContainer, { paddingBottom: insets.bottom + 20 }]}>
+        <TouchableOpacity
+          style={[
+            styles.continueButtonContainer,
+            !selectedStyle && styles.continueButtonDisabled
+          ]}
+          onPress={handleContinue}
+          activeOpacity={tokens.components.button.primary.pressedOpacity}
+          disabled={!selectedStyle}
+        >
+          <LinearGradient
+            colors={selectedStyle ? 
+              tokens.components.button.primary.gradientColors : 
+              [tokens.color.borderSoft, tokens.color.textMuted]
+            }
+            start={tokens.components.button.primary.gradientStart}
+            end={tokens.components.button.primary.gradientEnd}
+            style={styles.continueButton}
+          >
+            <Text style={[
+              styles.buttonText,
+              { color: selectedStyle ? tokens.components.button.primary.textColor : tokens.color.textSecondary }
+            ]}>
+              Continue
+            </Text>
+            <Ionicons 
+              name="arrow-forward" 
+              size={20} 
+              color={selectedStyle ? tokens.components.button.primary.textColor : tokens.color.textSecondary}
+            />
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF9F4',
+    backgroundColor: tokens.color.bgApp,
   },
-  background: {
-    flex: 1,
-    backgroundColor: '#FBF9F4',
-    paddingTop: StatusBar.currentHeight || 0,
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.lg,
+    zIndex: 10,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FEFEFE',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: tokens.color.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    ...tokens.shadow.e1,
+  },
+  headerContent: {
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2D2B28',
+    fontSize: tokens.typography.h2.fontSize,
+    lineHeight: tokens.typography.h2.lineHeight,
+    fontWeight: tokens.typography.h2.fontWeight as any,
+    color: tokens.color.textPrimary,
+  },
+  headerSubtitle: {
+    fontSize: tokens.typography.small.fontSize,
+    color: tokens.color.textSecondary,
+    marginTop: 2,
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   scrollView: {
     flex: 1,
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  scrollContent: {
+    flexGrow: 1,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#2D2B28',
-    textAlign: 'center',
-    marginBottom: 10,
+  projectInfo: {
+    paddingHorizontal: tokens.spacing.xl,
+    marginBottom: tokens.spacing.xl,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#8B7F73',
-    textAlign: 'center',
-    marginBottom: 40,
-    lineHeight: 22,
-  },
-  stylesGrid: {
-    marginBottom: 40,
-  },
-  styleCard: {
-    backgroundColor: '#FEFEFE',
-    borderRadius: 20,
-    marginBottom: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E6DDD1',
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
-  },
-  styleCardSelected: {
-    backgroundColor: '#FEFEFE',
-    borderColor: '#D4A574',
-    borderWidth: 2,
-    shadowColor: '#D4A574',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  styleImageContainer: {
-    height: 120,
-    overflow: 'hidden',
-  },
-  styleImageContainerSelected: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#D4A574',
-  },
-  styleImageGradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  illustration: {
-    width: '100%',
-    height: '100%',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // Modern style illustrations
-  modernSofa: {
-    position: 'absolute',
-    width: 60,
-    height: 25,
-    borderRadius: 8,
-    bottom: 20,
-    left: 30,
-  },
-  modernTable: {
-    position: 'absolute',
-    width: 30,
-    height: 15,
-    borderRadius: 4,
-    bottom: 15,
-    right: 40,
-  },
-  modernLamp: {
-    position: 'absolute',
-    width: 8,
-    height: 40,
-    borderRadius: 4,
-    top: 20,
-    right: 30,
-  },
-  // Classic style illustrations
-  classicChair: {
-    position: 'absolute',
-    width: 40,
-    height: 35,
-    borderRadius: 6,
-    bottom: 20,
-    left: 40,
-  },
-  classicTable: {
-    position: 'absolute',
-    width: 35,
-    height: 20,
-    borderRadius: 4,
-    bottom: 15,
-    right: 30,
-  },
-  classicPlant: {
-    position: 'absolute',
-    width: 15,
-    height: 30,
-    borderRadius: 8,
-    top: 25,
-    right: 40,
-  },
-  // Eclectic style illustrations
-  eclecticSofa: {
-    position: 'absolute',
-    width: 50,
-    height: 30,
-    borderRadius: 10,
-    bottom: 20,
-    left: 35,
-  },
-  eclecticArt: {
-    position: 'absolute',
-    width: 25,
-    height: 20,
-    borderRadius: 3,
-    top: 25,
-    right: 35,
-  },
-  eclecticRug: {
-    position: 'absolute',
-    width: 70,
-    height: 10,
-    borderRadius: 5,
-    bottom: 10,
-    alignSelf: 'center',
-  },
-  // Minimalist style illustrations
-  minimalChair: {
-    position: 'absolute',
-    width: 35,
-    height: 30,
-    borderRadius: 4,
-    bottom: 25,
-    left: 50,
-  },
-  minimalTable: {
-    position: 'absolute',
-    width: 25,
-    height: 12,
-    borderRadius: 2,
-    bottom: 20,
-    right: 50,
-  },
-  styleContent: {
-    padding: 20,
-    position: 'relative',
-  },
-  styleHeader: {
-    marginBottom: 12,
-  },
-  styleName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2D2B28',
+  designingFor: {
+    fontSize: tokens.typography.h3.fontSize,
+    fontWeight: tokens.typography.h3.fontWeight as any,
+    color: tokens.color.textPrimary,
     marginBottom: 4,
   },
+  roomType: {
+    fontSize: tokens.typography.body.fontSize,
+    color: tokens.color.textSecondary,
+    marginBottom: tokens.spacing.lg,
+  },
+  spacesLabel: {
+    fontSize: tokens.typography.h3.fontSize,
+    fontWeight: tokens.typography.h3.fontWeight as any,
+    color: tokens.color.textPrimary,
+    marginBottom: 4,
+  },
+  popularLabel: {
+    fontSize: tokens.typography.small.fontSize,
+    color: tokens.color.textSecondary,
+    marginBottom: tokens.spacing.md,
+  },
+  allStylesLabel: {
+    fontSize: tokens.typography.h3.fontSize,
+    fontWeight: tokens.typography.h3.fontWeight as any,
+    color: tokens.color.textPrimary,
+    marginBottom: tokens.spacing.lg,
+  },
+  stylesContainer: {
+    paddingHorizontal: tokens.spacing.xl,
+  },
+  styleCard: {
+    borderRadius: tokens.radius.lg,
+    marginBottom: tokens.spacing.lg,
+    overflow: 'hidden',
+    ...tokens.shadow.e1,
+  },
+  styleCardSelected: {
+    ...tokens.shadow.e3,
+    shadowColor: tokens.color.brand,
+  },
+  cardGradient: {
+    flex: 1,
+    minHeight: 120,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardContent: {
+    flex: 1,
+    padding: tokens.spacing.lg,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: tokens.spacing.sm,
+  },
+  popularTag: {
+    fontSize: tokens.typography.caption.fontSize,
+    color: tokens.color.textSecondary,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  popularTagSelected: {
+    color: tokens.color.textInverse,
+  },
+  styleName: {
+    fontSize: tokens.typography.h3.fontSize,
+    fontWeight: tokens.typography.h3.fontWeight as any,
+    color: tokens.color.textPrimary,
+    marginBottom: 2,
+  },
   styleNameSelected: {
-    color: '#D4A574',
+    color: tokens.color.textInverse,
   },
   styleSubtitle: {
-    fontSize: 14,
+    fontSize: tokens.typography.small.fontSize,
     fontWeight: '500',
-    color: '#8B7F73',
+    color: tokens.color.textSecondary,
+    marginBottom: tokens.spacing.sm,
   },
   styleSubtitleSelected: {
-    color: '#D4A574',
+    color: tokens.color.textInverse,
+    opacity: 0.9,
   },
   styleDescription: {
-    fontSize: 14,
-    color: '#B8AFA4',
-    lineHeight: 20,
+    fontSize: tokens.typography.small.fontSize,
+    color: tokens.color.textMuted,
+    lineHeight: tokens.typography.small.lineHeight,
+    marginBottom: tokens.spacing.sm,
   },
   styleDescriptionSelected: {
-    color: '#8B7F73',
+    color: tokens.color.textInverse,
+    opacity: 0.9,
   },
-  selectedIndicator: {
+  styleCompatibility: {
+    fontSize: tokens.typography.small.fontSize,
+    color: tokens.color.textSecondary,
+    fontWeight: '500',
+  },
+  styleCompatibilitySelected: {
+    color: tokens.color.textInverse,
+    opacity: 0.9,
+  },
+  continueText: {
+    fontSize: tokens.typography.small.fontSize,
+    color: tokens.color.textInverse,
+    fontWeight: '600',
+    marginTop: tokens.spacing.sm,
+    opacity: 0.9,
+  },
+  iconContainer: {
+    paddingRight: tokens.spacing.lg,
+    paddingLeft: tokens.spacing.md,
+  },
+  fixedBottomContainer: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: tokens.spacing.xl,
+    paddingTop: tokens.spacing.lg,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(10px)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.05)',
+    zIndex: 20,
   },
-  buttonContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 40,
-    paddingTop: 20,
-  },
-  continueButton: {
-    borderRadius: 30,
+  continueButtonContainer: {
+    borderRadius: tokens.components.button.primary.borderRadius,
     overflow: 'hidden',
-    shadowColor: '#D4A574',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 6,
+    ...tokens.shadow.e2,
   },
   continueButtonDisabled: {
     shadowOpacity: 0,
     elevation: 0,
   },
-  buttonGradient: {
+  continueButton: {
+    height: tokens.components.button.primary.height,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 40,
+    paddingHorizontal: tokens.spacing.xl,
+    gap: tokens.spacing.sm,
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#2D2B28',
-    letterSpacing: 1,
-  },
-  buttonIcon: {
-    marginLeft: 10,
-  },
-  // Enhanced illustration styles
-  illustrationWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorPalettePreview: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    flexDirection: 'row',
-    backgroundColor: 'rgba(254, 254, 254, 0.95)',
-    borderRadius: 12,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: '#E6DDD1',
-  },
-  colorSwatch: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginHorizontal: 1,
-    borderWidth: 1,
-    borderColor: '#E6DDD1',
-  },
-  colorSwatchSelected: {
-    borderColor: '#D4A574',
-    borderWidth: 2,
+    fontSize: tokens.components.button.primary.fontSize,
+    fontWeight: tokens.components.button.primary.fontWeight as any,
   },
 });
 
