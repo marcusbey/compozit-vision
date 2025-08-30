@@ -140,7 +140,7 @@ export const ResultsScreen: React.FC = () => {
 
   useEffect(() => {
     // Mark journey as completed
-    journeyStore.updateStep('results');
+    journeyStore.updateProgress('results', 11, 11);
   }, []);
 
   const panResponder = PanResponder.create({
