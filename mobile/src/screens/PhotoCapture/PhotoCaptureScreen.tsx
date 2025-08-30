@@ -225,7 +225,8 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
           setShowQualityModal(true);
         }
         
-        journeyStore.updateProject({
+        // Update both project and wizard for consistency
+        await journeyStore.updateProject({
           photoUri: imageUri,
           photoMetadata: {
             width: quality.dimensions.width,
@@ -235,6 +236,13 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
             qualityScore: quality.score,
           }
         });
+        
+        // Also set selectedSamplePhoto as fallback for AI processing validation
+        journeyStore.updateProjectWizard({
+          selectedSamplePhoto: imageUri
+        });
+        
+        console.log('✅ Uploaded photo data persisted successfully:', imageUri);
         
       } catch (error) {
         console.error('Error analyzing imported photo:', error);
@@ -358,7 +366,8 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
           setShowQualityModal(true);
         }
         
-        journeyStore.updateProject({
+        // Update both project and wizard for consistency
+        await journeyStore.updateProject({
           photoUri: photo.uri,
           photoMetadata: {
             width: quality.dimensions.width,
@@ -368,6 +377,13 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
             qualityScore: quality.score,
           }
         });
+        
+        // Also set selectedSamplePhoto as fallback for AI processing validation
+        journeyStore.updateProjectWizard({
+          selectedSamplePhoto: photo.uri
+        });
+        
+        console.log('✅ Captured photo data persisted successfully:', photo.uri);
         
       } catch (error) {
         console.error('Error taking picture:', error);
@@ -430,16 +446,10 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
       
       // Store additional metadata for AI processing
       journeyStore.updateProjectWizard({
-        selectedSamplePhoto: {
-          id: samplePhoto.id,
-          title: samplePhoto.title,
-          category: samplePhoto.category,
-          description: samplePhoto.description,
-          qualityScore: quality.score,
-        }
+        selectedSamplePhoto: samplePhoto.imageUri
       });
       
-      journeyStore.updateProject({
+      await journeyStore.updateProject({
         photoUri: samplePhoto.imageUri,
         photoMetadata: {
           width: quality.dimensions.width,
@@ -449,6 +459,8 @@ const PhotoCaptureScreen: React.FC<PhotoCaptureScreenProps> = ({ navigation, rou
           qualityScore: quality.score,
         }
       });
+      
+      console.log('✅ Sample photo data persisted successfully:', samplePhoto.imageUri);
       
     } catch (error) {
       console.error('Error processing sample photo:', error);

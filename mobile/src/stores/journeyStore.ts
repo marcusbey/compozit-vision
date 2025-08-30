@@ -131,7 +131,7 @@ export interface JourneyState extends UserJourneyData {
   updateOnboarding: (data: Partial<UserJourneyData['onboarding']>) => void;
   updateSubscription: (data: Partial<UserJourneyData['subscription']>) => void;
   updatePlanSelection: (data: Partial<UserJourneyData['subscription']>) => void;
-  updateProject: (data: Partial<UserJourneyData['project']>) => void;
+  updateProject: (data: Partial<UserJourneyData['project']>) => Promise<void>;
   updateProjectWizard: (data: Partial<UserJourneyData['projectWizard']>) => void;
   updatePreferences: (data: Partial<UserJourneyData['preferences']>) => void;
   updateProgress: (data: Partial<UserJourneyData['progress']>) => void;
@@ -265,11 +265,11 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     console.log('🎯 Plan selection updated:', updated);
   },
 
-  updateProject: (data) => {
+  updateProject: async (data) => {
     const current = get().project;
     const updated = { ...current, ...data };
     set({ project: updated });
-    get().persistJourney();
+    await get().persistJourney();
     console.log('🏠 Project updated:', updated);
   },
 

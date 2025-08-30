@@ -179,16 +179,25 @@ export const AIProcessingScreen: React.FC = () => {
   // Helper function to check if all required data is present for AI processing
   const checkAllRequiredDataPresent = useCallback((): boolean => {
     const wizard = journeyStore.projectWizard;
+    const project = journeyStore.project;
     
-    // Check photo
-    const hasPhoto = !!(wizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl);
+    // Enhanced photo validation with debugging
+    const hasSelectedSamplePhoto = !!wizard.selectedSamplePhoto;
+    const hasProjectPhotoUri = !!project.photoUri;
+    const hasPhoto = hasSelectedSamplePhoto || hasProjectPhotoUri;
+    
+    console.log('🔍 Photo validation debug:');
+    console.log('  - wizard.selectedSamplePhoto:', wizard.selectedSamplePhoto ? '✅ Present' : '❌ Missing');
+    console.log('  - project.photoUri:', project.photoUri ? '✅ Present' : '❌ Missing');
+    console.log('  - hasPhoto result:', hasPhoto ? '✅ Valid' : '❌ Invalid');
+    
     if (!hasPhoto) {
-      console.log('❌ Missing photo for AI processing');
+      console.log('❌ Missing photo for AI processing - No photo URI found in either wizard.selectedSamplePhoto or project.photoUri');
       return false;
     }
     
     // Check style selection
-    if (!wizard.selectedStyleId) {
+    if (!wizard.styleId) {
       console.log('❌ Missing style selection for AI processing');
       return false;
     }
@@ -206,6 +215,10 @@ export const AIProcessingScreen: React.FC = () => {
     }
     
     console.log('✅ All required data present for AI processing');
+    console.log('  - Photo source:', hasSelectedSamplePhoto ? 'selectedSamplePhoto' : 'project.photoUri');
+    console.log('  - Style ID:', wizard.styleId);
+    console.log('  - Category:', wizard.categoryType);
+    console.log('  - Rooms:', wizard.selectedRooms);
     return true;
   }, [journeyStore.projectWizard, journeyStore.project]);
 
@@ -214,6 +227,11 @@ export const AIProcessingScreen: React.FC = () => {
     setIsValidating(true);
     
     try {
+      // Ensure we have the latest journey data from storage before validation
+      console.log('🔄 Reloading journey data before AI processing validation...');
+      await journeyStore.loadJourney();
+      console.log('✅ Journey data reloaded successfully');
+      
       // Prepare validation data
       const validationData: AIProcessingValidationData = {
         allRequiredDataPresent: checkAllRequiredDataPresent(),
@@ -267,12 +285,12 @@ export const AIProcessingScreen: React.FC = () => {
     const content = contentStore;
     
     // Validate required data
-    if (!wizard.selectedSamplePhoto && !journeyStore.project.capturedPhotoUrl) {
+    if (!wizard.selectedSamplePhoto && !journeyStore.project.photoUri) {
       console.error('No photo available for processing');
       return null;
     }
     
-    if (!wizard.selectedStyleId || !wizard.categoryType || !wizard.selectedRooms) {
+    if (!wizard.styleId || !wizard.categoryType || !wizard.selectedRooms) {
       console.error('Missing wizard selections');
       return null;
     }
@@ -309,11 +327,11 @@ export const AIProcessingScreen: React.FC = () => {
       .filter(Boolean) as ColorPaletteInfluence[];
     
     return {
-      originalPhotoUrl: wizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl!,
+      originalPhotoUrl: wizard.selectedSamplePhoto || journeyStore.project.photoUri!,
       categoryType: wizard.categoryType,
       selectedRooms: wizard.selectedRooms,
-      styleId: wizard.selectedStyleId!,
-      styleName: wizard.selectedStyleName || 'Modern',
+      styleId: wizard.styleId!,
+      styleName: wizard.styleName || 'Modern',
       referenceInfluences,
       colorPaletteInfluences,
       processingMode: 'balanced',
