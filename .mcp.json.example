@@ -1,0 +1,42 @@
+{
+  "description": "Compozit Vision - MCP Server Configuration Template",
+  "version": "1.0.0",
+  "mcpServers": {
+    "stripe": {
+      "name": "Stripe Payment Processing",
+      "description": "Official Stripe MCP server for payment processing",
+      "command": "npx",
+      "args": ["-y", "@stripe/mcp", "--tools=all", "--api-key=${STRIPE_SECRET_KEY}"],
+      "env": {
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}",
+        "STRIPE_PUBLISHABLE_KEY": "${STRIPE_PUBLISHABLE_KEY}",
+        "STRIPE_WEBHOOK_SECRET": "${STRIPE_WEBHOOK_SECRET}"
+      }
+    },
+    "supabase": {
+      "name": "Supabase Database Operations",
+      "description": "Official Supabase MCP server",
+      "command": "node",
+      "args": ["./node_modules/@supabase/mcp-server-supabase/dist/index.js"],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}",
+        "SUPABASE_PROJECT_REF": "${SUPABASE_PROJECT_REF}",
+        "SUPABASE_URL": "${SUPABASE_URL}",
+        "SUPABASE_ANON_KEY": "${SUPABASE_ANON_KEY}",
+        "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}",
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    },
+    "redis": {
+      "name": "Redis Caching Layer",
+      "description": "Redis MCP server for caching",
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/redis/mcp-redis.git", "redis-mcp-server", "--url", "${REDIS_URL}"],
+      "env": {
+        "REDIS_URL": "${REDIS_URL}",
+        "REDIS_PASSWORD": "${REDIS_PASSWORD}",
+        "REDIS_TLS": "false"
+      }
+    }
+  }
+}
