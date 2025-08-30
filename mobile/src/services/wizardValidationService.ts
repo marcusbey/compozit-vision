@@ -2,6 +2,7 @@ import {
   ValidationRule,
   ValidationError,
   ValidationResult,
+  StepValidationResult,
   StepValidationConfig,
   WizardStepId,
   WizardValidationState,
@@ -26,7 +27,7 @@ class WizardValidationService {
     this.initializeStepConfigs();
     this.validationState = {
       currentStep: 'projectWizardStart',
-      stepResults: {} as Record<WizardStepId, ValidationResult>,
+      stepResults: {} as Record<WizardStepId, StepValidationResult>,
       overallValid: false,
       completedSteps: [],
       blockedSteps: [],
@@ -415,15 +416,35 @@ class WizardValidationService {
     const warnings: ValidationError[] = [];
     const infos: ValidationError[] = [];
 
-    // Check dependencies first
+    // Check dependencies first - but be flexible for optional steps
     for (const depStepId of config.dependencies) {
+      const depConfig = this.stepConfigs.get(depStepId);
       const depResult = this.validationState.stepResults[depStepId];
+      
+      // If the dependent step is optional and user hasn't interacted with it,
+      // we'll skip dependency validation but mark it as "skipped but valid"
+      if (depConfig?.isOptional && (!depResult || !depResult.hasBeenValidated)) {
+        console.log(`⚠️ Optional step ${depStepId} hasn't been validated, allowing to proceed`);
+        // Mark the optional step as valid so we don't keep checking it
+        this.validationState.stepResults[depStepId] = {
+          stepId: depStepId,
+          isValid: true,
+          errors: [],
+          warnings: [],
+          infos: [],
+          hasBeenValidated: true,
+          validatedAt: new Date(),
+          skippedButValid: true
+        };
+        continue;
+      }
+      
       if (!depResult || !depResult.isValid) {
         errors.push({
           ruleId: 'dependency',
           field: 'step',
           severity: 'error',
-          message: `Please complete the ${this.stepConfigs.get(depStepId)?.stepName || depStepId} step first`,
+          message: `Please complete the ${depConfig?.stepName || depStepId} step first`,
           timestamp: Date.now()
         });
       }
@@ -472,11 +493,14 @@ class WizardValidationService {
       }
     }
 
-    const result: ValidationResult = {
+    const result: StepValidationResult = {
+      stepId,
       isValid: errors.length === 0,
       errors,
       warnings,
       infos,
+      hasBeenValidated: true,
+      validatedAt: new Date(),
       summary: {
         errorCount: errors.length,
         warningCount: warnings.length,
@@ -622,7 +646,7 @@ class WizardValidationService {
   resetValidation() {
     this.validationState = {
       currentStep: 'projectWizardStart',
-      stepResults: {} as Record<WizardStepId, ValidationResult>,
+      stepResults: {} as Record<WizardStepId, StepValidationResult>,
       overallValid: false,
       completedSteps: [],
       blockedSteps: [],

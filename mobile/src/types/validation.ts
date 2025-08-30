@@ -39,6 +39,13 @@ export interface ValidationResult {
   };
 }
 
+export interface StepValidationResult extends ValidationResult {
+  stepId: WizardStepId;
+  hasBeenValidated: boolean;
+  validatedAt: Date;
+  skippedButValid?: boolean; // For optional steps that weren't interacted with
+}
+
 export interface StepValidationConfig {
   stepId: WizardStepId;
   stepName: string;
@@ -59,7 +66,7 @@ export type WizardStepId =
 
 export interface WizardValidationState {
   currentStep: WizardStepId;
-  stepResults: Record<WizardStepId, ValidationResult>;
+  stepResults: Record<WizardStepId, StepValidationResult>;
   overallValid: boolean;
   completedSteps: WizardStepId[];
   blockedSteps: WizardStepId[];

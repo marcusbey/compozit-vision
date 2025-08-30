@@ -176,6 +176,39 @@ export const AIProcessingScreen: React.FC = () => {
     };
   }, [isProcessing, isPaused, currentStageIndex, stages]);
 
+  // Helper function to check if all required data is present for AI processing
+  const checkAllRequiredDataPresent = useCallback((): boolean => {
+    const wizard = journeyStore.projectWizard;
+    
+    // Check photo
+    const hasPhoto = !!(wizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl);
+    if (!hasPhoto) {
+      console.log('❌ Missing photo for AI processing');
+      return false;
+    }
+    
+    // Check style selection
+    if (!wizard.selectedStyleId) {
+      console.log('❌ Missing style selection for AI processing');
+      return false;
+    }
+    
+    // Check category
+    if (!wizard.categoryType) {
+      console.log('❌ Missing category for AI processing');
+      return false;
+    }
+    
+    // Check rooms
+    if (!wizard.selectedRooms || wizard.selectedRooms.length === 0) {
+      console.log('❌ Missing room selection for AI processing');
+      return false;
+    }
+    
+    console.log('✅ All required data present for AI processing');
+    return true;
+  }, [journeyStore.projectWizard, journeyStore.project]);
+
   const startEnhancedProcessing = useCallback(async () => {
     // First validate before starting processing
     setIsValidating(true);
@@ -183,7 +216,7 @@ export const AIProcessingScreen: React.FC = () => {
     try {
       // Prepare validation data
       const validationData: AIProcessingValidationData = {
-        allRequiredDataPresent: !!(journeyStore.projectWizard.selectedSamplePhoto || journeyStore.project.capturedPhotoUrl),
+        allRequiredDataPresent: checkAllRequiredDataPresent(),
         processingCreditsRequired: 5, // Base credit cost
         customPrompt: undefined,
         enhancementOptions: [],
