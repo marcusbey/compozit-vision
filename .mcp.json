@@ -11,9 +11,9 @@
       "command": "npx",
       "args": ["-y", "@stripe/mcp", "--tools=all", "--api-key=${STRIPE_SECRET_KEY}"],
       "env": {
-        "STRIPE_SECRET_KEY": "sk_test_PLACEHOLDER_REMOVED",
-        "STRIPE_PUBLISHABLE_KEY": "pk_test_PLACEHOLDER_REMOVED",
-        "STRIPE_WEBHOOK_SECRET": "whsec_xHrchKFjyn4jKWt03lPUoKoHRzVEs1em"
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}",
+        "STRIPE_PUBLISHABLE_KEY": "${STRIPE_PUBLISHABLE_KEY}",
+        "STRIPE_WEBHOOK_SECRET": "${STRIPE_WEBHOOK_SECRET}"
       },
       "transport": {
         "type": "stdio"
@@ -46,12 +46,12 @@
       "command": "node",
       "args": ["./node_modules/@supabase/mcp-server-supabase/dist/index.js"],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_9f8f7463ee69fbc550b71557012baa2e968ba2ca",
-        "SUPABASE_PROJECT_REF": "xmkkhdxhzopgfophlyjd",
-        "SUPABASE_URL": "https://xmkkhdxhzopgfophlyjd.supabase.co",
-        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhta2toZHhoem9wZ2ZvcGhseWpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NzI1MjgsImV4cCI6MjA1OTU0ODUyOH0.l_1CeGn3rD6RK-ZkYeEnwuuYF8rlFQ0HHbR8w2himck",
-        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhta2toZHhoem9wZ2ZvcGhseWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mzk3MjUyOCwiZXhwIjoyMDU5NTQ4NTI4fQ.ot5D87Hkpumzj3BTWY8RvW5CfFEEl56p8M6h1hkuqNQ",
-        "DATABASE_URL": "postgresql://postgres:compozitComxmal1985%%@db.xmkkhdxhzopgfophlyjd.supabase.co:5432/postgres"
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}",
+        "SUPABASE_PROJECT_REF": "${SUPABASE_PROJECT_REF}",
+        "SUPABASE_URL": "${SUPABASE_URL}",
+        "SUPABASE_ANON_KEY": "${SUPABASE_ANON_KEY}",
+        "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}",
+        "DATABASE_URL": "${DATABASE_URL}"
       },
       "transport": {
         "type": "stdio"
@@ -232,7 +232,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
+        "APIFY_API_TOKEN": "${APIFY_API_TOKEN}"
       },
       "capabilities": [
         "price_monitoring",
@@ -270,7 +270,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
+        "APIFY_API_TOKEN": "${APIFY_API_TOKEN}"
       },
       "capabilities": [
         "pin_extraction",
@@ -308,7 +308,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
+        "APIFY_API_TOKEN": "${APIFY_API_TOKEN}"
       },
       "capabilities": [
         "post_extraction",
@@ -344,7 +344,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
+        "APIFY_API_TOKEN": "${APIFY_API_TOKEN}"
       },
       "capabilities": [
         "property_listings",
@@ -445,7 +445,7 @@
         "type": "http"
       },
       "env": {
-        "APIFY_API_TOKEN": "PLACEHOLDER_REMOVED"
+        "APIFY_API_TOKEN": "${APIFY_API_TOKEN}"
       },
       "capabilities": [
         "product_search",
