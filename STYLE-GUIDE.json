@@ -1,0 +1,287 @@
+{
+  "designSystem": {
+    "name": "Compozit Vision – Minimal Warm Modern",
+    "version": "1.0.0",
+    "meta": {
+      "description": "Warm, minimalist mobile design tokens and component specs aligned to the images and theme provided.",
+      "brandKeywords": ["warm", "cozy", "minimal", "stone", "wood", "matte-black", "soft-glow"]
+    },
+
+    "colors": {
+      "core": {
+        "primary":   { "name": "Warm Beige",   "value": "#E8E2D8" },
+        "secondary": { "name": "Soft Sand",    "value": "#D6CBBE" },
+        "accent":    { "name": "Matte Black",  "value": "#1C1C1C" },
+        "highlight": { "name": "Warm White",   "value": "#FDFBF7" },
+        "detail":    { "name": "Natural Oak",  "value": "#C9A98C" },
+        "light":     { "name": "Soft Glow",    "value": "#F5E9D7" },
+        "effect":    { "name": "Iridescent",   "value": "#D7C1E3" }
+      },
+      "semantic": {
+        "bg": {
+          "app":        "#FDFBF7",
+          "surface":    "#FFFFFF",
+          "subsurface": "#F7F3ED",
+          "elevated":   "#FFFFFF"
+        },
+        "text": {
+          "primary":   "#1C1C1C",
+          "secondary": "#4A4A4A",
+          "muted":     "#7A7A7A",
+          "inverse":   "#FDFBF7",
+          "link":      "#1C1C1C"
+        },
+        "border": {
+          "soft":  "#E8E2D8",
+          "hard":  "#D6CBBE",
+          "focus": "#C9A98C"
+        },
+        "states": {
+          "brand":        "#C9A98C",
+          "brandHover":   "#B9906F",
+          "brandPressed": "#A77E60",
+          "success":      "#6BAF7B",
+          "warning":      "#D9A441",
+          "danger":       "#C05746",
+          "info":         "#8BA7B3"
+        },
+        "overlays": {
+          "scrim": "rgba(28,28,28,0.45)",
+          "focusRing": "rgba(201,169,140,0.5)"
+        }
+      },
+      "gradients": {
+        "warmLight": ["#FDFBF7", "#F5E9D7"],
+        "iridescentAccent": ["#F6C7D0","#E7E1B9","#C1E3D0","#D7C1E3"]
+      }
+    },
+
+    "typography": {
+      "family": {
+        "brand": "Inter, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif",
+        "numeric": "Inter, system-ui, sans-serif"
+      },
+      "scale": {
+        "display":   { "size": 32, "lineHeight": 40, "weight": 700, "tracking": -0.4 },
+        "h1":        { "size": 28, "lineHeight": 36, "weight": 600, "tracking": -0.2 },
+        "h2":        { "size": 22, "lineHeight": 28, "weight": 600 },
+        "h3":        { "size": 18, "lineHeight": 24, "weight": 600 },
+        "subtitle":  { "size": 16, "lineHeight": 22, "weight": 500 },
+        "body":      { "size": 16, "lineHeight": 22, "weight": 400 },
+        "bodySmall": { "size": 14, "lineHeight": 20, "weight": 400 },
+        "caption":   { "size": 12, "lineHeight": 16, "weight": 400 },
+        "overline":  { "size": 11, "lineHeight": 14, "weight": 600, "case": "uppercase", "tracking": 0.8 }
+      },
+      "defaults": {
+        "color": "#1C1C1C",
+        "paragraphSpacing": 8
+      }
+    },
+
+    "spacing": {
+      "xs": 4, "sm": 8, "md": 12, "lg": 16, "xl": 24, "xxl": 32, "xxxl": 48
+    },
+
+    "radii": {
+      "sm": 8, "md": 12, "lg": 16, "xl": 24, "pill": 999
+    },
+
+    "elevation": {
+      "e0": "none",
+      "e1": "0 1px 3px rgba(0,0,0,0.06)",
+      "e2": "0 4px 12px rgba(0,0,0,0.08)",
+      "e3": "0 10px 24px rgba(0,0,0,0.10)"
+    },
+
+    "motion": {
+      "duration": { "fast": 120, "base": 200, "slow": 300 },
+      "easing": {
+        "inOut": "cubic-bezier(0.4,0.0,0.2,1)",
+        "enter": "cubic-bezier(0.0,0.0,0.2,1)",
+        "exit":  "cubic-bezier(0.4,0.0,1,1)"
+      },
+      "focusRing": { "width": 2, "color": "rgba(201,169,140,0.6)" }
+    },
+
+    "icons": {
+      "stroke": 1.75,
+      "color": "#1C1C1C",
+      "size": { "sm": 16, "md": 20, "lg": 24 }
+    },
+
+    "components": {
+      "buttons": {
+        "sizes": {
+          "sm":   { "height": 36, "padX": 14, "text": "bodySmall", "radius": "pill", "icon": 18 },
+          "md":   { "height": 44, "padX": 18, "text": "body",      "radius": "pill", "icon": 20 },
+          "lg":   { "height": 52, "padX": 22, "text": "subtitle",  "radius": "pill", "icon": 22 }
+        },
+        "variants": {
+          "primary": {
+            "bg": "#1C1C1C",
+            "fg": "#FDFBF7",
+            "border": "transparent",
+            "hoverBg": "#2E2E2E",
+            "pressedBg": "#121212",
+            "focusRing": "rgba(201,169,140,0.6)"
+          },
+          "brand": {
+            "bg": "#C9A98C",
+            "fg": "#1C1C1C",
+            "hoverBg": "#B9906F",
+            "pressedBg": "#A77E60",
+            "focusRing": "rgba(28,28,28,0.35)"
+          },
+          "ghost": {
+            "bg": "transparent",
+            "fg": "#1C1C1C",
+            "hoverBg": "rgba(232,226,216,0.6)",
+            "pressedBg": "rgba(232,226,216,0.9)",
+            "border": "1px solid #E8E2D8"
+          },
+          "link": {
+            "fg": "#1C1C1C",
+            "underline": true
+          },
+          "disabled": {
+            "bg": "#E8E2D8",
+            "fg": "#A3A3A3",
+            "border": "transparent"
+          }
+        }
+      },
+
+      "inputs": {
+        "height": 48,
+        "padX": 14,
+        "radius": "md",
+        "bg": "#FFFFFF",
+        "text": "#1C1C1C",
+        "placeholder": "#7A7A7A",
+        "border": "1px solid #E8E2D8",
+        "focusBorder": "1.5px solid #C9A98C",
+        "prefixIcon": { "size": 20, "color": "#7A7A7A" },
+        "states": {
+          "errorBorder": "1.5px solid #C05746",
+          "successBorder": "1.5px solid #6BAF7B",
+          "disabledBg": "#F7F3ED"
+        }
+      },
+
+      "cards": {
+        "bg": "#FFFFFF",
+        "radius": "lg",
+        "shadow": "e1",
+        "pad": "lg",
+        "border": "1px solid #F0EAE1",
+        "variants": {
+          "elevated": { "shadow": "e2" },
+          "subtle":   { "bg": "#FDFBF7", "border": "1px solid #EDE7DE" }
+        }
+      },
+
+      "appBar": {
+        "height": 56,
+        "bg": "#FFFFFF",
+        "fg": "#1C1C1C",
+        "borderBottom": "1px solid #E8E2D8"
+      },
+
+      "tabBar": {
+        "bg": "#FFFFFF",
+        "indicator": "#C9A98C",
+        "inactive": "#7A7A7A",
+        "active": "#1C1C1C",
+        "radius": 12,
+        "itemPadX": 16,
+        "itemPadY": 10
+      },
+
+      "chip": {
+        "radius": 999,
+        "padX": 12,
+        "padY": 8,
+        "bg": "#F7F3ED",
+        "fg": "#1C1C1C",
+        "selectedBg": "#E8E2D8",
+        "selectedBorder": "1px solid #C9A98C"
+      },
+
+      "modal": {
+        "sheetBg": "#FFFFFF",
+        "corner": 24,
+        "scrim": "rgba(28,28,28,0.45)",
+        "handle": "#D6CBBE",
+        "elevation": "e3",
+        "title": "h2"
+      },
+
+      "toast": {
+        "radius": 14,
+        "pad": 14,
+        "bg": "#1C1C1C",
+        "fg": "#FDFBF7",
+        "successBg": "#2F5F3A",
+        "warningBg": "#735B1F",
+        "dangerBg": "#6B2E24"
+      },
+
+      "lists": {
+        "itemHeight": 56,
+        "divider": "#EDE7DE",
+        "padX": 16,
+        "title": "body",
+        "subtitle": "bodySmall",
+        "chevronColor": "#7A7A7A"
+      }
+    },
+
+    "effects": {
+      "iridescentAccentUsage": {
+        "intent": "sparingly",
+        "appliesTo": ["progressTrack", "selectionHighlight", "premiumBadge"],
+        "gradient": "iridescentAccent",
+        "opacity": 0.5,
+        "blur": 24
+      },
+      "ambientGlow": {
+        "shadow": "0 0 0 1px rgba(232,226,216,0.6), 0 12px 40px rgba(201,169,140,0.25)"
+      }
+    },
+
+    "a11y": {
+      "minContrast": 4.5,
+      "primaryButtonContrast": { "bg": "#1C1C1C", "fg": "#FDFBF7", "ratio": 12.6 },
+      "brandButtonContrast":   { "bg": "#C9A98C", "fg": "#1C1C1C", "ratio": 6.9 },
+      "focusVisible": { "ring": { "color": "rgba(201,169,140,0.6)", "width": 2, "offset": 2 } },
+      "tapTargets": { "minSize": 44, "minSpacing": 8 }
+    },
+
+    "layout": {
+      "grid": {
+        "containerPadding": 16,
+        "columnCount": 12,
+        "gutter": 12
+      },
+      "images": {
+        "corner": "lg",
+        "placeholderBg": "#F7F3ED"
+      }
+    },
+
+    "modes": {
+      "light": "default",
+      "dark": {
+        "bg":    { "app": "#121212", "surface": "#181818", "subsurface": "#1E1E1E", "elevated": "#212121" },
+        "text":  { "primary": "#F5F2EC", "secondary": "#D6D0C6", "muted": "#A79E93" },
+        "border": { "soft": "#2A2A2A", "hard": "#3A3A3A", "focus": "#A77E60" },
+        "button": {
+          "primaryBg": "#F5F2EC",
+          "primaryFg": "#1C1C1C",
+          "brandBg": "#A77E60",
+          "brandFg": "#121212"
+        }
+      }
+    }
+  }
+}
