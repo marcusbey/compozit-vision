@@ -60,7 +60,8 @@ export interface GeminiResponse {
 
 class GeminiService {
   private client: GoogleGenerativeAI;
-  private model: any;
+  private analysisModel: any;
+  private imageGenModel: any;
   private apiKey: string;
   private requestCount = 0;
   private lastRequestTime = 0;
@@ -74,7 +75,10 @@ class GeminiService {
     
     this.apiKey = apiKey;
     this.client = new GoogleGenerativeAI(apiKey);
-    this.model = this.client.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    
+    // Use different models for different tasks
+    this.analysisModel = this.client.getGenerativeModel({ model: 'gemini-1.5-flash' }); // For room analysis
+    this.imageGenModel = this.client.getGenerativeModel({ model: 'gemini-2.5-flash-image-preview' }); // For image generation
   }
 
   /**
@@ -101,9 +105,9 @@ class GeminiService {
         }
       };
 
-      // Generate design recommendations with retries
+      // Generate design recommendations with retries using analysis model
       const result = await this.executeWithRetries(async () => {
-        return await this.model.generateContent([prompt, imageData]);
+        return await this.analysisModel.generateContent([prompt, imageData]);
       });
 
       // Parse and validate response
@@ -515,6 +519,96 @@ class GeminiService {
   resetUsageStats() {
     this.requestCount = 0;
     this.lastRequestTime = 0;
+  }
+
+  /**
+   * Generate interior design image based on room analysis and style preferences
+   * Uses the gemini-2.5-flash-image-preview model
+   */
+  async generateDesignImage(input: {
+    roomDescription: string;
+    stylePreferences: string;
+    colorScheme?: { primary: string; secondary: string; accent: string };
+    furnitureElements?: string[];
+    customPrompt?: string;
+  }): Promise<GeminiResponse> {
+    const startTime = Date.now();
+    
+    try {
+      // Rate limiting
+      await this.enforceRateLimit();
+      
+      // Build comprehensive image generation prompt
+      const prompt = this.buildImageGenerationPrompt(input);
+      
+      // Generate image with retries using image generation model
+      const result = await this.executeWithRetries(async () => {
+        return await this.imageGenModel.generateContent([prompt]);
+      });
+      
+      const processingTime = Date.now() - startTime;
+      
+      return {
+        success: true,
+        data: {
+          overallDesignConcept: result.response.text(),
+          confidenceScore: 0.95,
+          // Placeholder for other fields since this is image generation
+          roomLayout: { suggestions: [], optimizationTips: [] },
+          furniture: [],
+          colorScheme: input.colorScheme || { primary: '', secondary: '', accent: '', description: '' },
+          lighting: { recommendations: [], fixtures: [] },
+          decorativeElements: []
+        },
+        processingTime
+      };
+      
+    } catch (error) {
+      console.error('Gemini Image Generation Error:', error);
+      
+      return {
+        success: false,
+        error: this.handleError(error),
+        processingTime: Date.now() - startTime
+      };
+    }
+  }
+
+  /**
+   * Build prompt for image generation
+   */
+  private buildImageGenerationPrompt(input: {
+    roomDescription: string;
+    stylePreferences: string;
+    colorScheme?: { primary: string; secondary: string; accent: string };
+    furnitureElements?: string[];
+    customPrompt?: string;
+  }): string {
+    let prompt = `Generate a photorealistic interior design image with the following specifications:\n\n`;
+    
+    prompt += `Room: ${input.roomDescription}\n`;
+    prompt += `Design Style: ${input.stylePreferences}\n`;
+    
+    if (input.colorScheme) {
+      prompt += `Color Scheme: Primary - ${input.colorScheme.primary}, Secondary - ${input.colorScheme.secondary}, Accent - ${input.colorScheme.accent}\n`;
+    }
+    
+    if (input.furnitureElements && input.furnitureElements.length > 0) {
+      prompt += `Key Furniture: ${input.furnitureElements.join(', ')}\n`;
+    }
+    
+    prompt += `\nImportant requirements:
+- High-quality, photorealistic rendering
+- Professional interior design aesthetic
+- Proper lighting and shadows
+- Attention to detail and textures
+- Cohesive design that follows the specified style\n`;
+    
+    if (input.customPrompt) {
+      prompt += `\nAdditional requirements: ${input.customPrompt}\n`;
+    }
+    
+    return prompt;
   }
 }
 
