@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,16 @@ import {
   StatusBar,
   Animated,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useJourneyStore } from '../../stores/journeyStore';
+import { useUserStore } from '../../stores/userStore';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
+import { useWizardValidation } from '../../hooks/useWizardValidation';
+import { ValidationErrorDisplay } from '../../components/ValidationErrorDisplay';
+import type { ProjectStartValidationData } from '../../types/validation';
 
 // Import design tokens
 const tokens = {
@@ -49,10 +54,19 @@ interface ProjectWizardStartScreenProps {
 }
 
 const ProjectWizardStartScreen: React.FC<ProjectWizardStartScreenProps> = ({ navigation, route }) => {
+  const [isValidating, setIsValidating] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   
   const journeyStore = useJourneyStore();
+  const { user, availableCredits, currentPlan } = useUserStore();
+  
+  // Initialize validation for this step
+  const validation = useWizardValidation({
+    stepId: 'projectWizardStart',
+    autoValidate: true,
+    validateOnMount: true
+  });
 
   useEffect(() => {
     // Initialize wizard start
@@ -76,14 +90,52 @@ const ProjectWizardStartScreen: React.FC<ProjectWizardStartScreenProps> = ({ nav
     ]).start();
   }, []);
 
-  const handleStartWizard = () => {
-    // Update journey store and start wizard
-    journeyStore.updateProjectWizard({
-      currentWizardStep: 'category_selection'
-    });
+  const handleStartWizard = async () => {
+    setIsValidating(true);
     
-    // Navigate to first wizard step
-    NavigationHelpers.navigateToScreen('categorySelection');
+    try {
+      // Prepare validation data
+      const validationData: ProjectStartValidationData = {
+        projectName: undefined, // Optional for now
+        isAuthenticated: !!user,
+        availableCredits: availableCredits || 0,
+        userPlan: currentPlan || 'free'
+      };
+      
+      console.log('🚀 Project wizard validation data:', {
+        isAuthenticated: !!user,
+        availableCredits: availableCredits || 0,
+        userPlan: currentPlan || 'free',
+        isDev: __DEV__,
+        nodeEnv: process.env.NODE_ENV,
+        appEnv: process.env.APP_ENV
+      });
+      
+      // Validate before proceeding
+      const result = await validation.validateStep(validationData, 'onSubmit');
+      
+      if (result.isValid) {
+        // Update journey store and start wizard
+        journeyStore.updateProjectWizard({
+          currentWizardStep: 'category_selection'
+        });
+        
+        // Navigate to first wizard step
+        NavigationHelpers.navigateToScreen('categorySelection');
+      } else {
+        // Validation failed - errors will be displayed by ValidationErrorDisplay
+        console.log('❌ Project wizard start validation failed:', result.errors);
+      }
+    } catch (error) {
+      console.error('❌ Validation error:', error);
+      Alert.alert(
+        'Validation Error',
+        'There was an issue validating your request. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const handleBack = () => {
@@ -195,6 +247,17 @@ const ProjectWizardStartScreen: React.FC<ProjectWizardStartScreenProps> = ({ nav
               <Ionicons name="time" size={20} color={tokens.color.brand} />
               <Text style={styles.timeText}>Takes about 3-5 minutes</Text>
             </View>
+            
+            {/* Validation Errors */}
+            {validation.validationResult && !validation.validationResult.isValid && (
+              <ValidationErrorDisplay
+                result={validation.validationResult}
+                recoveryActions={validation.recoveryActions}
+                onActionPress={validation.handleRecoveryAction}
+                showSummary={true}
+                style={styles.validationContainer}
+              />
+            )}
           </Animated.View>
         </ScrollView>
 
@@ -208,8 +271,12 @@ const ProjectWizardStartScreen: React.FC<ProjectWizardStartScreenProps> = ({ nav
           ]}
         >
           <TouchableOpacity
-            style={styles.startButton}
+            style={[
+              styles.startButton,
+              (isValidating || validation.isValidating) && styles.startButtonDisabled
+            ]}
             onPress={handleStartWizard}
+            disabled={isValidating || validation.isValidating}
             activeOpacity={0.9}
           >
             <LinearGradient
@@ -218,13 +285,28 @@ const ProjectWizardStartScreen: React.FC<ProjectWizardStartScreenProps> = ({ nav
               end={{ x: 1, y: 1 }}
               style={styles.startButtonGradient}
             >
-              <Text style={styles.startButtonText}>Start Your Project</Text>
-              <Ionicons 
-                name="arrow-forward" 
-                size={20} 
-                color={tokens.color.textInverse}
-                style={styles.startButtonIcon}
-              />
+              <Text style={[
+                styles.startButtonText,
+                (isValidating || validation.isValidating) && styles.startButtonTextDisabled
+              ]}>
+                {(isValidating || validation.isValidating) ? 'Validating...' : 'Start Your Project'}
+              </Text>
+              {!(isValidating || validation.isValidating) && (
+                <Ionicons 
+                  name="arrow-forward" 
+                  size={20} 
+                  color={tokens.color.textInverse}
+                  style={styles.startButtonIcon}
+                />
+              )}
+              {(isValidating || validation.isValidating) && (
+                <Ionicons 
+                  name="hourglass" 
+                  size={20} 
+                  color={tokens.color.textInverse}
+                  style={styles.startButtonIcon}
+                />
+              )}
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
@@ -263,9 +345,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.xxxl, // Extra space for bottom button
   },
   content: {
-    flex: 1,
     justifyContent: 'center',
     paddingVertical: tokens.spacing.xl,
   },
@@ -286,34 +368,40 @@ const styles = StyleSheet.create({
     ...tokens.shadow.e2,
   },
   welcomeTitle: {
-    ...tokens.type.display,
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '700',
     color: tokens.color.textPrimary,
     textAlign: 'center',
-    marginBottom: tokens.spacing.md,
+    marginBottom: tokens.spacing.lg,
   },
   welcomeSubtitle: {
-    ...tokens.type.body,
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400',
     color: tokens.color.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
-    paddingHorizontal: tokens.spacing.md,
+    paddingHorizontal: tokens.spacing.lg,
   },
   stepsContainer: {
-    marginBottom: tokens.spacing.xxl,
+    marginBottom: tokens.spacing.xl,
   },
   stepsTitle: {
-    ...tokens.type.h2,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600',
     color: tokens.color.textPrimary,
-    marginBottom: tokens.spacing.lg,
+    marginBottom: tokens.spacing.xl,
     textAlign: 'center',
   },
   stepsList: {
-    gap: tokens.spacing.lg,
+    // gap handled by stepItem marginBottom
   },
   stepItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: tokens.spacing.md,
+    gap: tokens.spacing.lg,
+    marginBottom: tokens.spacing.lg,
   },
   stepNumber: {
     width: 32,
@@ -349,11 +437,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: tokens.spacing.sm,
-    padding: tokens.spacing.md,
+    padding: tokens.spacing.lg,
     backgroundColor: tokens.color.surface,
     borderRadius: tokens.radius.lg,
     borderWidth: 1,
     borderColor: tokens.color.borderSoft,
+    marginBottom: tokens.spacing.xl,
+    ...tokens.shadow.e2,
   },
   timeText: {
     ...tokens.type.small,
@@ -362,32 +452,44 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: tokens.spacing.xl,
-    paddingBottom: 40,
+    paddingBottom: tokens.spacing.xxxl, // 48px safe area
+    paddingTop: tokens.spacing.xl,
     backgroundColor: tokens.color.bgApp,
     borderTopWidth: 1,
     borderTopColor: tokens.color.borderSoft,
-    paddingTop: tokens.spacing.xl,
+    minHeight: 120, // Ensure minimum height for button
   },
   startButton: {
     borderRadius: tokens.radius.pill,
     overflow: 'hidden',
+    marginBottom: tokens.spacing.md, // Extra margin from bottom
     ...tokens.shadow.e2,
   },
   startButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: tokens.spacing.lg,
+    paddingVertical: 18, // Slightly more padding
     paddingHorizontal: tokens.spacing.xl,
-    height: 52,
+    height: 56, // Slightly taller button
   },
   startButtonText: {
-    ...tokens.type.h2,
+    fontSize: 18,
+    fontWeight: '600',
     color: tokens.color.textInverse,
     marginRight: tokens.spacing.sm,
   },
   startButtonIcon: {
     marginLeft: tokens.spacing.xs,
+  },
+  validationContainer: {
+    marginTop: tokens.spacing.xl,
+  },
+  startButtonDisabled: {
+    opacity: 0.7,
+  },
+  startButtonTextDisabled: {
+    color: tokens.color.textMuted,
   },
 });
 

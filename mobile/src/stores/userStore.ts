@@ -9,6 +9,10 @@ interface UserState {
   isLoading: boolean;
   error: string | null;
   
+  // Computed properties for useWizardValidation compatibility
+  availableCredits: number;
+  currentPlan: string;
+  
   // Actions
   setUser: (user: User) => void;
   clearUser: () => void;
@@ -29,6 +33,23 @@ export const useUserStore = create<UserState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  
+  // Computed properties
+  get availableCredits() {
+    const actualCredits = get().user?.nbToken || 0;
+    
+    // In development mode, provide test credits if user has 0 credits
+    const isDevelopment = __DEV__ || process.env.NODE_ENV === 'development' || process.env.APP_ENV === 'development';
+    if (isDevelopment && actualCredits === 0) {
+      console.log('🟡 Providing test credits in development mode');
+      return 999; // Unlimited credits for testing
+    }
+    
+    return actualCredits;
+  },
+  get currentPlan() {
+    return get().user?.currentPlan || 'free';
+  },
 
   setUser: (user: User) => set({ 
     user, 
