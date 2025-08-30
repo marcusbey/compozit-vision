@@ -91,7 +91,7 @@ export const ReferencesColorsScreen: React.FC<ReferencesColorsScreenProps> = ({ 
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [route?.params?.selectedStyle, journeyStore]);
+  }, [route?.params?.selectedStyle]);
 
   return (
     <SafeAreaView style={styles.container}>
