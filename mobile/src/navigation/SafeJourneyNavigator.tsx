@@ -46,8 +46,9 @@ export type JourneyScreens =
   | 'photoCapture'
   | 'styleSelection'
   | 'referenceImages'
-  | 'colorPalettes'
-  | 'referencesColors'
+  | 'colorPaletteSelection'
+  | 'referenceSelection'
+  | 'furnitureSelection'
   | 'aiProcessing'
   | 'results'
   | 'descriptions'
@@ -63,41 +64,42 @@ export type JourneyScreens =
   | 'referenceLibrary'
   | 'myPalettes';
 
-// Safe screen imports with error handling
+// Safe screen imports with error handling - Updated to use organized structure
 const screenImports: Record<JourneyScreens, () => Promise<{ default: React.ComponentType<any> }>> = {
-  welcome: () => import('../screens/Welcome/WelcomeScreen').catch(() => ({ default: () => <ErrorScreen error="WelcomeScreen not found" /> })),
-  onboarding1: () => import('../screens/Onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
-  onboarding2: () => import('../screens/Onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
-  onboarding3: () => import('../screens/Onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
-  onboarding4: () => import('../screens/Onboarding/OnboardingScreen4').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen4 not found" /> })),
-  planSelection: () => import('../screens/PlanSelection/PlanSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="PlanSelectionScreen not found" /> })),
-  paymentFrequency: () => import('../screens/Paywall/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentFrequencyScreen not found" /> })),
-  paywall: () => import('../screens/Paywall/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
-  paymentPending: () => import('../screens/Payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
-  paymentVerified: () => import('../screens/Payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
-  projectWizardStart: () => import('../screens/ProjectWizard/ProjectWizardStartScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectWizardStartScreen not found" /> })),
-  categorySelection: () => import('../screens/ProjectWizard/CategorySelectionScreen').catch(() => ({ default: () => <ErrorScreen error="CategorySelectionScreen not found" /> })),
-  spaceDefinition: () => import('../screens/ProjectWizard/SpaceDefinitionScreen').catch(() => ({ default: () => <ErrorScreen error="SpaceDefinitionScreen not found" /> })),
-  roomSelection: () => import('../screens/ProjectWizard/RoomSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="RoomSelectionScreen not found" /> })),
-  photoCapture: () => import('../screens/PhotoCapture/PhotoCaptureScreen').catch(() => ({ default: () => <ErrorScreen error="PhotoCaptureScreen not found" /> })),
-  styleSelection: () => import('../screens/ProjectWizard/StyleSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="StyleSelectionScreen not found" /> })),
-  referenceImages: () => import('../screens/ReferenceImages/ReferenceImagesScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceImagesScreen not found" /> })),
-  colorPalettes: () => import('../screens/ColorPalettes/ColorPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="ColorPalettesScreen not found" /> })),
-  referencesColors: () => import('../screens/ProjectWizard/ReferencesColorsScreen').catch(() => ({ default: () => <ErrorScreen error="ReferencesColorsScreen not found" /> })),
-  aiProcessing: () => import('../screens/ProjectWizard/AIProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="AIProcessingScreen not found" /> })),
-  results: () => import('../screens/ProjectWizard/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
-  descriptions: () => import('../screens/Descriptions/DescriptionsScreen').catch(() => ({ default: () => <ErrorScreen error="DescriptionsScreen not found" /> })),
-  furniture: () => import('../screens/Furniture/FurnitureScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureScreen not found" /> })),
-  budget: () => import('../screens/Budget/BudgetScreen').catch(() => ({ default: () => <ErrorScreen error="BudgetScreen not found" /> })),
-  auth: () => import('../screens/Auth/AuthScreen').catch(() => ({ default: () => <ErrorScreen error="AuthScreen not found" /> })),
-  checkout: () => import('../screens/Checkout/CheckoutScreen').catch(() => ({ default: () => <ErrorScreen error="CheckoutScreen not found" /> })),
-  processing: () => import('../screens/Processing/ProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="ProcessingScreen not found" /> })),
-  myProjects: () => import('../screens/Projects/MyProjectsScreen').catch(() => ({ default: () => <ErrorScreen error="MyProjectsScreen not found" /> })),
-  profile: () => import('../screens/Profile/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
-  plans: () => import('../screens/Plans/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
-  projectSettings: () => import('../screens/ProjectSettings/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
-  referenceLibrary: () => import('../screens/Library/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
-  myPalettes: () => import('../screens/Palettes/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
+  welcome: () => import('../screens/01-auth/WelcomeScreen').catch(() => ({ default: () => <ErrorScreen error="WelcomeScreen not found" /> })),
+  onboarding1: () => import('../screens/02-onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
+  onboarding2: () => import('../screens/02-onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
+  onboarding3: () => import('../screens/02-onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
+  onboarding4: () => import('../screens/02-onboarding/OnboardingScreen4').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen4 not found" /> })),
+  planSelection: () => import('../screens/03-payment/PlanSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="PlanSelectionScreen not found" /> })),
+  paymentFrequency: () => import('../screens/03-payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentFrequencyScreen not found" /> })),
+  paywall: () => import('../screens/03-payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
+  paymentPending: () => import('../screens/03-payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
+  paymentVerified: () => import('../screens/03-payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
+  projectWizardStart: () => import('../screens/04-project-wizard/ProjectWizardStartScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectWizardStartScreen not found" /> })),
+  categorySelection: () => import('../screens/04-project-wizard/CategorySelectionScreen').catch(() => ({ default: () => <ErrorScreen error="CategorySelectionScreen not found" /> })),
+  spaceDefinition: () => import('../screens/04-project-wizard/SpaceDefinitionScreen').catch(() => ({ default: () => <ErrorScreen error="SpaceDefinitionScreen not found" /> })),
+  roomSelection: () => import('../screens/04-project-wizard/RoomSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="RoomSelectionScreen not found" /> })),
+  photoCapture: () => import('../screens/04-project-wizard/PhotoCaptureScreen').catch(() => ({ default: () => <ErrorScreen error="PhotoCaptureScreen not found" /> })),
+  styleSelection: () => import('../screens/04-project-wizard/StyleSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="StyleSelectionScreen not found" /> })),
+  referenceImages: () => import('../screens/05-content-selection/ReferenceImagesScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceImagesScreen not found" /> })),
+  colorPaletteSelection: () => import('../screens/05-content-selection/ColorPaletteSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="ColorPaletteSelectionScreen not found" /> })),
+  referenceSelection: () => import('../screens/05-content-selection/ReferenceSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceSelectionScreen not found" /> })),
+  furnitureSelection: () => import('../screens/FurnitureSelection/FurnitureSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureSelectionScreen not found" /> })),
+  aiProcessing: () => import('../screens/04-project-wizard/AIProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="AIProcessingScreen not found" /> })),
+  results: () => import('../screens/06-results/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
+  descriptions: () => import('../screens/06-results/DescriptionsScreen').catch(() => ({ default: () => <ErrorScreen error="DescriptionsScreen not found" /> })),
+  furniture: () => import('../screens/06-results/FurnitureScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureScreen not found" /> })),
+  budget: () => import('../screens/06-results/BudgetScreen').catch(() => ({ default: () => <ErrorScreen error="BudgetScreen not found" /> })),
+  auth: () => import('../screens/01-auth/AuthScreen').catch(() => ({ default: () => <ErrorScreen error="AuthScreen not found" /> })),
+  checkout: () => import('../screens/06-results/CheckoutScreen').catch(() => ({ default: () => <ErrorScreen error="CheckoutScreen not found" /> })),
+  processing: () => import('../screens/06-results/ProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="ProcessingScreen not found" /> })),
+  myProjects: () => import('../screens/07-dashboard/MyProjectsScreen').catch(() => ({ default: () => <ErrorScreen error="MyProjectsScreen not found" /> })),
+  profile: () => import('../screens/07-dashboard/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
+  plans: () => import('../screens/07-dashboard/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
+  projectSettings: () => import('../screens/07-dashboard/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
+  referenceLibrary: () => import('../screens/07-dashboard/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
+  myPalettes: () => import('../screens/07-dashboard/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
 };
 
 const SafeJourneyNavigator: React.FC = () => {
@@ -187,7 +189,7 @@ const SafeJourneyNavigator: React.FC = () => {
         if (savedJourney && savedJourney.currentScreen) {
           // Validate the saved screen is a valid continuation point
           const validContinueScreens: JourneyScreens[] = [
-            'planSelection', 'paymentFrequency', 'paywall', 'projectWizardStart', 'photoCapture', 'descriptions', 'furniture', 'budget', 'auth', 'checkout'
+            'planSelection', 'paymentFrequency', 'paywall', 'projectWizardStart', 'photoCapture', 'descriptions', 'furniture', 'furnitureSelection', 'budget', 'auth', 'checkout'
           ];
           
           const savedScreen = savedJourney.currentScreen as JourneyScreens;

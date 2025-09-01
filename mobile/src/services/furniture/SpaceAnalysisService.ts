@@ -3,7 +3,8 @@ import {
   FurnitureCategory, 
   FurniturePriority, 
   FurnitureStyle, 
-  RoomType, 
+  RoomType,
+  FurnitureRoomType,
   PromptContext 
 } from '../../types/furniture';
 
@@ -27,7 +28,7 @@ export class SpaceAnalysisService {
       // Simulate API delay
       setTimeout(() => {
         const mockResult: SpaceAnalysisResult = {
-          roomType: RoomType.LIVING_ROOM,
+          roomType: FurnitureRoomType.LIVING_ROOM,
           roomCharacteristics: {
             size: 'medium',
             lighting: 'bright',
@@ -105,7 +106,7 @@ export const FURNITURE_CATEGORIES: FurnitureCategory[] = [
     description: 'Sofas, chairs, and seating solutions',
     iconName: 'seat',
     visualImpactScore: 9,
-    roomCompatibility: [RoomType.LIVING_ROOM, RoomType.BEDROOM, RoomType.OFFICE]
+    roomCompatibility: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE]
   },
   {
     id: 'tables',
@@ -114,7 +115,7 @@ export const FURNITURE_CATEGORIES: FurnitureCategory[] = [
     description: 'Coffee tables, side tables, and surfaces',
     iconName: 'table',
     visualImpactScore: 7,
-    roomCompatibility: [RoomType.LIVING_ROOM, RoomType.DINING_ROOM, RoomType.OFFICE]
+    roomCompatibility: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.DINING_ROOM, FurnitureRoomType.OFFICE]
   },
   {
     id: 'storage',
@@ -123,7 +124,7 @@ export const FURNITURE_CATEGORIES: FurnitureCategory[] = [
     description: 'Shelves, cabinets, and organization',
     iconName: 'archive',
     visualImpactScore: 6,
-    roomCompatibility: [RoomType.LIVING_ROOM, RoomType.BEDROOM, RoomType.OFFICE]
+    roomCompatibility: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE]
   },
   {
     id: 'lighting',
@@ -132,7 +133,7 @@ export const FURNITURE_CATEGORIES: FurnitureCategory[] = [
     description: 'Lamps, fixtures, and ambient lighting',
     iconName: 'bulb',
     visualImpactScore: 8,
-    roomCompatibility: [RoomType.LIVING_ROOM, RoomType.BEDROOM, RoomType.OFFICE]
+    roomCompatibility: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE]
   },
   {
     id: 'decor',
@@ -141,7 +142,7 @@ export const FURNITURE_CATEGORIES: FurnitureCategory[] = [
     description: 'Art, plants, and decorative accessories',
     iconName: 'star',
     visualImpactScore: 5,
-    roomCompatibility: [RoomType.LIVING_ROOM, RoomType.BEDROOM, RoomType.OFFICE, RoomType.DINING_ROOM]
+    roomCompatibility: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE, FurnitureRoomType.DINING_ROOM]
   }
 ];
 
@@ -156,7 +157,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['modern', 'contemporary'],
       priceRange: { min: 1200, max: 2500, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM],
         designStyles: ['modern', 'contemporary', 'minimalist'],
         colorPalettes: ['neutral', 'monochrome', 'earth tones']
       },
@@ -171,7 +172,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['vintage', 'traditional'],
       priceRange: { min: 600, max: 1200, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.OFFICE],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.OFFICE],
         designStyles: ['traditional', 'vintage', 'eclectic'],
         colorPalettes: ['warm tones', 'rich colors']
       },
@@ -186,7 +187,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['mid-century', 'retro'],
       priceRange: { min: 800, max: 1600, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.BEDROOM],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM],
         designStyles: ['mid-century', 'retro', 'eclectic'],
         colorPalettes: ['bold colors', 'warm tones']
       },
@@ -203,7 +204,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['modern', 'contemporary'],
       priceRange: { min: 400, max: 800, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM],
         designStyles: ['modern', 'contemporary', 'minimalist'],
         colorPalettes: ['any']
       },
@@ -218,7 +219,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['rustic', 'natural'],
       priceRange: { min: 200, max: 500, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.BEDROOM],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM],
         designStyles: ['rustic', 'natural', 'farmhouse'],
         colorPalettes: ['warm tones', 'earth tones']
       },
@@ -233,7 +234,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['industrial', 'urban'],
       priceRange: { min: 600, max: 1200, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.ENTRYWAY],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.ENTRYWAY],
         designStyles: ['industrial', 'urban', 'loft'],
         colorPalettes: ['dark tones', 'metallic']
       },
@@ -250,7 +251,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['modern', 'minimalist'],
       priceRange: { min: 150, max: 400, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.OFFICE, RoomType.BEDROOM],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.OFFICE, FurnitureRoomType.BEDROOM],
         designStyles: ['modern', 'minimalist', 'contemporary'],
         colorPalettes: ['any']
       },
@@ -265,7 +266,7 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['vintage', 'traditional'],
       priceRange: { min: 500, max: 1000, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.OFFICE],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.OFFICE],
         designStyles: ['traditional', 'vintage', 'classic'],
         colorPalettes: ['warm tones', 'rich colors']
       },
@@ -280,59 +281,153 @@ export const MOCK_FURNITURE_STYLES: Record<string, FurnitureStyle[]> = {
       styleCategories: ['modern', 'functional'],
       priceRange: { min: 300, max: 700, currency: 'USD' },
       compatibility: {
-        roomTypes: [RoomType.LIVING_ROOM, RoomType.KIDS_ROOM, RoomType.OFFICE],
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.KIDS_ROOM, FurnitureRoomType.OFFICE],
         designStyles: ['modern', 'contemporary', 'minimalist'],
         colorPalettes: ['bright colors', 'neutral']
       },
       visualImpactScore: 5,
       popularity: 79
     }
+  ],
+  lighting: [
+    {
+      id: 'modern-floor-lamp',
+      name: 'Modern Floor Lamp',
+      description: 'Sleek design with adjustable lighting',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['modern', 'contemporary'],
+      priceRange: { min: 150, max: 400, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE],
+        designStyles: ['modern', 'contemporary', 'minimalist'],
+        colorPalettes: ['any']
+      },
+      visualImpactScore: 7,
+      popularity: 82
+    },
+    {
+      id: 'vintage-table-lamp',
+      name: 'Vintage Table Lamp',
+      description: 'Classic charm with warm ambiance',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['vintage', 'traditional'],
+      priceRange: { min: 80, max: 200, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM],
+        designStyles: ['traditional', 'vintage', 'eclectic'],
+        colorPalettes: ['warm tones', 'rich colors']
+      },
+      visualImpactScore: 6,
+      popularity: 74
+    },
+    {
+      id: 'pendant-ceiling-light',
+      name: 'Pendant Ceiling Light',
+      description: 'Statement lighting for dining areas',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['modern', 'industrial'],
+      priceRange: { min: 120, max: 350, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.DINING_ROOM, FurnitureRoomType.KITCHEN],
+        designStyles: ['modern', 'industrial', 'contemporary'],
+        colorPalettes: ['any']
+      },
+      visualImpactScore: 8,
+      popularity: 76
+    }
+  ],
+  decor: [
+    {
+      id: 'abstract-wall-art',
+      name: 'Abstract Wall Art',
+      description: 'Modern artwork to enhance any space',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['modern', 'contemporary'],
+      priceRange: { min: 50, max: 200, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE],
+        designStyles: ['modern', 'contemporary', 'minimalist'],
+        colorPalettes: ['any']
+      },
+      visualImpactScore: 6,
+      popularity: 78
+    },
+    {
+      id: 'ceramic-vases',
+      name: 'Ceramic Decorative Vases',
+      description: 'Elegant vases for fresh flowers or display',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['modern', 'traditional'],
+      priceRange: { min: 30, max: 120, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.DINING_ROOM, FurnitureRoomType.BEDROOM],
+        designStyles: ['traditional', 'contemporary', 'eclectic'],
+        colorPalettes: ['any']
+      },
+      visualImpactScore: 4,
+      popularity: 69
+    },
+    {
+      id: 'indoor-plants',
+      name: 'Indoor Plants Collection',
+      description: 'Living greenery to freshen up your space',
+      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600',
+      styleCategories: ['natural', 'modern'],
+      priceRange: { min: 25, max: 80, currency: 'USD' },
+      compatibility: {
+        roomTypes: [FurnitureRoomType.LIVING_ROOM, FurnitureRoomType.BEDROOM, FurnitureRoomType.OFFICE, FurnitureRoomType.DINING_ROOM],
+        designStyles: ['natural', 'modern', 'bohemian'],
+        colorPalettes: ['any']
+      },
+      visualImpactScore: 5,
+      popularity: 85
+    }
   ]
 };
 
 // Prompt suggestions by room type
-const ROOM_SPECIFIC_PROMPTS: Record<RoomType, string[]> = {
-  [RoomType.LIVING_ROOM]: [
+const ROOM_SPECIFIC_PROMPTS: Record<FurnitureRoomType, string[]> = {
+  [FurnitureRoomType.LIVING_ROOM]: [
     'Create a cozy conversation area',
     'Add a statement piece for the focal wall',
     'Include comfortable seating for entertaining'
   ],
-  [RoomType.BEDROOM]: [
+  [FurnitureRoomType.BEDROOM]: [
     'Design a peaceful retreat for relaxation',
     'Add storage for clothing and personal items',
     'Create ambient lighting for evening'
   ],
-  [RoomType.DINING_ROOM]: [
+  [FurnitureRoomType.DINING_ROOM]: [
     'Design for memorable family meals',
     'Include elegant serving solutions',
     'Add lighting for intimate dining'
   ],
-  [RoomType.KITCHEN]: [
+  [FurnitureRoomType.KITCHEN]: [
     'Optimize for cooking and storage',
     'Add functional workspace elements',
     'Include organization solutions'
   ],
-  [RoomType.OFFICE]: [
+  [FurnitureRoomType.OFFICE]: [
     'Create a productive work environment',
     'Add ergonomic furniture for long hours',
     'Include smart storage for documents'
   ],
-  [RoomType.BATHROOM]: [
+  [FurnitureRoomType.BATHROOM]: [
     'Maximize storage in small spaces',
     'Add luxurious spa-like elements',
     'Include practical organization'
   ],
-  [RoomType.OUTDOOR]: [
+  [FurnitureRoomType.OUTDOOR]: [
     'Design for weather resistance',
     'Add comfortable outdoor seating',
     'Include elements for entertaining'
   ],
-  [RoomType.ENTRYWAY]: [
+  [FurnitureRoomType.ENTRYWAY]: [
     'Create a welcoming first impression',
     'Add storage for coats and shoes',
     'Include a console for keys and mail'
   ],
-  [RoomType.KIDS_ROOM]: [
+  [FurnitureRoomType.KIDS_ROOM]: [
     'Design for play and learning',
     'Add safe, child-friendly furniture',
     'Include organization for toys and clothes'
