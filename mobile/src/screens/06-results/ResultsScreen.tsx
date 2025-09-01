@@ -125,18 +125,73 @@ const SAMPLE_RESULT: DesignResult = {
   colorPalette: ['#F5F5F5', '#E8E2D8', '#C9A98C', '#B9906F', '#8B7355'],
 };
 
-export const ResultsScreen: React.FC = () => {
+export const ResultsScreen: React.FC = ({ route }: { route?: any }) => {
   const journeyStore = useJourneyStore();
   const projectStore = useProjectStore();
   
-  const [designResult] = useState<DesignResult>(SAMPLE_RESULT);
-  const [viewMode, setViewMode] = useState<'split' | 'original' | 'enhanced'>('split');
+  // Get actual data from navigation params (from AIProcessingScreen)
+  const {
+    originalImageUrl,
+    enhancedImageUrl,
+    processingResult,
+    userJourneyData
+  } = route?.params || {};
+
+  // Create design result from actual data
+  const createDesignResultFromData = () => {
+    const journeyData = journeyStore.getProjectWizard();
+    
+    // Debug logging to see what images we're receiving
+    console.log('🔍 ResultsScreen image sources:');
+    console.log('  - originalImageUrl from params:', originalImageUrl);
+    console.log('  - enhancedImageUrl from params:', enhancedImageUrl);
+    console.log('  - journeyStore.project.photoUri:', journeyStore.project.photoUri);
+    console.log('  - Using fallback SAMPLE_RESULT?', !originalImageUrl && !enhancedImageUrl);
+    
+    const originalImg = originalImageUrl || journeyStore.project.photoUri || SAMPLE_RESULT.originalImage;
+    const enhancedImg = enhancedImageUrl || SAMPLE_RESULT.enhancedImage;
+    
+    // Debug image comparison
+    console.log('🖼️ Image comparison check:');
+    console.log('  - Original image:', originalImg?.substring(0, 80) + '...');
+    console.log('  - Enhanced image:', enhancedImg?.substring(0, 80) + '...');
+    console.log('  - Images are different:', originalImg !== enhancedImg);
+    
+    // Warn if images are the same (debugging)
+    if (originalImg === enhancedImg) {
+      console.warn('⚠️ WARNING: Original and Enhanced images are identical!');
+      console.warn('  - This indicates AI processing may not have worked correctly');
+    }
+    
+    return {
+      id: `design_${Date.now()}`,
+      originalImage: originalImg,
+      enhancedImage: enhancedImg,
+      style: journeyData.selectedStyle || userJourneyData?.selectedStyle || 'Modern Minimalist',
+      confidence: processingResult?.confidenceScore || 0.92,
+      estimatedCost: processingResult?.estimatedCost || 2850,
+      furnitureItems: processingResult?.suggestedFurniture || SAMPLE_RESULT.furnitureItems,
+      designNotes: [
+        'Transformed based on your style preferences',
+        `Applied ${journeyData.selectedStyle || 'your chosen'} design principles`,
+        'Integrated your selected color palette',
+        'Enhanced lighting and spatial flow',
+        'Added elements from your reference images'
+      ],
+      colorPalette: processingResult?.appliedInfluences?.colorInfluences || 
+                    journeyData.selectedPalette?.colors || 
+                    SAMPLE_RESULT.colorPalette,
+    };
+  };
+  
+  const [designResult] = useState<DesignResult>(createDesignResultFromData());
+  const [viewMode, setViewMode] = useState<'split' | 'original' | 'enhanced'>('enhanced');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFurniture, setSelectedFurniture] = useState<string[]>([]);
   
   // Split view slider state
-  const sliderPosition = useRef(new Animated.Value(0.5)).current;
   const [sliderValue, setSliderValue] = useState(0.5);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     // Mark journey as completed
@@ -149,18 +204,12 @@ export const ResultsScreen: React.FC = () => {
 
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: () => {
-      sliderPosition.setOffset(sliderValue);
-    },
-    onPanResponderMove: (_, gestureState) => {
-      const newValue = Math.max(0.1, Math.min(0.9, sliderValue + gestureState.dx / screenWidth));
-      sliderPosition.setValue(newValue - sliderValue);
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      const newValue = Math.max(0.1, Math.min(0.9, sliderValue + gestureState.dx / screenWidth));
-      setSliderValue(newValue);
-      sliderPosition.flattenOffset();
-      sliderPosition.setValue(newValue);
+    onPanResponderMove: (evt) => {
+      if (containerWidth > 0) {
+        const touchX = evt.nativeEvent.locationX;
+        const newValue = Math.max(0, Math.min(1, touchX / containerWidth));
+        setSliderValue(newValue);
+      }
     },
   });
 
@@ -221,7 +270,7 @@ export const ResultsScreen: React.FC = () => {
           text: 'Start New',
           onPress: () => {
             journeyStore.resetJourney();
-            NavigationHelpers.navigateToScreen('welcome');
+            NavigationHelpers.resetToScreen('mainApp');
           }
         }
       ]
@@ -338,63 +387,62 @@ export const ResultsScreen: React.FC = () => {
       );
     }
 
-    // Split view
+    // Split view - Before/after slider with direct calculations
+    const clipWidth = containerWidth * sliderValue;
+    const handlePosition = clipWidth - 2; // Center handle on clip edge
+    
     return (
-      <View style={[styles.splitContainer, { height: imageHeight }]}>
-        {/* Original Image */}
-        <Animated.View
+      <View 
+        style={[styles.splitContainer, { height: imageHeight }]}
+        onLayout={(event) => {
+          const { width } = event.nativeEvent.layout;
+          setContainerWidth(width);
+        }}
+        {...panResponder.panHandlers}
+      >
+        {/* Enhanced Image (Background - Always visible) */}
+        <Image 
+          source={{ uri: designResult.enhancedImage }}
+          style={[styles.fullImage, { height: imageHeight }]}
+          resizeMode="cover"
+        />
+        <View style={[styles.imageLabel, styles.enhancedLabel]}>
+          <Text style={styles.imageLabelText}>Enhanced</Text>
+        </View>
+
+        {/* Original Image Overlay (Clipped container) */}
+        <View
           style={[
-            styles.splitImage,
+            styles.originalImageClipContainer,
             {
-              width: sliderPosition.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, screenWidth],
-                extrapolate: 'clamp',
-              }),
+              width: clipWidth,
             },
           ]}
         >
           <Image 
             source={{ uri: designResult.originalImage }}
-            style={[styles.fullImage, { height: imageHeight }]}
+            style={[styles.fullImage, { height: imageHeight, width: containerWidth }]}
             resizeMode="cover"
           />
           <View style={[styles.imageLabel, styles.originalLabel]}>
             <Text style={styles.imageLabelText}>Original</Text>
           </View>
-        </Animated.View>
-
-        {/* Enhanced Image */}
-        <View style={[styles.splitImage, styles.enhancedImageContainer]}>
-          <Image 
-            source={{ uri: designResult.enhancedImage }}
-            style={[styles.fullImage, { height: imageHeight }]}
-            resizeMode="cover"
-          />
-          <View style={[styles.imageLabel, styles.enhancedLabel]}>
-            <Text style={styles.imageLabelText}>Enhanced</Text>
-          </View>
         </View>
 
-        {/* Slider Handle */}
-        <Animated.View
+        {/* Slider Line and Handle */}
+        <View
           style={[
             styles.sliderHandle,
             {
-              left: sliderPosition.interpolate({
-                inputRange: [0, 1],
-                outputRange: [-20, screenWidth - 20],
-                extrapolate: 'clamp',
-              }),
+              left: handlePosition,
             },
           ]}
-          {...panResponder.panHandlers}
         >
           <View style={styles.sliderLine} />
           <View style={styles.sliderButton}>
             <Ionicons name="swap-horizontal" size={16} color={tokens.color.textInverse} />
           </View>
-        </Animated.View>
+        </View>
       </View>
     );
   };
@@ -657,15 +705,13 @@ const styles = StyleSheet.create({
     position: 'relative',
     ...tokens.shadow.e2,
   },
-  splitImage: {
+  originalImageClipContainer: {
     position: 'absolute',
     top: 0,
-    height: '100%',
-    overflow: 'hidden',
-  },
-  enhancedImageContainer: {
-    width: '100%',
     left: 0,
+    height: '100%',
+    overflow: 'hidden', // This is key - clips the image inside
+    zIndex: 2, // Above the enhanced image
   },
   originalLabel: {
     left: tokens.spacing.lg,
@@ -678,23 +724,31 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: 40,
+    width: 4,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10, // Highest z-index to be above everything
   },
   sliderLine: {
-    width: 2,
+    width: 4,
     height: '100%',
     backgroundColor: tokens.color.textInverse,
     position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   sliderButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: tokens.color.accent,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: tokens.color.textInverse,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: tokens.color.accent,
     ...tokens.shadow.e3,
   },
   detailsSection: {

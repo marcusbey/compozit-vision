@@ -171,6 +171,9 @@ export interface JourneyState extends UserJourneyData {
   
   // Legacy validation methods (for backward compatibility)
   getWizardValidationErrors: (stepName: string) => string[];
+  
+  // Project wizard data accessor
+  getProjectWizard: () => UserJourneyData['projectWizard'];
 }
 
 // Default state
@@ -705,6 +708,10 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       }
     }));
     get().persistJourney();
+  },
+
+  getProjectWizard: () => {
+    return get().projectWizard;
   },
 }));
 

@@ -29,25 +29,39 @@ npm run android
 
 ```
 src/
-├── domain/              # Core business logic
-│   ├── entities/        # Business entities
-│   ├── services/        # Domain services
-│   └── interfaces/      # Domain interfaces
-├── application/         # Use cases & application logic
-│   ├── use-cases/       # Business use cases
-│   └── dto/            # Data transfer objects
-├── infrastructure/      # External integrations
-│   ├── api/            # API clients
-│   └── storage/        # Local storage
-├── presentation/        # UI components & screens
-│   ├── screens/        # App screens
-│   ├── components/     # Reusable components
-│   └── hooks/          # Custom hooks
-├── navigation/          # App navigation
-├── constants/          # App constants & theme
-├── types/              # TypeScript types
-└── utils/              # Utility functions
+├── screens/           # App screens organized by feature
+│   ├── 01-auth/       # Authentication screens
+│   ├── 02-onboarding/ # Onboarding flow
+│   ├── 03-payment/    # Payment and subscription
+│   ├── 04-project-wizard/ # Project creation wizard
+│   ├── 05-content-selection/ # Style and content selection
+│   ├── 06-results/    # AI processing results
+│   └── 07-dashboard/  # User dashboard screens
+├── components/        # Reusable UI components
+├── navigation/        # App navigation logic
+├── services/          # Business services (AI, database, etc.)
+├── stores/           # State management (Zustand)
+├── infrastructure/    # External integrations (Auth, Supabase)
+├── assets/           # Images, icons, and static files
+│   ├── illustrations/ # SVG illustrations
+│   └── test-images/  # Test and development images
+├── types/            # TypeScript type definitions
+├── utils/            # Utility functions
+├── hooks/            # Custom React hooks
+└── theme/            # Design tokens and styling
 ```
+
+## Documentation
+
+All documentation has been organized in the `@DOCS/` folder:
+
+- **Guides**: Setup and implementation guides
+- **Development**: PRDs, workflows, and development specs  
+- **Analysis**: Issue resolution summaries and analysis
+- **API**: Component and API documentation
+- **Testing**: Testing procedures and documentation
+
+See `@DOCS/README.md` for complete documentation structure.
 
 ## Features
 

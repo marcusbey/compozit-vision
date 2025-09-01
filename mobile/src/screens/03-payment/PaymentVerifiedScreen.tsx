@@ -121,10 +121,10 @@ const PaymentVerifiedScreen: React.FC<PaymentVerifiedScreenProps> = ({ navigatio
 
       console.log('🚀 Payment verified - starting fresh project wizard flow');
 
-      // If authenticated, go directly to category selection
+      // If authenticated, go to main app with tabs
       // If not, go to auth link screen
       if (isAuthenticated) {
-        NavigationHelpers.navigateToScreen('projectWizardStart');
+        NavigationHelpers.resetToScreen('mainApp');
       } else {
         NavigationHelpers.navigateToScreen('auth');
       }

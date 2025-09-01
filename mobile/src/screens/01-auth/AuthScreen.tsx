@@ -237,12 +237,12 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
     }
     
     if (isLogin && !isInPaywallFlow) {
-      // Only redirect to MyProjects if they weren't in a wizard journey
-      console.log('👤 Existing user login → My Projects');
-      NavigationHelpers.navigateToScreen('myProjects');
+      // Only redirect to Main App if they weren't in a wizard journey
+      console.log('👤 Existing user login → Main App');
+      NavigationHelpers.resetToScreen('mainApp');
     } else if (hasLinkedPayment || isInPaywallFlow) {
-      // User with subscription or in paywall flow → Start project wizard
-      NavigationHelpers.navigateToScreen('projectWizardStart');
+      // User with subscription or in paywall flow → Main App
+      NavigationHelpers.resetToScreen('mainApp');
     } else if (user.nbToken <= 0) {
       // User without credits → Back to paywall
       Alert.alert(

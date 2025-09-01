@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: tokens.spacing.md,
-    paddingBottom: tokens.spacing.xl,
+    paddingBottom: 100, // Extra space for fixed footer + Continue button
   },
   titleContainer: {
     marginBottom: tokens.spacing.lg,

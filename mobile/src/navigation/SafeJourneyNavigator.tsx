@@ -9,6 +9,9 @@ import { useUserStore } from '../stores/userStore';
 import { useJourneyStore } from '../stores/journeyStore';
 import { OnboardingService } from '../services/onboarding';
 
+// Import the tab navigator
+import MainTabNavigator from './MainTabNavigator';
+
 // Fallback error screen
 const ErrorScreen: React.FC<{ error: string }> = ({ error }) => (
   <View style={styles.errorContainer}>
@@ -62,7 +65,8 @@ export type JourneyScreens =
   | 'plans'
   | 'projectSettings'
   | 'referenceLibrary'
-  | 'myPalettes';
+  | 'myPalettes'
+  | 'mainApp';
 
 // Safe screen imports with error handling - Updated to use organized structure
 const screenImports: Record<JourneyScreens, () => Promise<{ default: React.ComponentType<any> }>> = {
@@ -100,6 +104,7 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   projectSettings: () => import('../screens/07-dashboard/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
   referenceLibrary: () => import('../screens/07-dashboard/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
   myPalettes: () => import('../screens/07-dashboard/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
+  mainApp: () => Promise.resolve({ default: MainTabNavigator }),
 };
 
 const SafeJourneyNavigator: React.FC = () => {
@@ -173,10 +178,10 @@ const SafeJourneyNavigator: React.FC = () => {
         return 'welcome';
       }
 
-      // Check if user is authenticated
+      // Check if user is authenticated and has completed payment
       if (isAuthenticated && user) {
-        console.log('✅ Authenticated user -> My Projects');
-        return 'myProjects';
+        console.log('✅ Authenticated user -> Main App');
+        return 'mainApp';
       }
 
       // Check if user has completed onboarding before

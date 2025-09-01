@@ -335,8 +335,8 @@ export const AIProcessingScreen: React.FC = () => {
     const wizard = journeyStore.projectWizard;
     const content = contentStore;
     
-    // Validate required data
-    if (!wizard.selectedSamplePhoto && !journeyStore.project.photoUri) {
+    // Validate required data - prioritize user's actual photo
+    if (!journeyStore.project.photoUri && !wizard.selectedSamplePhoto) {
       console.error('No photo available for processing');
       return null;
     }
@@ -378,7 +378,7 @@ export const AIProcessingScreen: React.FC = () => {
       .filter(Boolean) as ColorPaletteInfluence[];
     
     return {
-      originalPhotoUrl: wizard.selectedSamplePhoto || journeyStore.project.photoUri!,
+      originalPhotoUrl: journeyStore.project.photoUri || wizard.selectedSamplePhoto!,
       categoryType: wizard.categoryType,
       selectedRooms: wizard.selectedRooms,
       styleId: wizard.styleId!,
@@ -417,9 +417,22 @@ export const AIProcessingScreen: React.FC = () => {
           setIsProcessing(false);
           setCanCancel(false);
           
-          // Navigate to results after a brief delay
+          // Get the processing result with generated image
+          const result = await enhancedAIProcessingService.getProcessingResult(jobId);
+          
+          // Navigate to results with actual data
           setTimeout(() => {
-            NavigationHelpers.navigateToScreen('results');
+            const actualOriginalPhoto = journeyStore.project.photoUri || journeyStore.getProjectWizard().selectedSamplePhoto;
+            console.log('🖼️ Navigating to results with:');
+            console.log('  - Original photo:', actualOriginalPhoto);
+            console.log('  - Enhanced photo:', result?.generatedDesignUrl);
+            
+            NavigationHelpers.navigateToScreen('results', {
+              originalImageUrl: actualOriginalPhoto,
+              enhancedImageUrl: result?.generatedDesignUrl,
+              processingResult: result,
+              userJourneyData: journeyStore.getProjectWizard(),
+            });
           }, 2000);
         } else if (progress.status === 'failed') {
           clearInterval(pollInterval);

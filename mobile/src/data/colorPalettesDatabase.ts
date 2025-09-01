@@ -609,33 +609,66 @@ export class ColorPaletteService {
     limit?: number;
   }): ColorPalette[] {
     let filteredPalettes = [...COLOR_PALETTES_DATABASE];
+    const originalCount = filteredPalettes.length;
 
-    // Filter by style
+    // Filter by style (if provided)
     if (filters.style) {
       filteredPalettes = filteredPalettes.filter(palette => 
         palette.style.includes(filters.style!)
       );
     }
 
-    // Filter by space type
+    // Filter by space type (if provided)
     if (filters.spaceType) {
       filteredPalettes = filteredPalettes.filter(palette => 
         palette.spaceType.includes(filters.spaceType!)
       );
     }
 
-    // Filter by mood
+    // Filter by mood (if provided)
     if (filters.mood) {
       filteredPalettes = filteredPalettes.filter(palette => 
         palette.mood.includes(filters.mood!)
       );
     }
 
-    // Filter by category
+    // Filter by category (if provided)
     if (filters.category) {
       filteredPalettes = filteredPalettes.filter(palette => 
         palette.category === filters.category
       );
+    }
+
+    console.log(`🎨 Palette filtering: ${originalCount} -> ${filteredPalettes.length} palettes`);
+    console.log(`🎨 Filters applied:`, filters);
+
+    // If filtering resulted in too few palettes, use more permissive approach
+    if (filteredPalettes.length < 8) {
+      console.log(`🎨 Too few palettes (${filteredPalettes.length}), using permissive filtering...`);
+      
+      // Use OR logic instead of AND - show palettes that match ANY criteria
+      filteredPalettes = COLOR_PALETTES_DATABASE.filter(palette => {
+        let matches = 0;
+        
+        if (filters.style && palette.style.includes(filters.style)) matches++;
+        if (filters.spaceType && palette.spaceType.includes(filters.spaceType)) matches++;
+        if (filters.mood && palette.mood.includes(filters.mood)) matches++;
+        if (filters.category && palette.category === filters.category) matches++;
+        
+        // If no filters provided, show all
+        if (!filters.style && !filters.spaceType && !filters.mood && !filters.category) {
+          return true;
+        }
+        
+        // Show palettes that match at least one criteria
+        return matches > 0;
+      });
+
+      // If still too few, show popular palettes
+      if (filteredPalettes.length < 8) {
+        console.log(`🎨 Still too few palettes, showing popular ones...`);
+        filteredPalettes = this.getPopularPalettes(filters.limit || 12);
+      }
     }
 
     // Sort by popularity
@@ -646,6 +679,7 @@ export class ColorPaletteService {
       filteredPalettes = filteredPalettes.slice(0, filters.limit);
     }
 
+    console.log(`🎨 Final palette count: ${filteredPalettes.length}`);
     return filteredPalettes;
   }
 
