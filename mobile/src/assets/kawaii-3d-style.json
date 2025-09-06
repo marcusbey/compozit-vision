@@ -1,0 +1,48 @@
+{
+  "style": {
+    "name": "Kawaii 3D",
+    "aesthetic": [
+      "cute",
+      "minimalist",
+      "playful",
+      "childlike",
+      "collectible toy-like"
+    ],
+    "color_palette": {
+      "primary": "pastel tones",
+      "accents": [
+        "soft pink",
+        "lavender",
+        "mint blue",
+        "peach",
+        "cream"
+      ],
+      "neutrals": [
+        "white",
+        "light beige",
+        "soft brown"
+      ],
+      "brand_pastels": {
+        "primary": "#F5E6D8",
+        "secondary": "#E8D5C4"
+      }
+    },
+    "shapes": {
+      "body": "rounded, smooth, blob-like forms",
+      "faces": "minimal details (dot eyes, small smile)",
+      "cheeks": "soft pink blush"
+    },
+    "materials": {
+      "look": "soft clay / squishy vinyl",
+      "finish": "matte with subtle shading"
+    },
+    "expressions": {
+      "mouth": "small smile",
+      "eyes": [
+        "closed curved lines",
+        "dot eyes"
+      ],
+      "mood": "calm, happy, relaxed"
+    }
+  }
+}

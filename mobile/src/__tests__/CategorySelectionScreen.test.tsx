@@ -1,17 +1,17 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { Alert } from 'react-native';
-import CategorySelectionScreen from '../src/screens/ProjectWizard/CategorySelectionScreen';
-import { useContentStore } from '../src/stores/contentStore';
-import { useJourneyStore } from '../src/stores/journeyStore';
-import { NavigationHelpers } from '../src/navigation/SafeJourneyNavigator';
-import { supabase } from '../src/services/supabase';
+import CategorySelectionScreen from '../screens/04-project-wizard/CategorySelectionScreen';
+import { useContentStore } from '../stores/contentStore';
+import { useJourneyStore } from '../stores/journeyStore';
+import { NavigationHelpers } from '../navigation/SafeJourneyNavigator';
+import { supabase } from '../services/supabase';
 
 // Mock dependencies
-jest.mock('../src/stores/contentStore');
-jest.mock('../src/stores/journeyStore');
-jest.mock('../src/navigation/SafeJourneyNavigator');
-jest.mock('../src/services/supabase', () => ({
+jest.mock('../stores/contentStore');
+jest.mock('../stores/journeyStore');
+jest.mock('../navigation/SafeJourneyNavigator');
+jest.mock('../services/supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),

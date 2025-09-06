@@ -1,23 +1,31 @@
-// Export all screens for easy import
-export { default as AuthScreen } from './Auth/AuthScreen';
-export { default as BudgetSelectionScreen } from './BudgetSelection/BudgetSelectionScreen';
-export { default as BuyCreditsScreen } from './BuyCredits/BuyCreditsScreen';
-export { default as CameraScreen } from './Camera/CameraScreen';
-export { default as DemoScreen } from './Demo/DemoScreen';
-export { FurnitureCarouselDemo } from './Demo/FurnitureCarouselDemo';
-export { InteractiveComponentsDemo } from './Demo/InteractiveComponentsDemo';
-export { EnhancedAIProcessingScreen } from './EnhancedAIProcessing';
-export { FurnitureSelectionScreen } from './FurnitureSelection';
-export { default as HomeScreen } from './Home/HomeScreen';
-export { default as PhotoCaptureScreen } from './PhotoCapture/PhotoCaptureScreen';
-export { default as PlansScreen } from './Plans/PlansScreen';
-export { default as ProcessingScreen } from './Processing/ProcessingScreen';
-export { default as ProfileScreen } from './Profile/ProfileScreen';
-export { default as ProjectNameScreen } from './ProjectName/ProjectNameScreen';
-export { default as ProjectSettingsScreen } from './ProjectSettings/ProjectSettingsScreen';
-export { default as MyProjectsScreen } from './Projects/MyProjectsScreen';
-export { default as ProjectsScreen } from './Projects/ProjectsScreen';
-export { default as ResultsScreen } from './Results/ResultsScreen';
-export { default as StyleSelectionScreen } from './StyleSelection/StyleSelectionScreen';
-export { EnhancedStyleSelectionScreen } from './StyleSelection/EnhancedStyleSelectionScreen';
-export { default as WelcomeScreen } from './Welcome/WelcomeScreen';
+// Master screen exports - feature-slice architecture
+
+// Auth screens ✅ 
+export * from './auth';
+
+// Onboarding screens ✅
+export * from './onboarding';
+
+// Payment screens ✅
+export * from './payment';
+
+// Project screens (will be added as we complete the migration)
+// export * from './project';
+
+// Content selection screens (will be added)
+// export * from './content-selection';
+
+// Results screens (will be added)  
+// export * from './results';
+
+// Dashboard screens (will be added)
+// export * from './dashboard';
+
+// Individual screens still in old structure (to be migrated)
+export { default as UnifiedProjectScreen } from './UnifiedProjectScreen';
+
+// Re-export common UI components for easy access
+export { ActionButton, ProgressHeader } from '../ui';
+
+// Re-export theme tokens for easy access  
+export { tokens } from '../theme';

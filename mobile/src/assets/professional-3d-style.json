@@ -1,0 +1,53 @@
+{
+  "style": {
+    "name": "Professional 3D",
+    "aesthetic": [
+      "sophisticated",
+      "minimalist",
+      "modern",
+      "premium",
+      "app-ready"
+    ],
+    "color_palette": {
+      "primary": "muted professional tones",
+      "accents": [
+        "#C9A98C",
+        "#B9906F",
+        "#A8B5C1",
+        "#E8D5C4",
+        "#F5E6D8"
+      ],
+      "neutrals": [
+        "#FDFBF7",
+        "#F5F5F5",
+        "#E0E0E0"
+      ],
+      "shadows": [
+        "#9B8B7A",
+        "#7A6B5A",
+        "#5A4B3A"
+      ],
+      "brand": {
+        "primary": "#C9A98C",
+        "secondary": "#B9906F",
+        "background": "#FDFBF7"
+      }
+    },
+    "shapes": {
+      "body": "smooth, rounded forms with subtle geometric influences",
+      "style": "refined 3D objects with professional polish",
+      "edges": "soft rounded corners, no sharp angles"
+    },
+    "materials": {
+      "look": "premium matte plastic or smooth ceramic",
+      "finish": "sophisticated with realistic shadows and highlights",
+      "depth": "strong 3D presence with dimensional lighting"
+    },
+    "lighting": {
+      "primary": "soft directional light from top-left",
+      "shadows": "realistic drop shadows with blur",
+      "highlights": "subtle specular highlights on surfaces",
+      "ambient": "gentle ambient occlusion for depth"
+    }
+  }
+}

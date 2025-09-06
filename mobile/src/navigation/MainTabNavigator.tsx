@@ -3,50 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { tokens } from '../theme';
 
 // Import screens for the tabs
-import ToolsScreen from '../screens/07-dashboard/ToolsScreen';
-import ProfileScreen from '../screens/07-dashboard/ProfileScreen';
-import ProjectWizardStartScreen from '../screens/04-project-wizard/ProjectWizardStartScreen';
+import ToolsScreen from '../screens/dashboard/ToolsScreen';
+import ProfileScreen from '../screens/dashboard/ProfileScreen';
+import UnifiedProjectScreen from '../screens/project/UnifiedProjectScreen';
 
 // Placeholder screen for Explore (to be implemented)
 const ExploreScreen = () => (
   <View style={styles.placeholderContainer}>
-    <Ionicons name="compass-outline" size={64} color="#C9A98C" />
+    <Ionicons name="compass-outline" size={64} color={tokens.colors.primary.DEFAULT} />
     <Text style={styles.placeholderText}>Explore</Text>
     <Text style={styles.placeholderSubtext}>Coming Soon</Text>
   </View>
 );
 
-// Design tokens
-const tokens = {
-  color: {
-    bgApp: "#FDFBF7",
-    surface: "#FFFFFF", 
-    textPrimary: "#1C1C1C",
-    textInverse: "#FDFBF7",
-    textMuted: "#7A7A7A",
-    borderSoft: "#E8E2D8",
-    brand: "#C9A98C",
-    brandHover: "#B9906F",
-    accent: "#1C1C1C",
-    inactive: "#B0B0B0",
-  },
-  spacing: {
-    xs: 4,
-    sm: 8,
-    md: 16,
-    lg: 24,
-    xl: 32,
-  },
-  radius: {
-    md: 12,
-    pill: 999,
-  },
-  type: {
-    caption: { fontSize: 12, fontWeight: '500' as const },
-  },
-};
 
 const Tab = createBottomTabNavigator();
 
@@ -62,11 +34,11 @@ const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, name, iconName }) => {
       <Ionicons 
         name={iconName as any} 
         size={24} 
-        color={focused ? tokens.color.accent : tokens.color.inactive} 
+        color={focused ? tokens.colors.text.primary : tokens.colors.text.tertiary} 
       />
       <Text style={[
         styles.tabLabel,
-        { color: focused ? tokens.color.accent : tokens.color.inactive }
+        { color: focused ? tokens.colors.text.primary : tokens.colors.text.tertiary }
       ]}>
         {name}
       </Text>
@@ -166,7 +138,7 @@ export const MainTabNavigator: React.FC = () => {
       />
       <Tab.Screen 
         name="Create" 
-        component={ProjectWizardStartScreen}
+        component={UnifiedProjectScreen}
         options={{
           tabBarLabel: 'Create',
         }}
@@ -195,9 +167,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: tokens.color.surface,
+    backgroundColor: tokens.colors.background.secondary,
     borderTopWidth: 1,
-    borderTopColor: tokens.color.borderSoft,
+    borderTopColor: tokens.colors.border.light,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -223,24 +195,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabLabel: {
-    ...tokens.type.caption,
+    ...tokens.typography.caption,
     marginTop: tokens.spacing.xs,
   },
   placeholderContainer: {
     flex: 1,
-    backgroundColor: tokens.color.bgApp,
+    backgroundColor: tokens.colors.background.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   placeholderText: {
     fontSize: 24,
     fontWeight: '600',
-    color: tokens.color.textPrimary,
+    color: tokens.colors.text.primary,
     marginTop: tokens.spacing.lg,
   },
   placeholderSubtext: {
     fontSize: 16,
-    color: tokens.color.textMuted,
+    color: tokens.colors.text.secondary,
     marginTop: tokens.spacing.sm,
   },
 });

@@ -16,41 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
-
-// Design tokens
-const tokens = {
-  color: {
-    bgApp: "#FDFBF7",
-    surface: "#FFFFFF", 
-    textPrimary: "#1C1C1C",
-    textInverse: "#FDFBF7",
-    textMuted: "#7A7A7A",
-    borderSoft: "#E8E2D8",
-    brand: "#C9A98C",
-    brandHover: "#B9906F",
-    accent: "#1C1C1C",
-    scrim: "rgba(28,28,28,0.45)",
-    scrimHeavy: "rgba(28,28,28,0.65)",
-    success: "#4CAF50",
-    error: "#F44336",
-  },
-  radius: { sm: 8, md: 12, lg: 16, xl: 24, pill: 999 },
-  shadow: {
-    e1: { shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-    e2: { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-    e3: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
-  },
-  type: {
-    display: { fontSize: 32, lineHeight: 40, fontWeight: "700" as const },
-    h1: { fontSize: 28, lineHeight: 36, fontWeight: "600" as const },
-    h2: { fontSize: 22, lineHeight: 28, fontWeight: "600" as const },
-    h3: { fontSize: 18, lineHeight: 24, fontWeight: "500" as const },
-    body: { fontSize: 16, lineHeight: 22, fontWeight: "400" as const },
-    small: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
-    caption: { fontSize: 12, lineHeight: 16, fontWeight: "400" as const },
-  },
-  spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 },
-};
+import { tokens } from '../theme';
 
 interface ImageUploadModalProps {
   visible: boolean;
@@ -272,7 +238,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
             value={title}
             onChangeText={setTitle}
             placeholder="e.g., Cozy Living Room"
-            placeholderTextColor={tokens.color.textMuted}
+            placeholderTextColor={tokens.colors.text.secondary}
             maxLength={50}
           />
           <Text style={styles.inputHelper}>{title.length}/50</Text>
@@ -286,7 +252,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
             value={description}
             onChangeText={setDescription}
             placeholder="What inspired you about this image?"
-            placeholderTextColor={tokens.color.textMuted}
+            placeholderTextColor={tokens.colors.text.secondary}
             multiline
             numberOfLines={3}
             maxLength={200}
@@ -350,7 +316,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
               value={customTag}
               onChangeText={setCustomTag}
               placeholder="Add custom tag"
-              placeholderTextColor={tokens.color.textMuted}
+              placeholderTextColor={tokens.colors.text.secondary}
               onSubmitEditing={handleAddCustomTag}
               returnKeyType="done"
             />
@@ -464,7 +430,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: tokens.color.bgApp,
+    backgroundColor: tokens.colors.background.primary,
   },
   blurHeader: {
     paddingTop: tokens.spacing.lg,
@@ -482,8 +448,8 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.sm,
   },
   headerTitle: {
-    ...tokens.type.h3,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.heading.h3,
+    color: tokens.colors.text.primary,
   },
   stepIndicator: {
     flexDirection: 'row',
@@ -493,13 +459,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: tokens.color.borderSoft,
+    backgroundColor: tokens.colors.border.light,
   },
   activeDot: {
-    backgroundColor: tokens.color.brand,
+    backgroundColor: tokens.colors.primary.DEFAULT,
   },
   completeDot: {
-    backgroundColor: tokens.color.success,
+    backgroundColor: tokens.colors.status.success,
   },
   content: {
     flex: 1,
@@ -509,22 +475,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepTitle: {
-    ...tokens.type.h2,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.heading.h2,
+    color: tokens.colors.text.primary,
     marginBottom: tokens.spacing.sm,
   },
   stepSubtitle: {
-    ...tokens.type.body,
-    color: tokens.color.textMuted,
+    ...tokens.typography.body,
+    color: tokens.colors.text.secondary,
     marginBottom: tokens.spacing.xxl,
   },
   imagePreviewContainer: {
     aspectRatio: 1,
-    borderRadius: tokens.radius.lg,
+    borderRadius: tokens.borderRadius.lg,
     overflow: 'hidden',
-    backgroundColor: tokens.color.surface,
+    backgroundColor: tokens.colors.background.secondary,
     marginBottom: tokens.spacing.lg,
-    ...tokens.shadow.e2,
+    ...tokens.shadows.elevation2,
   },
   processingContainer: {
     flex: 1,
@@ -532,8 +498,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   processingText: {
-    ...tokens.type.body,
-    color: tokens.color.textMuted,
+    ...tokens.typography.body,
+    color: tokens.colors.text.secondary,
     marginTop: tokens.spacing.sm,
   },
   imagePreview: {
@@ -546,13 +512,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   placeholderText: {
-    ...tokens.type.body,
-    color: tokens.color.textMuted,
+    ...tokens.typography.body,
+    color: tokens.colors.text.secondary,
     marginTop: tokens.spacing.sm,
   },
   cropInfo: {
-    backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.md,
     padding: tokens.spacing.lg,
     marginBottom: tokens.spacing.xl,
   },
@@ -562,53 +528,53 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.sm,
   },
   infoText: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     marginLeft: tokens.spacing.sm,
   },
   nextButton: {
     height: 52,
-    backgroundColor: tokens.color.accent,
-    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.colors.text.primary,
+    borderRadius: tokens.borderRadius.pill,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    ...tokens.shadow.e2,
+    ...tokens.shadows.elevation2,
   },
   nextButtonDisabled: {
-    backgroundColor: tokens.color.borderSoft,
+    backgroundColor: tokens.colors.border.light,
   },
   nextButtonText: {
-    ...tokens.type.h2,
-    color: tokens.color.textInverse,
+    ...tokens.typography.heading.h2,
+    color: tokens.colors.text.inverse,
     marginRight: tokens.spacing.sm,
   },
   inputGroup: {
     marginBottom: tokens.spacing.xl,
   },
   inputLabel: {
-    ...tokens.type.small,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.small,
+    color: tokens.colors.text.primary,
     fontWeight: '500',
     marginBottom: tokens.spacing.sm,
   },
   textInput: {
-    backgroundColor: tokens.color.surface,
+    backgroundColor: tokens.colors.background.secondary,
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
-    borderRadius: tokens.radius.md,
+    borderColor: tokens.colors.border.light,
+    borderRadius: tokens.borderRadius.md,
     paddingHorizontal: tokens.spacing.lg,
     paddingVertical: tokens.spacing.md,
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
   },
   textArea: {
     height: 80,
     textAlignVertical: 'top',
   },
   inputHelper: {
-    ...tokens.type.caption,
-    color: tokens.color.textMuted,
+    ...tokens.typography.caption,
+    color: tokens.colors.text.secondary,
     textAlign: 'right',
     marginTop: tokens.spacing.xs,
   },
@@ -618,23 +584,23 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   tag: {
-    backgroundColor: tokens.color.surface,
+    backgroundColor: tokens.colors.background.secondary,
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
-    borderRadius: tokens.radius.pill,
+    borderColor: tokens.colors.border.light,
+    borderRadius: tokens.borderRadius.pill,
     paddingHorizontal: tokens.spacing.md,
     paddingVertical: tokens.spacing.sm,
   },
   selectedTag: {
-    backgroundColor: tokens.color.brand,
-    borderColor: tokens.color.brand,
+    backgroundColor: tokens.colors.primary.DEFAULT,
+    borderColor: tokens.colors.primary.DEFAULT,
   },
   tagText: {
-    ...tokens.type.small,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.small,
+    color: tokens.colors.text.primary,
   },
   selectedTagText: {
-    color: tokens.color.textInverse,
+    color: tokens.colors.text.inverse,
   },
   customTagContainer: {
     flexDirection: 'row',
@@ -646,31 +612,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addTagButton: {
-    backgroundColor: tokens.color.surface,
+    backgroundColor: tokens.colors.background.secondary,
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
-    borderRadius: tokens.radius.md,
+    borderColor: tokens.colors.border.light,
+    borderRadius: tokens.borderRadius.md,
     padding: tokens.spacing.md,
   },
   selectedTagsPreview: {
     marginBottom: tokens.spacing.xl,
   },
   previewLabel: {
-    ...tokens.type.small,
-    color: tokens.color.textMuted,
+    ...tokens.typography.small,
+    color: tokens.colors.text.secondary,
     marginBottom: tokens.spacing.sm,
   },
   selectedTagPreview: {
-    backgroundColor: tokens.color.brand,
-    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.colors.primary.DEFAULT,
+    borderRadius: tokens.borderRadius.pill,
     paddingHorizontal: tokens.spacing.md,
     paddingVertical: tokens.spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
   },
   selectedTagPreviewText: {
-    ...tokens.type.small,
-    color: tokens.color.textInverse,
+    ...tokens.typography.small,
+    color: tokens.colors.text.inverse,
     marginRight: tokens.spacing.xs,
   },
   removeTagButton: {
@@ -688,25 +654,25 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.sm,
   },
   backButtonText: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     marginLeft: tokens.spacing.xs,
   },
   uploadButton: {
-    backgroundColor: tokens.color.accent,
-    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.colors.text.primary,
+    borderRadius: tokens.borderRadius.pill,
     paddingHorizontal: tokens.spacing.xl,
     paddingVertical: tokens.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    ...tokens.shadow.e2,
+    ...tokens.shadows.elevation2,
   },
   uploadButtonDisabled: {
-    backgroundColor: tokens.color.borderSoft,
+    backgroundColor: tokens.colors.border.light,
   },
   uploadButtonText: {
-    ...tokens.type.body,
-    color: tokens.color.textInverse,
+    ...tokens.typography.body,
+    color: tokens.colors.text.inverse,
     fontWeight: '500',
     marginRight: tokens.spacing.sm,
   },

@@ -1,0 +1,17 @@
+{
+  "assetName": "ai-brain-processing",
+  "type": "json",
+  "category": "animation",
+  "subcategory": "ai-processing",
+  "description": "Neural network processing animation",
+  "generationPrompt": "Create a Neural network processing animation for a premium interior design mobile application called \"Compozit Vision\". Sophisticated animation showing AI neural network thinking, nodes connecting, data flowing The image should be: Professional, high-quality design, technical aesthetic, Using brand colors: #C9A98C, #B9906F, #1C1C1C, Optimized for mobile app interface, 200x200 dimensions, Premium, sophisticated look, Clear, crisp details",
+  "specifications": {
+    "width": 200,
+    "height": 200,
+    "style": "technical"
+  },
+  "priority": 2,
+  "status": "specification_generated",
+  "generatedAt": "2025-09-02T13:38:26.279Z",
+  "model": "gemini-2.5-flash-image-preview"
+}

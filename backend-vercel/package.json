@@ -1,0 +1,17 @@
+{
+  "name": "compozit-vision-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Compozit Vision mobile app",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}

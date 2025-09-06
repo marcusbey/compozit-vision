@@ -1,0 +1,9 @@
+<!-- AI-Generated Asset: camera-capture-icon
+Generated: 2025-09-02T13:38:01.502Z
+Category: icon
+AI Model: gemini-2.5-flash-image-preview
+Description: Custom camera icon for photo capture action
+-->
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="#C9A98C"/><path d="M19 4h-3.5l-2-2h-3l-2 2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2Zm-7 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5Z" fill="#C9A98C"/>
+</svg>

@@ -1,0 +1,9 @@
+<!-- AI-Generated Asset: home-hero-gradient
+Generated: 2025-09-02T13:38:32.352Z
+Category: brand
+AI Model: gemini-2.5-flash-image-preview
+Description: Subtle geometric background pattern for home screen
+-->
+<svg width="400" height="600" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 0h24v24H0z" fill="#C9A98C" opacity="0.1"/><path d="M0 6L6 0H0V6ZM18 0L24 6V0h-6ZM0 18L6 24H0v-6ZM18 24L24 18v6h-6Z" fill="#C9A98C" opacity="0.15"/><path d="M6 0L12 6L18 0H6ZM0 12L6 6L12 12L6 18L0 12ZM12 6L18 12L24 6L18 0L12 6ZM6 18L12 24L18 18L12 12L6 18ZM18 12L24 18L18 24L12 18L18 12Z" fill="#C9A98C" opacity="0.1"/>
+</svg>

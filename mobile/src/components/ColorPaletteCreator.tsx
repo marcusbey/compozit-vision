@@ -14,40 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import Slider from '@react-native-community/slider';
 import { colorExtractionService, DominantColors } from '../services/colorExtractionService';
-
-// Design tokens
-const tokens = {
-  color: {
-    bgApp: "#FDFBF7",
-    surface: "#FFFFFF", 
-    textPrimary: "#1C1C1C",
-    textInverse: "#FDFBF7",
-    textMuted: "#7A7A7A",
-    borderSoft: "#E8E2D8",
-    brand: "#C9A98C",
-    brandHover: "#B9906F",
-    accent: "#1C1C1C",
-    scrim: "rgba(28,28,28,0.45)",
-    success: "#4CAF50",
-    error: "#F44336",
-  },
-  radius: { sm: 8, md: 12, lg: 16, xl: 24, pill: 999 },
-  shadow: {
-    e1: { shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
-    e2: { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
-    e3: { shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
-  },
-  type: {
-    display: { fontSize: 32, lineHeight: 40, fontWeight: "700" as const },
-    h1: { fontSize: 28, lineHeight: 36, fontWeight: "600" as const },
-    h2: { fontSize: 22, lineHeight: 28, fontWeight: "600" as const },
-    h3: { fontSize: 18, lineHeight: 24, fontWeight: "500" as const },
-    body: { fontSize: 16, lineHeight: 22, fontWeight: "400" as const },
-    small: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
-    caption: { fontSize: 12, lineHeight: 16, fontWeight: "400" as const },
-  },
-  spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32, xxxl: 48 },
-};
+import { tokens } from '../theme';
 
 interface ColorPaletteCreatorProps {
   visible: boolean;
@@ -426,7 +393,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             </View>
 
             {selectedPreset === preset.name && (
-              <Ionicons name="checkmark-circle" size={24} color={tokens.color.success} />
+              <Ionicons name="checkmark-circle" size={24} color={tokens.colors.status.success} />
             )}
           </TouchableOpacity>
         ))}
@@ -456,7 +423,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
               onPress={() => setSelectedColorIndex(index)}
             >
               {selectedColorIndex === index && (
-                <Ionicons name="create" size={16} color={tokens.color.textInverse} />
+                <Ionicons name="create" size={16} color={tokens.colors.text.inverse} />
               )}
             </TouchableOpacity>
           ))}
@@ -477,9 +444,9 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             maximumValue={360}
             value={hue}
             onValueChange={(value) => handleSliderChange(value, 'h')}
-            minimumTrackTintColor={tokens.color.brand}
-            maximumTrackTintColor={tokens.color.borderSoft}
-            thumbTintColor={tokens.color.brand}
+            minimumTrackTintColor={tokens.colors.primary.DEFAULT}
+            maximumTrackTintColor={tokens.colors.border.light}
+            thumbTintColor={tokens.colors.primary.DEFAULT}
           />
         </View>
 
@@ -491,9 +458,9 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             maximumValue={100}
             value={saturation}
             onValueChange={(value) => handleSliderChange(value, 's')}
-            minimumTrackTintColor={tokens.color.brand}
-            maximumTrackTintColor={tokens.color.borderSoft}
-            thumbTintColor={tokens.color.brand}
+            minimumTrackTintColor={tokens.colors.primary.DEFAULT}
+            maximumTrackTintColor={tokens.colors.border.light}
+            thumbTintColor={tokens.colors.primary.DEFAULT}
           />
         </View>
 
@@ -505,9 +472,9 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             maximumValue={100}
             value={lightness}
             onValueChange={(value) => handleSliderChange(value, 'l')}
-            minimumTrackTintColor={tokens.color.brand}
-            maximumTrackTintColor={tokens.color.borderSoft}
-            thumbTintColor={tokens.color.brand}
+            minimumTrackTintColor={tokens.colors.primary.DEFAULT}
+            maximumTrackTintColor={tokens.colors.border.light}
+            thumbTintColor={tokens.colors.primary.DEFAULT}
           />
         </View>
       </View>
@@ -545,23 +512,23 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
     switch (temperature) {
       case 'warm': return { backgroundColor: '#FFEB3B' };
       case 'cool': return { backgroundColor: '#2196F3' };
-      default: return { backgroundColor: tokens.color.borderSoft };
+      default: return { backgroundColor: tokens.colors.border.light };
     }
   };
 
   const getBrightnessStyle = (brightness: string) => {
     switch (brightness) {
-      case 'light': return { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: tokens.color.borderSoft };
+      case 'light': return { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: tokens.colors.border.light };
       case 'dark': return { backgroundColor: '#1C1C1C' };
-      default: return { backgroundColor: tokens.color.textMuted };
+      default: return { backgroundColor: tokens.colors.text.secondary };
     }
   };
 
   const getSaturationStyle = (saturation: string) => {
     switch (saturation) {
       case 'vibrant': return { backgroundColor: '#FF5722' };
-      case 'muted': return { backgroundColor: tokens.color.textMuted };
-      default: return { backgroundColor: tokens.color.brand };
+      case 'muted': return { backgroundColor: tokens.colors.text.secondary };
+      default: return { backgroundColor: tokens.colors.primary.DEFAULT };
     }
   };
 
@@ -580,7 +547,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
               style={styles.closeButton}
               onPress={onClose}
             >
-              <Ionicons name="close" size={24} color={tokens.color.textPrimary} />
+              <Ionicons name="close" size={24} color={tokens.colors.text.primary} />
             </TouchableOpacity>
 
             <Text style={styles.headerTitle}>Color Palette</Text>
@@ -592,7 +559,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
               disabled={isSaving || !paletteName.trim()}
             >
               {isSaving ? (
-                <ActivityIndicator size="small" color={tokens.color.textInverse} />
+                <ActivityIndicator size="small" color={tokens.colors.text.inverse} />
               ) : (
                 <Text style={styles.saveButtonText}>Save</Text>
               )}
@@ -607,7 +574,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             value={paletteName}
             onChangeText={setPaletteName}
             placeholder="Palette name"
-            placeholderTextColor={tokens.color.textMuted}
+            placeholderTextColor={tokens.colors.text.secondary}
             maxLength={50}
           />
           
@@ -616,7 +583,7 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
             value={paletteDescription}
             onChangeText={setPaletteDescription}
             placeholder="Description (optional)"
-            placeholderTextColor={tokens.color.textMuted}
+            placeholderTextColor={tokens.colors.text.secondary}
             multiline
             numberOfLines={2}
             maxLength={200}
@@ -640,12 +607,12 @@ export const ColorPaletteCreator: React.FC<ColorPaletteCreatorProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: tokens.color.bgApp,
+    backgroundColor: tokens.colors.background.primary,
   },
   blurHeader: {
     paddingTop: tokens.spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: tokens.color.borderSoft,
+    borderBottomColor: tokens.colors.border.light,
   },
   header: {
     flexDirection: 'row',
@@ -658,65 +625,65 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.sm,
   },
   headerTitle: {
-    ...tokens.type.h3,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.heading.h3,
+    color: tokens.colors.text.primary,
   },
   saveButton: {
-    backgroundColor: tokens.color.accent,
-    borderRadius: tokens.radius.pill,
+    backgroundColor: tokens.colors.text.primary,
+    borderRadius: tokens.borderRadius.pill,
     paddingHorizontal: tokens.spacing.lg,
     paddingVertical: tokens.spacing.sm,
   },
   saveButtonDisabled: {
-    backgroundColor: tokens.color.borderSoft,
+    backgroundColor: tokens.colors.border.light,
   },
   saveButtonText: {
-    ...tokens.type.small,
-    color: tokens.color.textInverse,
+    ...tokens.typography.small,
+    color: tokens.colors.text.inverse,
     fontWeight: '500',
   },
   formSection: {
     padding: tokens.spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: tokens.color.borderSoft,
+    borderBottomColor: tokens.colors.border.light,
   },
   nameInput: {
-    ...tokens.type.h3,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.heading.h3,
+    color: tokens.colors.text.primary,
     borderBottomWidth: 1,
-    borderBottomColor: tokens.color.borderSoft,
+    borderBottomColor: tokens.colors.border.light,
     paddingVertical: tokens.spacing.sm,
     marginBottom: tokens.spacing.lg,
   },
   descriptionInput: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     textAlignVertical: 'top',
   },
   tabBar: {
     flexDirection: 'row',
     marginHorizontal: tokens.spacing.xl,
-    backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.md,
     padding: tokens.spacing.xs,
-    ...tokens.shadow.e1,
+    ...tokens.shadows.elevation1,
   },
   tab: {
     flex: 1,
     paddingVertical: tokens.spacing.sm,
     alignItems: 'center',
-    borderRadius: tokens.radius.sm,
+    borderRadius: tokens.borderRadius.sm,
   },
   activeTab: {
-    backgroundColor: tokens.color.accent,
+    backgroundColor: tokens.colors.text.primary,
   },
   tabText: {
-    ...tokens.type.small,
-    color: tokens.color.textMuted,
+    ...tokens.typography.small,
+    color: tokens.colors.text.secondary,
     fontWeight: '500',
   },
   activeTabText: {
-    color: tokens.color.textInverse,
+    color: tokens.colors.text.inverse,
   },
   content: {
     flex: 1,
@@ -725,13 +692,13 @@ const styles = StyleSheet.create({
     padding: tokens.spacing.xl,
   },
   sectionTitle: {
-    ...tokens.type.h3,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.heading.h3,
+    color: tokens.colors.text.primary,
     marginBottom: tokens.spacing.sm,
   },
   sectionSubtitle: {
-    ...tokens.type.body,
-    color: tokens.color.textMuted,
+    ...tokens.typography.body,
+    color: tokens.colors.text.secondary,
     marginBottom: tokens.spacing.xl,
   },
   colorPalettePreview: {
@@ -742,27 +709,27 @@ const styles = StyleSheet.create({
   colorSwatch: {
     flex: 1,
     aspectRatio: 1,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.borderRadius.md,
     justifyContent: 'flex-end',
     alignItems: 'center',
     paddingBottom: tokens.spacing.sm,
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
+    borderColor: tokens.colors.border.light,
   },
   colorLabel: {
-    ...tokens.type.caption,
-    color: tokens.color.textInverse,
-    backgroundColor: tokens.color.scrim,
+    ...tokens.typography.caption,
+    color: tokens.colors.text.inverse,
+    backgroundColor: tokens.colors.overlay.light,
     paddingHorizontal: tokens.spacing.xs,
     paddingVertical: tokens.spacing.xs,
-    borderRadius: tokens.radius.sm,
+    borderRadius: tokens.borderRadius.sm,
     fontSize: 10,
   },
   colorProperties: {
-    backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.lg,
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.lg,
     padding: tokens.spacing.lg,
-    ...tokens.shadow.e1,
+    ...tokens.shadows.elevation1,
   },
   propertyRow: {
     flexDirection: 'row',
@@ -771,35 +738,35 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.sm,
   },
   propertyLabel: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
   },
   propertyTag: {
     paddingHorizontal: tokens.spacing.sm,
     paddingVertical: tokens.spacing.xs,
-    borderRadius: tokens.radius.sm,
+    borderRadius: tokens.borderRadius.sm,
   },
   propertyText: {
-    ...tokens.type.small,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.small,
+    color: tokens.colors.text.primary,
     fontWeight: '500',
   },
   presetsContainer: {
     maxHeight: 400,
   },
   presetCard: {
-    backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.lg,
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.lg,
     padding: tokens.spacing.lg,
     marginBottom: tokens.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
-    ...tokens.shadow.e1,
+    borderColor: tokens.colors.border.light,
+    ...tokens.shadows.elevation1,
   },
   selectedPresetCard: {
-    borderColor: tokens.color.success,
+    borderColor: tokens.colors.status.success,
     borderWidth: 2,
   },
   presetColors: {
@@ -810,16 +777,16 @@ const styles = StyleSheet.create({
   presetColorSwatch: {
     width: 24,
     height: 24,
-    borderRadius: tokens.radius.sm,
+    borderRadius: tokens.borderRadius.sm,
     borderWidth: 1,
-    borderColor: tokens.color.borderSoft,
+    borderColor: tokens.colors.border.light,
   },
   presetInfo: {
     flex: 1,
   },
   presetName: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     fontWeight: '500',
     marginBottom: tokens.spacing.xs,
   },
@@ -828,8 +795,8 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   presetProperty: {
-    ...tokens.type.caption,
-    color: tokens.color.textMuted,
+    ...tokens.typography.caption,
+    color: tokens.colors.text.secondary,
   },
   customColorsContainer: {
     alignItems: 'center',
@@ -843,19 +810,19 @@ const styles = StyleSheet.create({
   customColorSwatch: {
     width: 60,
     height: 60,
-    borderRadius: tokens.radius.md,
+    borderRadius: tokens.borderRadius.md,
     borderWidth: 2,
-    borderColor: tokens.color.borderSoft,
+    borderColor: tokens.colors.border.light,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedColorSwatch: {
-    borderColor: tokens.color.accent,
+    borderColor: tokens.colors.text.primary,
     borderWidth: 3,
   },
   selectedColorLabel: {
-    ...tokens.type.small,
-    color: tokens.color.textMuted,
+    ...tokens.typography.small,
+    color: tokens.colors.text.secondary,
     fontFamily: 'monospace',
   },
   colorControls: {
@@ -865,8 +832,8 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.xl,
   },
   sliderLabel: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     marginBottom: tokens.spacing.sm,
     fontWeight: '500',
   },
@@ -876,14 +843,14 @@ const styles = StyleSheet.create({
   },
   // sliderThumb style removed - use thumbTintColor prop instead
   harmonySection: {
-    backgroundColor: tokens.color.surface,
-    borderRadius: tokens.radius.lg,
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.lg,
     padding: tokens.spacing.lg,
-    ...tokens.shadow.e1,
+    ...tokens.shadows.elevation1,
   },
   harmonyLabel: {
-    ...tokens.type.body,
-    color: tokens.color.textPrimary,
+    ...tokens.typography.body,
+    color: tokens.colors.text.primary,
     fontWeight: '500',
     marginBottom: tokens.spacing.lg,
   },
@@ -893,14 +860,14 @@ const styles = StyleSheet.create({
   },
   harmonyButton: {
     flex: 1,
-    backgroundColor: tokens.color.brand,
-    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.colors.primary.DEFAULT,
+    borderRadius: tokens.borderRadius.md,
     paddingVertical: tokens.spacing.sm,
     alignItems: 'center',
   },
   harmonyButtonText: {
-    ...tokens.type.small,
-    color: tokens.color.textInverse,
+    ...tokens.typography.small,
+    color: tokens.colors.text.inverse,
     fontWeight: '500',
   },
 });

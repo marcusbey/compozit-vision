@@ -18,7 +18,25 @@
     "test:journey": "jest --testPathPattern=CompleteUserJourney.test.tsx",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "assets:test": "node src/scripts/testAssetGeneration.js",
+    "assets:test:quick": "node src/scripts/testAssetGeneration.js quick",
+    "assets:generate:priority1": "node src/scripts/orchestrateAssetGeneration.js priority1",
+    "assets:generate:sequential": "node src/scripts/orchestrateAssetGeneration.js sequential",
+    "assets:generate:parallel": "npx ts-node --project src/scripts/tsconfig.json src/scripts/orchestrateAssetGeneration.ts parallel",
+    "assets:generate:complete": "npx ts-node --project src/scripts/tsconfig.json src/scripts/orchestrateAssetGeneration.ts complete",
+    "assets:comprehensive:all": "node src/scripts/generateAllAssets.js all",
+    "assets:comprehensive:p1": "node src/scripts/generateAllAssets.js priority1",
+    "assets:comprehensive:p2": "node src/scripts/generateAllAssets.js priority2",
+    "assets:comprehensive:p3": "node src/scripts/generateAllAssets.js priority3",
+    "assets:comprehensive:test": "node src/scripts/generateAllAssets.js test",
+    "assets:icons:clean": "node src/scripts/generateCleanIcons.js all",
+    "assets:icons:clean:test": "node src/scripts/generateCleanIcons.js test",
+    "assets:kawaii:all": "node src/scripts/generateKawaii3DIcons.js all",
+    "assets:kawaii:test": "node src/scripts/generateKawaii3DIcons.js test",
+    "assets:kawaii:categories": "node src/scripts/generateKawaii3DIcons.js categories",
+    "assets:kawaii:navigation": "node src/scripts/generateKawaii3DIcons.js navigation",
+    "assets:kawaii:priority1": "node src/scripts/generateKawaii3DIcons.js priority1"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -50,7 +68,8 @@
     "react-native-svg": "15.11.2",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.3.0",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    "expo-av": "~15.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -60,6 +79,7 @@
     "@types/react": "~19.0.10",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
+    "dotenv": "^17.2.1",
     "eslint": "^8.57.0",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",

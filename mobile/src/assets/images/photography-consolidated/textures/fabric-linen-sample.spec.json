@@ -1,0 +1,36 @@
+{
+  "assetName": "fabric-linen-sample",
+  "type": "png",
+  "category": "image",
+  "subcategory": "photography",
+  "description": "Linen fabric texture sample",
+  "goal": "Show linen fabric texture",
+  "emotion": "Natural, relaxed, breathable",
+  "dimensions": "200x200",
+  "generationPrompt": "Create a professional Linen fabric texture sample for the Compozit Vision interior design mobile application.\n\nCRITICAL REQUIREMENTS - NO TEXT OR LABELS:\n- ABSOLUTELY NO TEXT, LETTERS, WORDS, OR LABELS anywhere in the image\n- PURELY VISUAL representation only\n- NO typography, captions, or written elements\n- Visual elements ONLY\n\nASSET DETAILS:\n- Name: fabric-linen-sample\n- Purpose: Show linen fabric texture\n- Emotion/Feel: Natural, relaxed, breathable\n- Style: High-resolution texture close-up\n- Category: image\n\nVISUAL REQUIREMENTS:\n- Dimensions: 200x200 pixels\n- Primary Colors: #C9A98C (warm beige), #B9906F (brown), #FDFBF7 (cream background)\n- Quality: High-resolution, professional grade\n- Format: Optimized for mobile app interface\n- Background: Transparent or clean background\n\nSPECIFIC CONTENT:\nClose-up linen fabric weave showing natural fiber texture\n\nSTYLE GUIDELINES:\n- Premium, luxury design aesthetic\n- Clean, modern, sophisticated look\n- Brand-consistent color palette\n- Mobile-optimized clarity and readability\n- Professional photography/design quality\n- NO sepia or vintage filters unless specifically for style\n- Bright, clear, natural presentation\n\nNO TEXT ENFORCEMENT:\n- Verify NO text appears anywhere in the image\n- Use only visual symbols and imagery\n- Represent concepts through visual elements only\n- NO written words, labels, or typography\n\n\n\nGenerate a high-quality png image that meets these specifications exactly, with ABSOLUTELY NO TEXT OR LABELS.",
+  "noTextRequirement": "CRITICAL: This image must contain NO TEXT, LABELS, or typography",
+  "specifications": {
+    "width": 200,
+    "height": 200,
+    "format": "png",
+    "style": "High-resolution texture close-up",
+    "colors": [
+      "#C9A98C",
+      "#B9906F",
+      "#FDFBF7",
+      "#1C1C1C"
+    ],
+    "priority": 2,
+    "backgroundType": "transparent"
+  },
+  "status": "specification_generated",
+  "generatedAt": "2025-09-03T10:10:11.068Z",
+  "aiModel": "gemini-2.5-flash-image-preview",
+  "nextSteps": [
+    "Use the generation prompt with Gemini 2.5 Flash Image Preview",
+    "ENSURE NO TEXT appears in the generated image",
+    "Verify brand color compliance",
+    "Optimize for mobile performance",
+    "Test in actual app context"
+  ]
+}

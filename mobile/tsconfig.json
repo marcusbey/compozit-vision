@@ -3,7 +3,21 @@
   "compilerOptions": {
     "strict": true,
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@screens/*": ["screens/*"],
+      "@theme/*": ["theme/*"],
+      "@theme": ["theme"],
+      "@ui/*": ["ui/*"],
+      "@navigation/*": ["navigation/*"],
+      "@types/*": ["types/*"],
+      "@components/*": ["components/*"],
+      "@services/*": ["services/*"],
+      "@constants/*": ["constants/*"]
+    }
   },
   "exclude": [
     "node_modules",

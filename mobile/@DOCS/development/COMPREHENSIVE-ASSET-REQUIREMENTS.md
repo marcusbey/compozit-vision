@@ -1,604 +1,518 @@
-# Compozit Vision - Comprehensive Asset Requirements
+# Compozit Vision - Comprehensive Asset Requirements (Expanded)
 
 ## Executive Summary
 
-This document provides a complete inventory of visual assets needed for the Compozit Vision mobile application. After analyzing all 54 screen files across the application, we've identified specific asset requirements organized by screen, priority, and implementation phase.
+This document provides a complete inventory of visual assets needed for the Compozit Vision mobile application with expanded categories for commercial and residential spaces. All assets must be generated **without any text or labels** - only visual elements.
 
-**Total Assets Required**: 127 unique assets  
-**Priority 1 (Essential)**: 45 assets  
-**Priority 2 (Enhanced UX)**: 52 assets  
-**Priority 3 (Polish)**: 30 assets  
+**Total Assets Required**: 500+ unique assets  
+**Priority 1 (Essential)**: 180+ assets  
+**Priority 2 (Enhanced UX)**: 200+ assets  
+**Priority 3 (Polish)**: 120+ assets  
 
----
-
-## 🏠 **HomeScreen**
-
-### Current State
-- Uses basic text and simple TouchableOpacity components
-- No visual assets except emoji placeholders (📸, ➕)
-- Plain background color (#f8f9fa)
-
-### Required Assets
-
-#### **Background & Visual Appeal**
-- **`home-hero-gradient.svg`** - Subtle geometric background pattern
-  - **Goal**: Add visual interest to plain background
-  - **Type**: Vector illustration
-  - **Emotion**: Welcoming, professional warmth
-  - **Specs**: SVG, scalable, opacity 5-10%
-  - **Style**: Geometric shapes in brand colors
-
-#### **Action Button Icons**
-- **`camera-capture-icon.svg`** - Custom camera icon for photo action
-  - **Goal**: Replace emoji with professional icon
-  - **Type**: Vector icon
-  - **Emotion**: Excitement, action-oriented
-  - **Specs**: 24x24px, brand color (#C9A98C)
-
-- **`project-plus-icon.svg`** - Custom project creation icon
-  - **Goal**: Replace + emoji with design-focused icon
-  - **Type**: Vector icon
-  - **Emotion**: Creativity, possibility
-  - **Specs**: 24x24px, brand color
-
-#### **Project Cards Enhancement**
-- **`project-card-pattern.svg`** - Subtle pattern for project cards
-  - **Goal**: Add visual texture to project cards
-  - **Type**: Vector pattern
-  - **Emotion**: Organization, professionalism
-  - **Specs**: Repeating pattern, subtle, low opacity
-
-#### **Empty State**
-- **`empty-projects-illustration.svg`** - Friendly illustration for no projects
-  - **Goal**: Make empty state encouraging rather than barren
-  - **Type**: Vector illustration
-  - **Emotion**: Encouragement, potential
-  - **Specs**: 200x150px, brand colors, friendly style
+**CRITICAL REQUIREMENT**: NO TEXT ON ANY IMAGES - All assets must be purely visual
 
 ---
 
-## 📸 **PhotoCaptureScreen**
-
-### Current State
-- Sophisticated camera interface with guides
-- Uses Ionicons for camera controls
-- Camera overlay with grid guides and corner markers
-- High-quality photo analysis system
+## 📍 **Space Type Selection (Initial Step)**
 
 ### Required Assets
 
-#### **Hero Background**
-- **`photo-capture-hero-video.mp4`** - Professional room photography showcase
-  - **Goal**: Show AI-powered photo analysis in action
-  - **Type**: Background video
-  - **Emotion**: Technology, precision, capability
-  - **Specs**: 1080p, 15-second loop, optimized for mobile
-  - **Content**: Camera scanning room → AI processing → results
+#### **Space Type Icons**
+- **`exterior-spaces-icon.png`** - Outdoor/exterior spaces icon
+  - **Size**: 96x96px
+  - **Content**: House exterior with garden elements
+  - **NO TEXT**: Pure visual representation
+  - **Priority**: 1
 
-#### **Camera Interface Enhancement**
-- **`camera-frame-overlay.svg`** - Professional camera frame overlay
-  - **Goal**: Give camera a more professional feel
-  - **Type**: Vector overlay
-  - **Emotion**: Professionalism, precision
-  - **Specs**: Full screen overlay, transparent center
-
-- **`focus-reticle-animation.json`** - Animated focus indicator
-  - **Goal**: Show intelligent focusing capability
-  - **Type**: Lottie animation
-  - **Emotion**: Smart technology, precision
-  - **Specs**: 3-second loop, brand colors
-
-#### **Photography Tips Enhancement**
-- **`lighting-tip-icon.svg`** - Professional lighting indicator
-- **`composition-tip-icon.svg`** - Composition guide icon  
-- **`quality-tip-icon.svg`** - Quality assessment icon
-  - **Goal**: Replace Ionicons with custom design-focused icons
-  - **Type**: Vector icons
-  - **Emotion**: Expertise, guidance
-  - **Specs**: 16x16px, brand-colored
-
-#### **Sample Photos**
-- **`sample-modern-living.jpg`** - Professional modern living room
-- **`sample-cozy-bedroom.jpg`** - Professional cozy bedroom
-- **`sample-contemporary-kitchen.jpg`** - Professional kitchen
-- **`sample-spa-bathroom.jpg`** - Professional bathroom
-- **`sample-elegant-dining.jpg`** - Professional dining room
-- **`sample-home-office.jpg`** - Professional home office
-  - **Goal**: Provide high-quality sample photos for testing
-  - **Type**: Professional photography
-  - **Emotion**: Aspiration, quality, possibilities
-  - **Specs**: 400x300px, WebP format, professionally lit and staged
-
-#### **Quality Assessment**
-- **`ai-quality-checker.json`** - Animated quality assessment visualization
-  - **Goal**: Show AI analyzing photo quality
-  - **Type**: Lottie animation  
-  - **Emotion**: Intelligence, precision, care
-  - **Specs**: 5-second animation, technical but friendly
+- **`interior-spaces-icon.png`** - Indoor/interior spaces icon
+  - **Size**: 96x96px
+  - **Content**: Room interior cutaway view
+  - **NO TEXT**: Pure visual representation
+  - **Priority**: 1
 
 ---
 
-## 🏛️ **CategorySelectionScreen**
+## 🏢 **Property Type Categories**
 
-### Current State
-- Database-driven category selection
-- Uses Ionicons for category icons
-- Grid layout with category cards
+### Residential Categories
 
-### Required Assets
+#### **House Types**
+- **`single-family-house-icon.png`** - Single family home
+- **`townhouse-icon.png`** - Townhouse/rowhouse
+- **`villa-icon.png`** - Luxury villa
+- **`farmhouse-icon.png`** - Rural farmhouse
+- **`cottage-icon.png`** - Small cottage
+- **`mansion-icon.png`** - Large mansion
+  - **Size**: 80x80px each
+  - **Style**: Clean architectural representation
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-#### **Category Icons (Custom Set)**
-- **`interior-design-icon.svg`** - Interior spaces icon
-- **`garden-landscape-icon.svg`** - Garden/landscape icon
-- **`surface-materials-icon.svg`** - Surfaces/materials icon
-- **`furniture-objects-icon.svg`** - Furniture/objects icon
-- **`exterior-architecture-icon.svg`** - Exterior/architecture icon
-  - **Goal**: Replace generic Ionicons with design-specific icons
-  - **Type**: Vector icons
-  - **Emotion**: Specialization, expertise
-  - **Specs**: 32x32px, consistent style, brand colors
+#### **Apartment Types**
+- **`studio-apartment-icon.png`** - Studio apartment
+- **`loft-apartment-icon.png`** - Loft space
+- **`penthouse-icon.png`** - Penthouse suite
+- **`condo-icon.png`** - Condominium
+- **`duplex-icon.png`** - Duplex apartment
+  - **Size**: 80x80px each
+  - **Style**: Building cutaway or floor plan style
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-#### **Category Background Images**
-- **`interior-category-bg.jpg`** - Beautiful interior design showcase
-- **`garden-category-bg.jpg`** - Stunning garden landscape
-- **`surface-category-bg.jpg`** - Elegant surface materials
-- **`furniture-category-bg.jpg`** - Stylish furniture pieces
-- **`exterior-category-bg.jpg`** - Impressive exterior architecture
-  - **Goal**: Add visual context to each category
-  - **Type**: Professional photography
-  - **Emotion**: Aspiration, quality, expertise
-  - **Specs**: 400x200px, WebP, with gradient overlay capability
+#### **Alternative Living**
+- **`tiny-house-icon.png`** - Tiny house
+- **`mobile-home-icon.png`** - Mobile/manufactured home
+- **`cabin-icon.png`** - Cabin/lodge
+- **`houseboat-icon.png`** - Houseboat
+  - **Size**: 80x80px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-#### **Filter Enhancement**
-- **`filter-all-icon.svg`** - All categories filter icon
-- **`filter-featured-icon.svg`** - Featured items filter icon
-- **`filter-popular-icon.svg`** - Popular selections filter icon
-  - **Goal**: Visual filter indicators
-  - **Type**: Vector icons
-  - **Emotion**: Organization, clarity
-  - **Specs**: 20x20px, consistent with category icons
+### Commercial Categories
 
----
+#### **Food & Beverage**
+- **`restaurant-fine-dining-icon.png`** - Fine dining restaurant
+- **`restaurant-casual-icon.png`** - Casual restaurant
+- **`fast-food-icon.png`** - Fast food restaurant
+- **`cafe-icon.png`** - Cafe/coffee shop
+- **`bar-icon.png`** - Bar/pub
+- **`nightclub-icon.png`** - Nightclub/lounge
+- **`bakery-icon.png`** - Bakery
+- **`food-truck-icon.png`** - Food truck/stand
+  - **Size**: 80x80px each
+  - **Style**: Interior view with characteristic elements
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-## 🏠 **SpaceDefinitionScreen**
+#### **Retail & Services**
+- **`retail-store-icon.png`** - General retail store
+- **`boutique-icon.png`** - Boutique shop
+- **`grocery-store-icon.png`** - Grocery/market
+- **`salon-icon.png`** - Hair/beauty salon
+- **`spa-icon.png`** - Spa/wellness center
+- **`gym-icon.png`** - Fitness center
+- **`pharmacy-icon.png`** - Pharmacy
+- **`bookstore-icon.png`** - Bookstore
+  - **Size**: 80x80px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-### Current State
-- Room type selection interface
-- Uses Ionicons for room types (bed, restaurant, etc.)
+#### **Professional Spaces**
+- **`office-corporate-icon.png`** - Corporate office
+- **`coworking-space-icon.png`** - Coworking space
+- **`medical-clinic-icon.png`** - Medical clinic
+- **`dental-office-icon.png`** - Dental office
+- **`law-office-icon.png`** - Law firm
+- **`bank-branch-icon.png`** - Bank branch
+  - **Size**: 80x80px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-### Required Assets
-
-#### **Room Type Icons (Custom Set)**
-- **`living-room-icon.svg`** - Stylized living room icon
-- **`bedroom-icon.svg`** - Elegant bedroom icon
-- **`kitchen-icon.svg`** - Modern kitchen icon
-- **`bathroom-icon.svg`** - Spa-like bathroom icon
-- **`dining-room-icon.svg`** - Sophisticated dining icon
-- **`home-office-icon.svg`** - Professional office icon
-- **`hallway-icon.svg`** - Corridor/hallway icon
-- **`outdoor-space-icon.svg`** - Patio/outdoor icon
-  - **Goal**: Professional room type visualization
-  - **Type**: Vector icons
-  - **Emotion**: Sophistication, space planning
-  - **Specs**: 48x48px, detailed but clean, brand colors
-
-#### **Room Examples**
-- **`living-room-example.jpg`** - Perfect living room example
-- **`bedroom-example.jpg`** - Ideal bedroom setup
-- **`kitchen-example.jpg`** - Dream kitchen design
-- **`bathroom-example.jpg`** - Luxury bathroom
-- **`dining-example.jpg`** - Elegant dining space
-- **`office-example.jpg`** - Productive workspace
-  - **Goal**: Show possibilities for each room type
-  - **Type**: Professional photography
-  - **Emotion**: Inspiration, possibilities
-  - **Specs**: 300x200px, high-quality, diverse styles
-
-#### **Space Planning Visualization**
-- **`room-dimensions-overlay.svg`** - Measurement overlay graphic
-  - **Goal**: Show precision in space planning
-  - **Type**: Vector illustration
-  - **Emotion**: Precision, professionalism
-  - **Specs**: Overlay compatible, technical but approachable
-
----
-
-## 🎨 **StyleSelectionScreen**
-
-### Current State
-- Grid of style cards
-- Uses database for style information
-- Some Unsplash placeholder images
-
-### Required Assets
-
-#### **Style Showcase Images**
-- **`modern-style-showcase.jpg`** - Clean modern interior
-- **`traditional-style-showcase.jpg`** - Classic traditional design
-- **`minimalist-style-showcase.jpg`** - Pure minimalist space
-- **`bohemian-style-showcase.jpg`** - Eclectic bohemian design
-- **`industrial-style-showcase.jpg`** - Urban industrial loft
-- **`scandinavian-style-showcase.jpg`** - Nordic hygge design
-- **`midcentury-style-showcase.jpg`** - Mid-century modern
-- **`contemporary-style-showcase.jpg`** - Current contemporary
-- **`rustic-style-showcase.jpg`** - Cozy rustic farmhouse
-- **`transitional-style-showcase.jpg`** - Balanced transitional
-- **`coastal-style-showcase.jpg`** - Breezy coastal design
-- **`eclectic-style-showcase.jpg`** - Creative mixed style
-  - **Goal**: Professional representation of each style
-  - **Type**: Professional photography
-  - **Emotion**: Style identity, aspiration, clarity
-  - **Specs**: 300x200px, consistent lighting, WebP format
-
-#### **Style Mood Indicators**
-- **`mood-cozy-icon.svg`** - Cozy/warm mood indicator
-- **`mood-elegant-icon.svg`** - Elegant/sophisticated indicator
-- **`mood-modern-icon.svg`** - Modern/clean indicator
-- **`mood-rustic-icon.svg`** - Rustic/natural indicator
-  - **Goal**: Quick mood/feeling communication
-  - **Type**: Vector icons
-  - **Emotion**: Mood setting, quick understanding
-  - **Specs**: 24x24px, expressive, brand colors
+#### **Hospitality & Entertainment**
+- **`hotel-lobby-icon.png`** - Hotel
+- **`hostel-icon.png`** - Hostel/budget accommodation
+- **`cinema-icon.png`** - Movie theater
+- **`theater-icon.png`** - Performance theater
+- **`museum-icon.png`** - Museum/gallery
+- **`event-venue-icon.png`** - Event/wedding venue
+  - **Size**: 80x80px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
 ---
 
-## 🤖 **AIProcessingScreen & EnhancedAIProcessingScreen**
+## 🏠 **Expanded Room Types**
 
-### Current State
-- Loading states and progress indicators
-- Basic AI processing visualization
-- Uses Ionicons for status indicators
+### Residential Rooms
 
-### Required Assets
+#### **Main Living Spaces**
+- **`living-room-photo.png`** - Living room example
+- **`kitchen-photo.png`** - Kitchen example
+- **`bedroom-master-photo.png`** - Master bedroom
+- **`bedroom-guest-photo.png`** - Guest bedroom
+- **`bedroom-kids-photo.png`** - Kids bedroom
+- **`bathroom-master-photo.png`** - Master bathroom
+- **`bathroom-guest-photo.png`** - Guest bathroom
+- **`dining-room-photo.png`** - Dining room
+  - **Size**: 400x300px each
+  - **Style**: Professional interior photography
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-#### **AI Processing Visualization**
-- **`ai-brain-processing.json`** - Neural network processing animation
-  - **Goal**: Show sophisticated AI thinking
-  - **Type**: Lottie animation
-  - **Emotion**: Intelligence, sophistication, trust
-  - **Specs**: 10-second loop, smooth, professional
+#### **Work & Hobby Spaces**
+- **`home-office-photo.png`** - Home office
+- **`craft-room-photo.png`** - Craft/hobby room
+- **`library-photo.png`** - Home library
+- **`music-room-photo.png`** - Music/recording room
+- **`art-studio-photo.png`** - Art studio
+- **`workshop-photo.png`** - Workshop/garage
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-- **`room-analysis-animation.json`** - Room being analyzed by AI
-  - **Goal**: Visualize AI understanding the space
-  - **Type**: Lottie animation
-  - **Emotion**: Understanding, precision, care
-  - **Specs**: 8-second animation, technical but friendly
+#### **Utility & Storage**
+- **`laundry-room-photo.png`** - Laundry room
+- **`mudroom-photo.png`** - Mudroom/entry
+- **`pantry-photo.png`** - Pantry
+- **`closet-walkin-photo.png`** - Walk-in closet
+- **`garage-photo.png`** - Garage
+- **`basement-photo.png`** - Basement
+- **`attic-photo.png`** - Attic space
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-#### **Processing Steps Visualization**
-- **`step-scanning-icon.svg`** - Scanning/analysis step icon
-- **`step-understanding-icon.svg`** - Understanding/processing icon
-- **`step-generating-icon.svg`** - Generation/creation icon
-- **`step-optimizing-icon.svg`** - Optimization/refinement icon
-  - **Goal**: Clear step-by-step process visualization
-  - **Type**: Vector icons
-  - **Emotion**: Process clarity, progress, capability
-  - **Specs**: 40x40px, sequential design, brand colors
+#### **Entertainment & Leisure**
+- **`home-theater-photo.png`** - Home theater
+- **`game-room-photo.png`** - Game room
+- **`wine-cellar-photo.png`** - Wine cellar
+- **`gym-home-photo.png`** - Home gym
+- **`pool-room-photo.png`** - Pool/billiards room
+- **`sunroom-photo.png`** - Sunroom/conservatory
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 3
 
-#### **AI Capability Showcase**
-- **`ai-color-analysis.json`** - Color palette extraction animation
-- **`ai-furniture-recognition.json`** - Furniture identification animation
-- **`ai-style-matching.json`** - Style analysis animation
-  - **Goal**: Show specific AI capabilities
-  - **Type**: Lottie animations
-  - **Emotion**: Capability, precision, intelligence
-  - **Specs**: 6-second loops each, educational, engaging
+### Commercial Spaces
 
----
+#### **Restaurant Spaces**
+- **`dining-area-restaurant-photo.png`** - Main dining area
+- **`bar-area-photo.png`** - Bar/counter area
+- **`kitchen-commercial-photo.png`** - Commercial kitchen
+- **`private-dining-photo.png`** - Private dining room
+- **`outdoor-dining-photo.png`** - Patio/outdoor dining
+- **`waiting-area-restaurant-photo.png`** - Waiting/reception area
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-## 💰 **BudgetScreen, PaywallScreen, PlansScreen**
+#### **Retail Spaces**
+- **`retail-floor-photo.png`** - Main retail floor
+- **`fitting-room-photo.png`** - Fitting/changing room
+- **`checkout-area-photo.png`** - Checkout/cashier area
+- **`display-window-photo.png`** - Window display
+- **`storage-retail-photo.png`** - Stock room
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-### Current State
-- Basic pricing displays
-- Simple plan comparison
-- Uses Ionicons for features
+#### **Office Spaces**
+- **`open-office-photo.png`** - Open plan office
+- **`private-office-photo.png`** - Private office
+- **`conference-room-photo.png`** - Conference room
+- **`reception-office-photo.png`** - Reception/lobby
+- **`break-room-photo.png`** - Break room/kitchen
+- **`meeting-pod-photo.png`** - Meeting pod/booth
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-### Required Assets
+### Exterior Spaces
 
-#### **Budget Visualization**
-- **`budget-calculator-animation.json`** - Animated budget calculation
-  - **Goal**: Make budgeting feel dynamic and smart
-  - **Type**: Lottie animation
-  - **Emotion**: Control, planning, confidence
-  - **Specs**: 5-second animation, financial but friendly
-
-#### **Plan Feature Icons**
-- **`unlimited-projects-icon.svg`** - Unlimited projects feature
-- **`priority-support-icon.svg`** - Priority support feature
-- **`advanced-ai-icon.svg`** - Advanced AI capabilities
-- **`export-options-icon.svg`** - Export/sharing options
-- **`collaboration-icon.svg`** - Team collaboration feature
-  - **Goal**: Clear feature differentiation
-  - **Type**: Vector icons
-  - **Emotion**: Value, capability, professional benefit
-  - **Specs**: 32x32px, feature-specific, premium feel
-
-#### **Value Proposition Graphics**
-- **`roi-visualization.svg`** - Return on investment graphic
-- **`time-savings-icon.svg`** - Time savings indicator
-- **`professional-results-badge.svg`** - Professional quality badge
-  - **Goal**: Justify premium pricing
-  - **Type**: Vector illustrations
-  - **Emotion**: Value, professional benefit, investment
-  - **Specs**: Clean, business-focused, trustworthy
-
----
-
-## 👤 **AuthScreen, ProfileScreen**
-
-### Current State
-- Basic authentication forms
-- Simple profile display
-- Uses Ionicons for social login
-
-### Required Assets
-
-#### **Authentication Enhancement**
-- **`secure-login-animation.json`** - Security/trust animation
-  - **Goal**: Build confidence in security
-  - **Type**: Lottie animation
-  - **Emotion**: Security, trust, protection
-  - **Specs**: 4-second loop, shield/security theme
-
-#### **Social Login Icons**
-- **`google-official-logo.svg`** - Official Google logo
-- **`apple-official-logo.svg`** - Official Apple logo
-- **`facebook-official-logo.svg`** - Official Facebook logo
-  - **Goal**: Authentic social login appearance
-  - **Type**: Official brand SVGs
-  - **Emotion**: Trust, familiarity, authenticity
-  - **Specs**: Official brand guidelines, proper sizing
-
-#### **Profile Enhancement**
-- **`achievement-badges.svg`** - User achievement badges
-- **`project-stats-icons.svg`** - Project statistics icons
-- **`upgrade-prompt-graphic.svg`** - Upgrade encouragement graphic
-  - **Goal**: Gamification and engagement
-  - **Type**: Vector graphics
-  - **Emotion**: Achievement, progress, motivation
-  - **Specs**: Rewarding, clear, motivational
+#### **Residential Exteriors**
+- **`front-yard-photo.png`** - Front yard/garden
+- **`backyard-photo.png`** - Backyard
+- **`patio-photo.png`** - Patio/deck
+- **`balcony-photo.png`** - Balcony
+- **`pool-area-photo.png`** - Pool area
+- **`driveway-photo.png`** - Driveway/parking
+- **`garden-photo.png`** - Garden/landscaping
+- **`rooftop-terrace-photo.png`** - Rooftop terrace
+  - **Size**: 400x300px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
 ---
 
-## 📚 **ReferenceLibraryScreen**
+## 🎯 **Function Categories**
 
-### Current State
-- Grid of reference images
-- Category filtering
-- Basic search functionality
-
-### Required Assets
-
-#### **Reference Categories**
-- **`color-palettes-collection.jpg`** - Professional color palette examples
-- **`texture-materials-collection.jpg`** - Material and texture samples
-- **`furniture-styles-collection.jpg`** - Furniture style examples
-- **`lighting-examples-collection.jpg`** - Lighting setup examples
-- **`layout-patterns-collection.jpg`** - Room layout patterns
-  - **Goal**: Rich reference material for users
-  - **Type**: Curated photography collections
-  - **Emotion**: Inspiration, education, possibilities
-  - **Specs**: High-quality, organized, diverse examples
-
-#### **Search Enhancement**
-- **`ai-search-icon.svg`** - AI-powered search icon
-- **`filter-category-icons.svg`** - Category filter icons
-- **`sort-options-icons.svg`** - Sorting option icons
-  - **Goal**: Enhanced search and discovery
-  - **Type**: Vector icons
-  - **Emotion**: Efficiency, discovery, organization
-  - **Specs**: Consistent search UI theme
+### Purpose Icons (What the space is for)
+- **`relaxation-function-icon.png`** - Relaxation/rest
+- **`entertainment-function-icon.png`** - Entertainment
+- **`work-function-icon.png`** - Work/productivity
+- **`dining-function-icon.png`** - Dining/eating
+- **`sleeping-function-icon.png`** - Sleep/rest
+- **`cooking-function-icon.png`** - Cooking/food prep
+- **`storage-function-icon.png`** - Storage/organization
+- **`exercise-function-icon.png`** - Exercise/fitness
+- **`socializing-function-icon.png`** - Social gatherings
+- **`hygiene-function-icon.png`** - Hygiene/grooming
+- **`study-function-icon.png`** - Study/learning
+- **`creativity-function-icon.png`** - Creative activities
+  - **Size**: 64x64px each
+  - **Style**: Simple, clear iconography
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
 ---
 
-## 🛍️ **FurnitureScreen, CheckoutScreen**
+## 🪑 **Furniture Categories**
 
-### Current State
-- Product listings and shopping interface
-- Basic e-commerce functionality
-- Simple checkout process
+### Furniture Type Icons
+- **`seating-category-icon.png`** - All seating types
+- **`tables-category-icon.png`** - All table types
+- **`storage-category-icon.png`** - Storage furniture
+- **`lighting-category-icon.png`** - Lighting fixtures
+- **`beds-category-icon.png`** - Beds and bedroom furniture
+- **`desks-category-icon.png`** - Desks and workstations
+- **`appliances-category-icon.png`** - Appliances
+- **`fixtures-category-icon.png`** - Built-in fixtures
+- **`decor-category-icon.png`** - Decorative items
+- **`outdoor-furniture-icon.png`** - Outdoor furniture
+  - **Size**: 80x80px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-### Required Assets
+### Specific Furniture Items
 
-#### **Product Showcase**
-- **`furniture-hero-video.mp4`** - Beautiful furniture showcase video
-  - **Goal**: Inspirational furniture presentation
-  - **Type**: Product video
-  - **Emotion**: Desire, quality, style
-  - **Specs**: 20-second loop, high-quality product shots
+#### **Seating Options**
+- **`sofa-modern-photo.png`** - Modern sofa
+- **`sofa-traditional-photo.png`** - Traditional sofa
+- **`sofa-sectional-photo.png`** - Sectional sofa
+- **`chair-armchair-photo.png`** - Armchair
+- **`chair-dining-photo.png`** - Dining chair
+- **`chair-office-photo.png`** - Office chair
+- **`chair-accent-photo.png`** - Accent chair
+- **`bench-photo.png`** - Bench
+- **`stool-photo.png`** - Stool/ottoman
+  - **Size**: 300x200px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
 
-#### **E-commerce Enhancement**
-- **`secure-checkout-badge.svg`** - Security trust badge
-- **`shipping-options-icons.svg`** - Shipping method icons
-- **`payment-security-icons.svg`** - Payment security indicators
-  - **Goal**: Trust and security in purchasing
-  - **Type**: Vector graphics
-  - **Emotion**: Trust, security, confidence
-  - **Specs**: Professional e-commerce standards
+#### **Tables**
+- **`table-coffee-photo.png`** - Coffee table
+- **`table-dining-photo.png`** - Dining table
+- **`table-side-photo.png`** - Side/end table
+- **`table-console-photo.png`** - Console table
+- **`desk-office-photo.png`** - Office desk
+- **`table-kitchen-photo.png`** - Kitchen island/table
+  - **Size**: 300x200px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+#### **Storage Solutions**
+- **`bookshelf-photo.png`** - Bookshelf
+- **`cabinet-photo.png`** - Cabinet
+- **`dresser-photo.png`** - Dresser
+- **`wardrobe-photo.png`** - Wardrobe
+- **`shelving-unit-photo.png`** - Shelving unit
+- **`media-console-photo.png`** - Media console
+  - **Size**: 300x200px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
 ---
 
-## 🎯 **Onboarding Screens (1-4)**
+## 🎨 **Textures & Materials**
 
-### Current State
-- Multi-step onboarding flow
-- Basic animations and transitions
-- Uses Ionicons for features
+### Material Type Icons
+- **`wood-texture-icon.png`** - Wood materials
+- **`metal-texture-icon.png`** - Metal materials
+- **`fabric-texture-icon.png`** - Fabric/textiles
+- **`leather-texture-icon.png`** - Leather materials
+- **`glass-texture-icon.png`** - Glass materials
+- **`stone-texture-icon.png`** - Stone/marble
+- **`concrete-texture-icon.png`** - Concrete
+- **`plastic-texture-icon.png`** - Plastic/acrylic
+- **`ceramic-texture-icon.png`** - Ceramic/tile
+- **`rattan-texture-icon.png`** - Rattan/wicker
+  - **Size**: 64x64px each
+  - **Style**: Close-up texture sample
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-### Required Assets
+### Texture Samples
 
-#### **Onboarding Hero Videos**
-- **`onboarding-1-hero.mp4`** - AI room analysis showcase
-- **`onboarding-2-hero.mp4`** - Design transformation demo
-- **`onboarding-3-hero.mp4`** - Human-AI collaboration
-- **`onboarding-4-hero.mp4`** - Success stories compilation
-  - **Goal**: Compelling introduction to capabilities
-  - **Type**: Promotional videos
-  - **Emotion**: Excitement, possibility, capability
-  - **Specs**: 15-second loops, high production value
+#### **Wood Textures**
+- **`wood-oak-sample.png`** - Oak wood texture
+- **`wood-walnut-sample.png`** - Walnut texture
+- **`wood-pine-sample.png`** - Pine texture
+- **`wood-mahogany-sample.png`** - Mahogany texture
+- **`wood-birch-sample.png`** - Birch texture
+- **`wood-cherry-sample.png`** - Cherry texture
+  - **Size**: 200x200px each
+  - **Style**: High-res texture close-up
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-#### **Feature Illustrations**
-- **`smart-analysis-illustration.svg`** - AI room analysis graphic
-- **`style-matching-illustration.svg`** - Style matching process
-- **`budget-optimization-illustration.svg`** - Budget optimization
-- **`instant-results-illustration.svg`** - Speed and efficiency
-  - **Goal**: Clear feature communication
-  - **Type**: Vector illustrations
-  - **Emotion**: Understanding, capability, efficiency
-  - **Specs**: Consistent illustration style, educational
+#### **Fabric Textures**
+- **`fabric-linen-sample.png`** - Linen texture
+- **`fabric-cotton-sample.png`** - Cotton texture
+- **`fabric-velvet-sample.png`** - Velvet texture
+- **`fabric-silk-sample.png`** - Silk texture
+- **`fabric-wool-sample.png`** - Wool texture
+- **`fabric-denim-sample.png`** - Denim texture
+  - **Size**: 200x200px each
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
-#### **Success Testimonials**
-- **`testimonial-photo-1.jpg`** - Professional headshot for Maria L.
-- **`testimonial-photo-2.jpg`** - Professional headshot for James K.
-- **`testimonial-photo-3.jpg`** - Professional headshot for Sophie M.
-  - **Goal**: Human connection and trust
-  - **Type**: Professional photography
-  - **Emotion**: Trust, relatability, success
-  - **Specs**: 100x100px, diverse, professional quality
+---
+
+## 🎨 **Color Palettes**
+
+### Color Scheme Categories
+- **`neutral-palette-icon.png`** - Neutral colors
+- **`warm-palette-icon.png`** - Warm colors
+- **`cool-palette-icon.png`** - Cool colors
+- **`monochrome-palette-icon.png`** - Black & white
+- **`earth-palette-icon.png`** - Earth tones
+- **`pastel-palette-icon.png`** - Pastel colors
+- **`bold-palette-icon.png`** - Bold/vibrant colors
+- **`jewel-palette-icon.png`** - Jewel tones
+  - **Size**: 80x80px each
+  - **Style**: Color swatches arrangement
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+### Specific Color Palettes
+
+#### **Interior Design Palettes**
+- **`palette-modern-minimalist.png`** - White, gray, black
+- **`palette-warm-cozy.png`** - Beige, brown, cream
+- **`palette-coastal-fresh.png`** - Blue, white, sand
+- **`palette-urban-industrial.png`** - Gray, black, rust
+- **`palette-nature-inspired.png`** - Green, brown, stone
+- **`palette-luxury-glam.png`** - Gold, black, white
+- **`palette-bohemian-eclectic.png`** - Multiple vibrant colors
+- **`palette-scandinavian-light.png`** - White, light wood, gray
+  - **Size**: 300x100px each
+  - **Style**: 5-6 color swatches per palette
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+---
+
+## 📐 **Style References**
+
+### Design Style Icons
+- **`style-modern-icon.png`** - Modern style
+- **`style-traditional-icon.png`** - Traditional style
+- **`style-minimalist-icon.png`** - Minimalist style
+- **`style-industrial-icon.png`** - Industrial style
+- **`style-rustic-icon.png`** - Rustic style
+- **`style-bohemian-icon.png`** - Bohemian style
+- **`style-scandinavian-icon.png`** - Scandinavian style
+- **`style-midcentury-icon.png`** - Mid-century modern
+- **`style-contemporary-icon.png`** - Contemporary
+- **`style-transitional-icon.png`** - Transitional
+- **`style-coastal-icon.png`** - Coastal/beach
+- **`style-farmhouse-icon.png`** - Farmhouse
+  - **Size**: 80x80px each
+  - **Style**: Visual style representation
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+### Style Reference Photos
+
+#### **Full Room Style Examples**
+- **`modern-style-reference.png`** - Modern room example
+- **`traditional-style-reference.png`** - Traditional room
+- **`minimalist-style-reference.png`** - Minimalist room
+- **`industrial-style-reference.png`** - Industrial room
+- **`rustic-style-reference.png`** - Rustic room
+- **`bohemian-style-reference.png`** - Bohemian room
+- **`scandinavian-style-reference.png`** - Scandinavian room
+- **`midcentury-style-reference.png`** - Mid-century room
+- **`contemporary-style-reference.png`** - Contemporary room
+- **`transitional-style-reference.png`** - Transitional room
+  - **Size**: 400x300px each
+  - **Style**: Professional interior photos
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+---
+
+## 🎯 **UI Enhancement Assets**
+
+### Navigation & Action Icons
+- **`camera-capture-3d-icon.png`** - Camera for photo capture
+- **`ai-processing-icon.png`** - AI processing indicator
+- **`save-favorite-icon.png`** - Save/favorite action
+- **`share-design-icon.png`** - Share design
+- **`edit-selection-icon.png`** - Edit/modify
+- **`next-step-icon.png`** - Continue/next
+- **`back-step-icon.png`** - Back/previous
+- **`skip-step-icon.png`** - Skip this step
+- **`help-info-icon.png`** - Help/information
+  - **Size**: 48x48px each
+  - **Style**: Modern 3D style matching brand
+  - **NO TEXT**: Visual only
+  - **Priority**: 1
+
+### Empty States & Illustrations
+- **`empty-projects-illustration.png`** - No projects yet
+- **`empty-favorites-illustration.png`** - No favorites
+- **`empty-search-illustration.png`** - No search results
+- **`loading-ai-illustration.png`** - AI processing
+- **`success-completion-illustration.png`** - Task completed
+- **`error-state-illustration.png`** - Error occurred
+  - **Size**: 200x150px each
+  - **Style**: Friendly, professional
+  - **NO TEXT**: Visual only
+  - **Priority**: 2
 
 ---
 
 ## 📊 **Technical Specifications**
 
 ### **File Formats & Optimization**
-- **SVG**: All icons and simple illustrations
-- **WebP**: All photography and complex images
-- **MP4**: Video content (H.264 codec, mobile optimized)
-- **JSON**: Lottie animations for complex movements
+- **PNG**: All images with transparency needs
+- **WebP**: Alternative format for better compression
+- **Dimensions**: As specified for each asset
+- **Resolution**: @2x and @3x for retina displays
 
-### **Asset Sizing Standards**
-- **Icons**: 16x16px (small), 24x24px (medium), 32x32px (large), 48x48px (hero)
-- **Photography**: 300x200px (card), 400x300px (showcase), 800x600px (hero)
-- **Illustrations**: Scalable SVG with defined viewBox
-- **Videos**: 1080p maximum, 720p recommended, <10MB each
+### **Visual Requirements**
+- **NO TEXT OR LABELS**: Pure visual representations only
+- **Consistent styling**: All icons in same visual language
+- **Brand compliance**: Use brand colors where appropriate
+- **Mobile optimized**: Designed for small screens
 
 ### **Color Palette Compliance**
-- **Primary Brand**: #C9A98C
-- **Secondary Brand**: #B9906F
-- **Background**: #FDFBF7
-- **Text**: #1C1C1C
+- **Primary Brand**: #C9A98C (warm beige)
+- **Secondary Brand**: #B9906F (brown)
+- **Background**: #FDFBF7 (cream)
+- **Text (not on images)**: #1C1C1C
 - **Muted**: #7A7A7A
 
-### **Performance Considerations**
-- Total asset bundle should not exceed 50MB
-- Critical path assets (icons, small images) should load within 2s
-- Video assets should have fallback static images
-- Implement progressive loading for large image collections
+---
+
+## 🚀 **Implementation Priorities**
+
+### **Phase 1: Core Navigation (180 assets)**
+- Space type selection (interior/exterior)
+- Property type categories
+- Main room types
+- Function categories
+- Basic furniture categories
+- Essential UI icons
+
+### **Phase 2: Expanded Options (200 assets)**
+- All room type photos
+- Texture and material samples
+- Color palettes
+- Style references
+- Furniture item photos
+
+### **Phase 3: Complete Library (120+ assets)**
+- Additional commercial spaces
+- Specialty rooms
+- Extended texture library
+- UI illustrations and empty states
+- Alternative property types
 
 ---
 
-## 🚀 **Implementation Phases**
+## 📝 **Asset Naming Convention**
 
-### **Phase 1: Essential Assets (Priority 1)**
-*Timeline: 4-6 weeks*
-*Budget: $15,000-20,000*
+Format: `[category]-[subcategory]-[specific]-[variant].png`
 
-**Focus**: Core user experience enhancement
-- Custom icon set (45 icons)
-- Essential photography (20 images)
-- Brand identity assets
-- Basic animations (5 Lottie files)
-
-### **Phase 2: Enhanced UX (Priority 2)**
-*Timeline: 6-8 weeks*
-*Budget: $20,000-30,000*
-
-**Focus**: Professional polish and delight
-- Hero videos (8 videos)
-- Advanced animations (15 Lottie files)
-- Reference library content
-- AI visualization assets
-
-### **Phase 3: Premium Polish (Priority 3)**
-*Timeline: 4-6 weeks*
-*Budget: $10,000-15,000*
-
-**Focus**: Competitive differentiation
-- Micro-interactions
-- Easter eggs and delight moments
-- Premium testimonial content
-- Advanced AI showcases
-
-### **Total Investment**
-- **Time**: 14-20 weeks
-- **Budget**: $45,000-65,000
-- **ROI**: Enhanced user engagement, reduced churn, premium positioning
+Examples:
+- `space-type-interior-icon.png`
+- `room-residential-living-photo.png`
+- `furniture-seating-sofa-modern.png`
+- `texture-wood-oak-sample.png`
+- `style-modern-reference-photo.png`
 
 ---
 
-## 📁 **Proposed File Structure**
-
-```
-mobile/src/assets/
-├── icons/
-│   ├── categories/
-│   ├── navigation/
-│   ├── features/
-│   └── social/
-├── images/
-│   ├── photography/
-│   │   ├── rooms/
-│   │   ├── styles/
-│   │   └── furniture/
-│   ├── illustrations/
-│   │   ├── onboarding/
-│   │   ├── empty-states/
-│   │   └── features/
-│   └── testimonials/
-├── animations/
-│   ├── lottie/
-│   │   ├── ai-processing/
-│   │   ├── transitions/
-│   │   └── success-states/
-│   └── videos/
-│       ├── heroes/
-│       ├── demos/
-│       └── backgrounds/
-└── brand/
-    ├── logos/
-    ├── patterns/
-    └── badges/
-```
-
----
-
-## 🎯 **Success Metrics**
-
-### **User Experience Improvements**
-- **Engagement**: +40% time spent in app
-- **Conversion**: +25% free-to-paid conversion
-- **Retention**: +30% 30-day user retention
-- **Satisfaction**: 4.8+ App Store rating
-
-### **Business Impact**
-- **Premium Positioning**: Support higher pricing tiers
-- **Brand Recognition**: Professional, trustworthy appearance
-- **Competitive Advantage**: Superior visual experience
-- **Market Position**: Leader in AI-powered interior design
-
----
-
-## 📞 **Next Steps**
-
-1. **Asset Procurement Planning**
-   - Identify internal vs. external production needs
-   - Budget allocation and timeline planning
-   - Vendor selection for photography and video
-
-2. **Design System Integration**
-   - Ensure asset consistency with existing design tokens
-   - Create asset usage guidelines
-   - Implement asset optimization pipeline
-
-3. **Performance Monitoring**
-   - Set up asset loading performance tracking
-   - Implement progressive loading strategies
-   - Monitor bundle size impact
-
-4. **User Testing**
-   - A/B test asset impact on user engagement
-   - Gather feedback on emotional response
-   - Iterate based on user behavior data
-
----
-
-*This comprehensive asset requirements document ensures the Compozit Vision mobile application achieves professional visual standards while maintaining optimal performance and user experience. Each asset has been carefully considered for its contribution to user engagement, brand positioning, and business objectives.*
+*This expanded asset requirements document ensures comprehensive visual coverage for all user journey steps from initial space selection through detailed customization, with NO TEXT on any images.*

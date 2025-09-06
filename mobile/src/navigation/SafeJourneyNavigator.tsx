@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 // Store imports
-import { useUserStore } from '../stores/userStore';
-import { useJourneyStore } from '../stores/journeyStore';
 import { OnboardingService } from '../services/onboarding';
+import { useUserStore } from '../stores/userStore';
 
 // Import the tab navigator
 import MainTabNavigator from './MainTabNavigator';
@@ -31,10 +30,10 @@ const LoadingScreen: React.FC = () => (
 const Stack = createStackNavigator();
 export const navigationRef = createNavigationContainerRef();
 
-export type JourneyScreens = 
+export type JourneyScreens =
   | 'welcome'
-  | 'onboarding1' 
-  | 'onboarding2' 
+  | 'onboarding1'
+  | 'onboarding2'
   | 'onboarding3'
   | 'onboarding4'
   | 'planSelection'
@@ -42,17 +41,7 @@ export type JourneyScreens =
   | 'paywall'
   | 'paymentPending'
   | 'paymentVerified'
-  | 'projectWizardStart'
-  | 'categorySelection'
-  | 'spaceDefinition'
-  | 'roomSelection'
-  | 'photoCapture'
-  | 'styleSelection'
-  | 'referenceImages'
-  | 'colorPaletteSelection'
-  | 'referenceSelection'
-  | 'furnitureSelection'
-  | 'aiProcessing'
+  | 'unifiedProject'
   | 'results'
   | 'descriptions'
   | 'furniture'
@@ -61,49 +50,49 @@ export type JourneyScreens =
   | 'checkout'
   | 'processing'
   | 'myProjects'
+  | 'tools'
   | 'profile'
   | 'plans'
   | 'projectSettings'
   | 'referenceLibrary'
   | 'myPalettes'
+  | 'analytics'
+  | 'adminPanel'
+  | 'abTesting'
+  | 'imageRefinement'
   | 'mainApp';
 
 // Safe screen imports with error handling - Updated to use organized structure
 const screenImports: Record<JourneyScreens, () => Promise<{ default: React.ComponentType<any> }>> = {
-  welcome: () => import('../screens/01-auth/WelcomeScreen').catch(() => ({ default: () => <ErrorScreen error="WelcomeScreen not found" /> })),
-  onboarding1: () => import('../screens/02-onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
-  onboarding2: () => import('../screens/02-onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
-  onboarding3: () => import('../screens/02-onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
-  onboarding4: () => import('../screens/02-onboarding/OnboardingScreen4').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen4 not found" /> })),
-  planSelection: () => import('../screens/03-payment/PlanSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="PlanSelectionScreen not found" /> })),
-  paymentFrequency: () => import('../screens/03-payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentFrequencyScreen not found" /> })),
-  paywall: () => import('../screens/03-payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
-  paymentPending: () => import('../screens/03-payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
-  paymentVerified: () => import('../screens/03-payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
-  projectWizardStart: () => import('../screens/04-project-wizard/ProjectWizardStartScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectWizardStartScreen not found" /> })),
-  categorySelection: () => import('../screens/04-project-wizard/CategorySelectionScreen').catch(() => ({ default: () => <ErrorScreen error="CategorySelectionScreen not found" /> })),
-  spaceDefinition: () => import('../screens/04-project-wizard/SpaceDefinitionScreen').catch(() => ({ default: () => <ErrorScreen error="SpaceDefinitionScreen not found" /> })),
-  roomSelection: () => import('../screens/04-project-wizard/RoomSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="RoomSelectionScreen not found" /> })),
-  photoCapture: () => import('../screens/04-project-wizard/PhotoCaptureScreen').catch(() => ({ default: () => <ErrorScreen error="PhotoCaptureScreen not found" /> })),
-  styleSelection: () => import('../screens/04-project-wizard/StyleSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="StyleSelectionScreen not found" /> })),
-  referenceImages: () => import('../screens/05-content-selection/ReferenceImagesScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceImagesScreen not found" /> })),
-  colorPaletteSelection: () => import('../screens/05-content-selection/ColorPaletteSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="ColorPaletteSelectionScreen not found" /> })),
-  referenceSelection: () => import('../screens/05-content-selection/ReferenceSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceSelectionScreen not found" /> })),
-  furnitureSelection: () => import('../screens/FurnitureSelection/FurnitureSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureSelectionScreen not found" /> })),
-  aiProcessing: () => import('../screens/04-project-wizard/AIProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="AIProcessingScreen not found" /> })),
-  results: () => import('../screens/06-results/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
-  descriptions: () => import('../screens/06-results/DescriptionsScreen').catch(() => ({ default: () => <ErrorScreen error="DescriptionsScreen not found" /> })),
-  furniture: () => import('../screens/06-results/FurnitureScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureScreen not found" /> })),
-  budget: () => import('../screens/06-results/BudgetScreen').catch(() => ({ default: () => <ErrorScreen error="BudgetScreen not found" /> })),
-  auth: () => import('../screens/01-auth/AuthScreen').catch(() => ({ default: () => <ErrorScreen error="AuthScreen not found" /> })),
-  checkout: () => import('../screens/06-results/CheckoutScreen').catch(() => ({ default: () => <ErrorScreen error="CheckoutScreen not found" /> })),
-  processing: () => import('../screens/06-results/ProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="ProcessingScreen not found" /> })),
-  myProjects: () => import('../screens/07-dashboard/MyProjectsScreen').catch(() => ({ default: () => <ErrorScreen error="MyProjectsScreen not found" /> })),
-  profile: () => import('../screens/07-dashboard/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
-  plans: () => import('../screens/07-dashboard/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
-  projectSettings: () => import('../screens/07-dashboard/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
-  referenceLibrary: () => import('../screens/07-dashboard/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
-  myPalettes: () => import('../screens/07-dashboard/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
+  welcome: () => import('../screens/auth/WelcomeScreen').catch(() => ({ default: () => <ErrorScreen error="WelcomeScreen not found" /> })),
+  onboarding1: () => import('../screens/onboarding/OnboardingScreen1').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen1 not found" /> })),
+  onboarding2: () => import('../screens/onboarding/OnboardingScreen2').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen2 not found" /> })),
+  onboarding3: () => import('../screens/onboarding/OnboardingScreen3').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen3 not found" /> })),
+  onboarding4: () => import('../screens/onboarding/OnboardingScreen4').catch(() => ({ default: () => <ErrorScreen error="OnboardingScreen4 not found" /> })),
+  planSelection: () => import('../screens/payment/PlanSelectionScreen').catch(() => ({ default: () => <ErrorScreen error="PlanSelectionScreen not found" /> })),
+  paymentFrequency: () => import('../screens/payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentFrequencyScreen not found" /> })),
+  paywall: () => import('../screens/payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
+  paymentPending: () => import('../screens/payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
+  paymentVerified: () => import('../screens/payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
+  unifiedProject: () => import('../screens/project/UnifiedProjectScreen').catch(() => ({ default: () => <ErrorScreen error="UnifiedProjectScreen not found" /> })),
+  results: () => import('../screens/results/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
+  descriptions: () => import('../screens/results/DescriptionsScreen').catch(() => ({ default: () => <ErrorScreen error="DescriptionsScreen not found" /> })),
+  furniture: () => import('../screens/results/FurnitureScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureScreen not found" /> })),
+  budget: () => import('../screens/results/BudgetScreen').catch(() => ({ default: () => <ErrorScreen error="BudgetScreen not found" /> })),
+  auth: () => import('../screens/auth/AuthScreen').catch(() => ({ default: () => <ErrorScreen error="AuthScreen not found" /> })),
+  checkout: () => import('../screens/results/CheckoutScreen').catch(() => ({ default: () => <ErrorScreen error="CheckoutScreen not found" /> })),
+  processing: () => import('../screens/results/ProcessingScreen').catch(() => ({ default: () => <ErrorScreen error="ProcessingScreen not found" /> })),
+  myProjects: () => import('../screens/dashboard/MyProjectsScreen').catch(() => ({ default: () => <ErrorScreen error="MyProjectsScreen not found" /> })),
+  tools: () => import('../screens/dashboard/ToolsScreen').catch(() => ({ default: () => <ErrorScreen error="ToolsScreen not found" /> })),
+  profile: () => import('../screens/dashboard/ProfileScreen').catch(() => ({ default: () => <ErrorScreen error="ProfileScreen not found" /> })),
+  plans: () => import('../screens/dashboard/PlansScreen').catch(() => ({ default: () => <ErrorScreen error="PlansScreen not found" /> })),
+  projectSettings: () => import('../screens/project/ProjectSettingsScreen').catch(() => ({ default: () => <ErrorScreen error="ProjectSettingsScreen not found" /> })),
+  referenceLibrary: () => import('../screens/dashboard/ReferenceLibraryScreen').catch(() => ({ default: () => <ErrorScreen error="ReferenceLibraryScreen not found" /> })),
+  myPalettes: () => import('../screens/dashboard/MyPalettesScreen').catch(() => ({ default: () => <ErrorScreen error="MyPalettesScreen not found" /> })),
+  analytics: () => import('../screens/dashboard/AnalyticsScreen').catch(() => ({ default: () => <ErrorScreen error="AnalyticsScreen not found" /> })),
+  adminPanel: () => import('../screens/dashboard/AdminPanelScreen').catch(() => ({ default: () => <ErrorScreen error="AdminPanelScreen not found" /> })),
+  abTesting: () => import('../screens/dashboard/ABTestingScreen').catch(() => ({ default: () => <ErrorScreen error="ABTestingScreen not found" /> })),
+  imageRefinement: () => import('../screens/project/ImageRefinementScreen').catch(() => ({ default: () => <ErrorScreen error="ImageRefinementScreen not found" /> })),
   mainApp: () => Promise.resolve({ default: MainTabNavigator }),
 };
 
@@ -112,44 +101,47 @@ const SafeJourneyNavigator: React.FC = () => {
   const [initialRoute, setInitialRoute] = useState<JourneyScreens>('onboarding1');
   const [screens, setScreens] = useState<Record<string, React.ComponentType<any>>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
-  
+
   const { user, isAuthenticated, initializeAuth } = useUserStore();
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
-    
+
     const initializeApp = async () => {
       try {
         console.log('🚀 Initializing SafeJourneyNavigator...');
-        
+
         // Load all screens dynamically
         const screenEntries = await Promise.all(
           Object.entries(screenImports).map(async ([name, importFn]) => {
             try {
               console.log(`📱 Loading screen: ${name}`);
               const module = await importFn();
-              return [name, module.default];
+              const Component = (module && module.default)
+                ? module.default
+                : () => <ErrorScreen error={`Screen '${name}' has no default export`} />;
+              return [name, Component];
             } catch (error) {
               console.error(`❌ Failed to load screen ${name}:`, error);
               return [name, () => <ErrorScreen error={`Failed to load ${name}`} />];
             }
           })
         );
-        
+
         const loadedScreens = Object.fromEntries(screenEntries);
         setScreens(loadedScreens);
-        
+
         // Initialize authentication
         try {
           unsubscribe = initializeAuth();
         } catch (authError) {
           console.error('❌ Auth initialization failed:', authError);
         }
-        
+
         // Determine initial route based on user state
         const route = await determineInitialRoute();
         setInitialRoute(route);
-        
+
         console.log('✅ SafeJourneyNavigator initialized successfully');
         setIsReady(true);
       } catch (error) {
@@ -172,7 +164,7 @@ const SafeJourneyNavigator: React.FC = () => {
     try {
       // Check if user has seen welcome screen
       const hasSeenWelcome = await AsyncStorage.getItem('hasSeenWelcome');
-      
+
       if (!hasSeenWelcome) {
         console.log('🔄 First time user -> Welcome screen');
         return 'welcome';
@@ -186,24 +178,24 @@ const SafeJourneyNavigator: React.FC = () => {
 
       // Check if user has completed onboarding before
       const hasCompletedOnboarding = await OnboardingService.hasCompletedOnboarding();
-      
+
       if (hasCompletedOnboarding) {
         // Check if there's saved journey progress
         const savedJourney = await OnboardingService.getSavedJourney();
-        
+
         if (savedJourney && savedJourney.currentScreen) {
           // Validate the saved screen is a valid continuation point
           const validContinueScreens: JourneyScreens[] = [
-            'planSelection', 'paymentFrequency', 'paywall', 'projectWizardStart', 'photoCapture', 'descriptions', 'furniture', 'furnitureSelection', 'budget', 'auth', 'checkout'
+            'planSelection', 'paymentFrequency', 'paywall', 'unifiedProject', 'descriptions', 'furniture', 'budget', 'auth', 'checkout'
           ];
-          
+
           const savedScreen = savedJourney.currentScreen as JourneyScreens;
           if (validContinueScreens.includes(savedScreen)) {
             console.log('📍 Resuming journey from:', savedScreen);
             return savedScreen;
           }
         }
-        
+
         // Default to plan selection for users who completed onboarding
         console.log('🎯 Returning user -> Plan Selection');
         return 'planSelection';
@@ -233,7 +225,7 @@ const SafeJourneyNavigator: React.FC = () => {
 
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator 
+      <Stack.Navigator
         screenOptions={{ headerShown: false }}
         initialRouteName={initialRoute}
       >
@@ -290,7 +282,7 @@ export const NavigationHelpers = {
       navigationRef.navigate(screenName as never, params);
     }
   },
-  
+
   resetToScreen: (screenName: JourneyScreens, params?: any) => {
     if (navigationRef.isReady()) {
       navigationRef.reset({
@@ -299,13 +291,13 @@ export const NavigationHelpers = {
       });
     }
   },
-  
+
   goBack: () => {
     if (navigationRef.isReady() && navigationRef.canGoBack()) {
       navigationRef.goBack();
     }
   },
-  
+
   getCurrentRoute: () => {
     if (navigationRef.isReady()) {
       return navigationRef.getCurrentRoute();

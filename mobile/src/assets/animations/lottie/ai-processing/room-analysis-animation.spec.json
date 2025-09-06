@@ -1,0 +1,17 @@
+{
+  "assetName": "room-analysis-animation",
+  "type": "json",
+  "category": "animation",
+  "subcategory": "ai-processing",
+  "description": "Room being analyzed by AI",
+  "generationPrompt": "Create a Room being analyzed by AI for a premium interior design mobile application called \"Compozit Vision\". Animation of AI scanning and understanding a room, highlighting different elements The image should be: Professional, high-quality design, analytical aesthetic, Using brand colors: #C9A98C, #B9906F, #1C1C1C, Optimized for mobile app interface, 200x200 dimensions, Premium, sophisticated look, Clear, crisp details",
+  "specifications": {
+    "width": 200,
+    "height": 200,
+    "style": "analytical"
+  },
+  "priority": 2,
+  "status": "specification_generated",
+  "generatedAt": "2025-09-02T13:38:27.482Z",
+  "model": "gemini-2.5-flash-image-preview"
+}
