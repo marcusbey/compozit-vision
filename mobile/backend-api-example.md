@@ -106,7 +106,7 @@ app.post('/api/gemini/refine-prompt', async (req, res) => {
 
 On your backend server, set:
 ```bash
-GEMINI_API_KEY=AIzaSyDBGRbu-hSwpM3SPVKzIf08urYy6OTcsTU
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 ## Security Benefits
