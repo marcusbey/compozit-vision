@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { directionalCardInterpolator, getScreenOptions, setNavigationDirection } from './customTransitions';
 
 // Store imports
 import { OnboardingService } from '../services/onboarding';
@@ -74,7 +75,7 @@ const screenImports: Record<JourneyScreens, () => Promise<{ default: React.Compo
   paywall: () => import('../screens/payment/PaywallScreen').catch(() => ({ default: () => <ErrorScreen error="PaywallScreen not found" /> })),
   paymentPending: () => import('../screens/payment/PaymentPendingScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentPendingScreen not found" /> })),
   paymentVerified: () => import('../screens/payment/PaymentVerifiedScreen').catch(() => ({ default: () => <ErrorScreen error="PaymentVerifiedScreen not found" /> })),
-  unifiedProject: () => import('../screens/project/UnifiedProjectScreen').catch(() => ({ default: () => <ErrorScreen error="UnifiedProjectScreen not found" /> })),
+  unifiedProject: () => import('../screens/project/UnifiedProjectScreenV2').catch(() => ({ default: () => <ErrorScreen error="UnifiedProjectScreen not found" /> })),
   results: () => import('../screens/results/ResultsScreen').catch(() => ({ default: () => <ErrorScreen error="ResultsScreen not found" /> })),
   descriptions: () => import('../screens/results/DescriptionsScreen').catch(() => ({ default: () => <ErrorScreen error="DescriptionsScreen not found" /> })),
   furniture: () => import('../screens/results/FurnitureScreen').catch(() => ({ default: () => <ErrorScreen error="FurnitureScreen not found" /> })),
@@ -226,11 +227,20 @@ const SafeJourneyNavigator: React.FC = () => {
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
-        screenOptions={{ headerShown: false }}
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
+        }}
         initialRouteName={initialRoute}
       >
         {Object.entries(screens).map(([name, Component]) => (
-          <Stack.Screen key={name} name={name} component={Component} />
+          <Stack.Screen 
+            key={name} 
+            name={name} 
+            component={Component}
+            options={getScreenOptions(name)}
+          />
         ))}
       </Stack.Navigator>
     </NavigationContainer>
@@ -275,11 +285,57 @@ const styles = StyleSheet.create({
   },
 });
 
+// Track current screen for navigation direction
+let currentScreenIndex: Record<string, number> = {
+  'welcome': 0,
+  'onboarding1': 1,
+  'onboarding2': 2,
+  'onboarding3': 3,
+  'onboarding4': 4,
+  'paywall': 5,
+  'unifiedProject': 6,
+  'auth': 7,
+  'mainApp': 8,
+  'planSelection': 9,
+  'paymentFrequency': 10,
+  'paymentPending': 11,
+  'paymentVerified': 12,
+  'results': 13,
+  'descriptions': 14,
+  'furniture': 15,
+  'budget': 16,
+  'checkout': 17,
+  'processing': 18,
+  'myProjects': 19,
+  'tools': 20,
+  'profile': 21,
+  'plans': 22,
+  'projectSettings': 23,
+  'referenceLibrary': 24,
+  'myPalettes': 25,
+  'analytics': 26,
+  'adminPanel': 27,
+  'abTesting': 28,
+  'imageRefinement': 29,
+};
+
 // Export navigation helpers
 export const NavigationHelpers = {
   navigateToScreen: (screenName: JourneyScreens, params?: any) => {
     if (navigationRef.isReady()) {
-      navigationRef.navigate(screenName as never, params);
+      const currentRoute = navigationRef.getCurrentRoute();
+      const currentIndex = currentScreenIndex[currentRoute?.name || ''] || 0;
+      const targetIndex = currentScreenIndex[screenName] || 0;
+      
+      // Set direction based on screen indexes
+      if (targetIndex > currentIndex) {
+        setNavigationDirection('forward');
+      } else {
+        setNavigationDirection('backward');
+      }
+      
+      // Use any to avoid TS constraint on navigate overloads in dynamic routing
+      (navigationRef.navigate as any)(screenName, params);
     }
   },
 
@@ -294,6 +350,7 @@ export const NavigationHelpers = {
 
   goBack: () => {
     if (navigationRef.isReady() && navigationRef.canGoBack()) {
+      setNavigationDirection('backward');
       navigationRef.goBack();
     }
   },

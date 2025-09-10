@@ -1,23 +1,16 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../theme';
 
 // Import screens for the tabs
-import ToolsScreen from '../screens/dashboard/ToolsScreen';
+import MyProjectsScreen from '../screens/dashboard/MyProjectsScreen';
 import ProfileScreen from '../screens/dashboard/ProfileScreen';
-import UnifiedProjectScreen from '../screens/project/UnifiedProjectScreen';
-
-// Placeholder screen for Explore (to be implemented)
-const ExploreScreen = () => (
-  <View style={styles.placeholderContainer}>
-    <Ionicons name="compass-outline" size={64} color={tokens.colors.primary.DEFAULT} />
-    <Text style={styles.placeholderText}>Explore</Text>
-    <Text style={styles.placeholderSubtext}>Coming Soon</Text>
-  </View>
-);
+import UnifiedProjectScreenV2 from '../screens/project/UnifiedProjectScreenV2';
+import LibraryScreen from '../screens/library/LibraryScreen';
+import ExploreScreen from '../screens/explore/ExploreScreen';
 
 
 const Tab = createBottomTabNavigator();
@@ -31,10 +24,10 @@ interface TabBarIconProps {
 const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, name, iconName }) => {
   return (
     <View style={styles.tabIconContainer}>
-      <Ionicons 
-        name={iconName as any} 
-        size={24} 
-        color={focused ? tokens.colors.text.primary : tokens.colors.text.tertiary} 
+      <Ionicons
+        name={iconName as any}
+        size={24}
+        color={focused ? tokens.colors.text.primary : tokens.colors.text.tertiary}
       />
       <Text style={[
         styles.tabLabel,
@@ -48,7 +41,7 @@ const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, name, iconName }) => {
 
 const CustomTabBar = ({ state, descriptors, navigation }: any) => {
   const insets = useSafeAreaInsets();
-  
+
   return (
     <View style={[
       styles.tabBarContainer,
@@ -82,8 +75,11 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
           // Get icon name based on route
           let iconName = 'help-circle-outline';
           switch (route.name) {
-            case 'Tools':
-              iconName = isFocused ? 'construct' : 'construct-outline';
+            case 'Projects':
+              iconName = isFocused ? 'albums' : 'albums-outline';
+              break;
+            case 'Library':
+              iconName = isFocused ? 'library' : 'library-outline';
               break;
             case 'Create':
               iconName = isFocused ? 'add-circle' : 'add-circle-outline';
@@ -123,35 +119,43 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
 export const MainTabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
+      initialRouteName="Projects"
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
       }}
       tabBar={props => <CustomTabBar {...props} />}
     >
-      <Tab.Screen 
-        name="Tools" 
-        component={ToolsScreen}
+      <Tab.Screen
+        name="Projects"
+        component={MyProjectsScreen}
         options={{
-          tabBarLabel: 'Tools',
+          tabBarLabel: 'Projects',
         }}
       />
-      <Tab.Screen 
-        name="Create" 
-        component={UnifiedProjectScreen}
+      <Tab.Screen
+        name="Library"
+        component={LibraryScreen}
+        options={{
+          tabBarLabel: 'Library',
+        }}
+      />
+      <Tab.Screen
+        name="Create"
+        component={UnifiedProjectScreenV2}
         options={{
           tabBarLabel: 'Create',
         }}
       />
-      <Tab.Screen 
-        name="Explore" 
+      <Tab.Screen
+        name="Explore"
         component={ExploreScreen}
         options={{
           tabBarLabel: 'Explore',
         }}
       />
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name="Profile"
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
