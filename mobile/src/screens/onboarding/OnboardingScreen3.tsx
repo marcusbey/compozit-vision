@@ -1,21 +1,25 @@
-import React, { useRef, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { tokens } from '@theme';
+import { ResizeMode, Video } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View,
+  Animated,
+  Dimensions,
+  Easing,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Animated,
-  ScrollView,
-  Dimensions,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
-import { tokens } from '@theme';
 
 const { width, height } = Dimensions.get('window');
+const HERO_HEIGHT = Math.round(height * 0.55);
+const VIDEO_ASPECT = 16 / 9; // force 16:9 composition width so left edge is true left of video
 
 interface OnboardingScreen3Props {
   onNext?: () => void;
@@ -24,238 +28,286 @@ interface OnboardingScreen3Props {
   route?: any;
 }
 
-const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack }) => {
+const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack, route }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const overlayAnim = useRef(new Animated.Value(1)).current; // full overlay at start
+  const [overlayHidden, setOverlayHidden] = useState<boolean>(false);
+  // keep hero perfectly flush-left; no scale transform
+  const panAnim = useRef(new Animated.Value(0)).current;
+  const [viewportWidth, setViewportWidth] = useState(width);
+  const [containerWidth, setContainerWidth] = useState(Math.ceil(HERO_HEIGHT * VIDEO_ASPECT));
+
+  // Staggered content animations
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const titleTranslate = useRef(new Animated.Value(16)).current;
+  const descOpacity = useRef(new Animated.Value(0)).current;
+  const descTranslate = useRef(new Animated.Value(18)).current;
+  const ctaOpacity = useRef(new Animated.Value(0)).current;
+  const ctaTranslate = useRef(new Animated.Value(20)).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      const hideOverlay = !!(route && route.params && route.params.hideOverlay);
+
+      // Reset values on focus so animation always runs
+      overlayAnim.stopAnimation();
+      fadeAnim.stopAnimation();
+      slideAnim.stopAnimation();
+      titleOpacity.stopAnimation();
+      titleTranslate.stopAnimation();
+      descOpacity.stopAnimation();
+      descTranslate.stopAnimation();
+      ctaOpacity.stopAnimation();
+      ctaTranslate.stopAnimation();
+
+      overlayAnim.setValue(hideOverlay ? 0 : 1);
+      setOverlayHidden(hideOverlay);
+      fadeAnim.setValue(0);
+      slideAnim.setValue(50);
+      titleOpacity.setValue(0);
+      titleTranslate.setValue(16);
+      descOpacity.setValue(0);
+      descTranslate.setValue(18);
+      ctaOpacity.setValue(0);
+      ctaTranslate.setValue(20);
+
+      const sequences: Animated.CompositeAnimation[] = [
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 900,
+          delay: 250,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 900,
+          delay: 250,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ];
+
+      if (!hideOverlay) {
+        // Fade away the full-screen overlay to reveal the video + content
+        sequences.push(
+          Animated.timing(overlayAnim, {
+            toValue: 0,
+            duration: 2000,
+            delay: 500,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          })
+        );
+      }
+
+      const mainAnimation = Animated.parallel(sequences);
+
+      // Run stagger animations in parallel with main animation
+      const staggerAnimation = Animated.stagger(100, [
+        Animated.parallel([
+          Animated.timing(titleOpacity, {
+            toValue: 1,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(titleTranslate, {
+            toValue: 0,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(descOpacity, {
+            toValue: 1,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(descTranslate, {
+            toValue: 0,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.parallel([
+          Animated.timing(ctaOpacity, {
+            toValue: 1,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+          Animated.timing(ctaTranslate, {
+            toValue: 0,
+            duration: 600,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]),
+      ]);
+
+      // Start both animations together
+      Animated.parallel([mainAnimation, staggerAnimation]).start(() => {
+        if (!hideOverlay) setOverlayHidden(true);
+      });
+
+      // Cleanup on blur: stop any running animations and ensure overlay is opaque again
+      return () => {
+        overlayAnim.stopAnimation(() => overlayAnim.setValue(hideOverlay ? 0 : 1));
+        fadeAnim.stopAnimation(() => fadeAnim.setValue(0));
+        slideAnim.stopAnimation(() => slideAnim.setValue(50));
+        titleOpacity.stopAnimation(() => titleOpacity.setValue(0));
+        titleTranslate.stopAnimation(() => titleTranslate.setValue(16));
+        descOpacity.stopAnimation(() => descOpacity.setValue(0));
+        descTranslate.stopAnimation(() => descTranslate.setValue(18));
+        ctaOpacity.stopAnimation(() => ctaOpacity.setValue(0));
+        ctaTranslate.stopAnimation(() => ctaTranslate.setValue(20));
+        setOverlayHidden(hideOverlay);
+      };
+    }, [route])
+  );
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+    // Pan from flush-left to exactly reveal the right edge.
+    const requiredWidth = Math.ceil(HERO_HEIGHT * VIDEO_ASPECT);
+    setContainerWidth(requiredWidth);
+    const extraWidth = Math.max(0, requiredWidth - viewportWidth);
+    panAnim.setValue(0);
+    Animated.timing(panAnim, {
+      toValue: -extraWidth,
+      duration: 12000,
+      easing: Easing.inOut(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  }, [viewportWidth]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.3)" translucent />
-      
-      <View style={styles.gradient}>
-        {/* Video Background - Human & AI Collaboration */}
-        <View style={styles.videoBackground}>
-          {/* Video placeholder for human-AI collaboration */}
-          <LinearGradient
-            colors={[
-              'rgba(45, 43, 40, 0.85)',
-              'rgba(45, 43, 40, 0.65)',
-              'rgba(45, 43, 40, 0.9)'
-            ]}
-            locations={[0, 0.5, 1]}
-            style={styles.videoGradientOverlay}
-          />
-          
-          {/* Mock Human-AI Collaboration Visual */}
-          <View style={styles.collaborationDemo}>
-            <View style={styles.humanSide}>
-              <View style={styles.humanAvatar}>
-                <Ionicons name="person" size={24} color="#FFFFFF" />
-              </View>
-              <View style={styles.designElements}>
-                <View style={styles.designElement} />
-                <View style={[styles.designElement, styles.designElement2]} />
-              </View>
-            </View>
-            
-            <View style={styles.aiSide}>
-              <View style={styles.aiAvatar}>
-                <Ionicons name="sparkles" size={24} color={tokens.colors.primary.light} />
-              </View>
-              <View style={styles.precisionGrid}>
-                <View style={styles.measurementLine} />
-                <View style={[styles.measurementLine, styles.measurementLine2]} />
-                <View style={styles.accuracyIndicator} />
-              </View>
-            </View>
-          </View>
-        </View>
+    <SafeAreaView edges={['left','right']} style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-        {/* Header */}
+      <View style={styles.gradient}>
+        {/* Top Hero: full-bleed video with slow left pan */}
+        <Animated.View
+          style={styles.hero}
+          onLayout={(e) => setViewportWidth(e.nativeEvent.layout.width)}
+        >
+          <Animated.View
+            style={[
+              styles.panningContainer,
+              { width: containerWidth, transform: [{ translateX: panAnim }] },
+            ]}
+          >
+            <Video
+              source={require('../../assets/animations/videos/heroes/transition03-compozit.mp4')}
+              style={StyleSheet.absoluteFill}
+              resizeMode={ResizeMode.COVER}
+              isLooping
+              shouldPlay
+              isMuted
+            />
+            {/* Warm precision scrim */}
+            <LinearGradient
+              colors={[ 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.50)' ]}
+              style={StyleSheet.absoluteFill}
+            />
+            {/* Bottom gradient for depth */}
+            <LinearGradient
+              colors={['transparent', tokens.colors.overlay.light, tokens.colors.overlay.medium]}
+              locations={[0, 0.8, 1]}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 150,
+              }}
+            />
+            {/* Startup overlay: fully opaque then fades out to reveal video */}
+            <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+              {!overlayHidden && (
+                <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tokens.colors.overlay.solid, opacity: overlayAnim }]} />
+              )}
+            </View>
+            {/* Thin geometric lines to evoke precision */}
+            <View pointerEvents="none" style={styles.precisionOverlay}>
+              <View style={[styles.lineHorizontal, { top: '30%' }]} />
+              <View style={[styles.lineHorizontal, { top: '60%' }]} />
+              <View style={[styles.lineVertical, { left: '33%' }]} />
+              <View style={[styles.lineVertical, { left: '66%' }]} />
+              <View style={styles.ruleMark} />
+            </View>
+          </Animated.View>
+        </Animated.View>
+
+        {/* Spacer to keep subsequent content below the hero's height */}
+        <View style={styles.heroSpacer} />
+
+        {/* Lower section background */}
+        <View style={styles.lowerBackground} />
+
+        {/* Header (no progress bar) */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding2')} style={styles.backButton}>
+          <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding2', { hideOverlay: true })} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '75%' }]} />
-            </View>
-            <Text style={styles.progressText}>3 of 4</Text>
-          </View>
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Content */}
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-        >
-          <Animated.View 
-            style={[
-              styles.content,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }]
-              }
-            ]}
-          >
-            {/* Professional Badge */}
-            <Animated.View 
-              style={[
-                styles.badgeContainer,
-                {
-                  transform: [{ scale: scaleAnim }]
-                }
-              ]}
-            >
-              <View style={styles.professionalBadge}>
-                <Ionicons name="star" size={24} color={tokens.colors.primary.light} />
-                <Text style={styles.badgeText}>Professional Grade</Text>
-              </View>
-            </Animated.View>
-
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>Ready for{'\n'}Professional Results?</Text>
-            </View>
-            
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subtitle}>
-                Join thousands of real estate agents, designers, and architects who trust Compozit Vision for precision and accuracy.
-              </Text>
-            </View>
-
-            {/* Professional Features - Precision & Accuracy Focus */}
-            <View style={styles.featuresContainer}>
-              <View style={styles.professionalFeature}>
-                <View style={styles.featureHeader}>
-                  <View style={styles.featureIcon}>
-                    <Ionicons name="scan-outline" size={28} color={tokens.colors.primary.light} />
-                  </View>
-                  <Text style={styles.featureTitle}>Millimeter-Precise Scanning</Text>
-                </View>
-                <Text style={styles.featureDescription}>
-                  Advanced AI scans detect exact room dimensions, lighting conditions, and spatial relationships with 98.5% accuracy
-                </Text>
-              </View>
-
-              <View style={styles.professionalFeature}>
-                <View style={styles.featureHeader}>
-                  <View style={styles.featureIcon}>
-                    <Ionicons name="color-palette-outline" size={28} color={tokens.colors.primary.light} />
-                  </View>
-                  <Text style={styles.featureTitle}>Expert Color Matching</Text>
-                </View>
-                <Text style={styles.featureDescription}>
-                  Professional-grade color analysis ensures perfect palette coordination with existing elements and lighting
-                </Text>
-              </View>
-
-              <View style={styles.professionalFeature}>
-                <View style={styles.featureHeader}>
-                  <View style={styles.featureIcon}>
-                    <Ionicons name="pricetags-outline" size={28} color={tokens.colors.primary.light} />
-                  </View>
-                  <Text style={styles.featureTitle}>Real-Time Price Alignment</Text>
-                </View>
-                <Text style={styles.featureDescription}>
-                  Instant price matching across 500+ retailers with live inventory and delivery tracking for perfect budget planning
-                </Text>
-              </View>
-
-              <View style={styles.professionalFeature}>
-                <View style={styles.featureHeader}>
-                  <View style={styles.featureIcon}>
-                    <Ionicons name="library-outline" size={28} color={tokens.colors.primary.light} />
-                  </View>
-                  <Text style={styles.featureTitle}>Curated References Library</Text>
-                </View>
-                <Text style={styles.featureDescription}>
-                  Access thousands of professionally selected design references, textures, and style combinations for authentic results
-                </Text>
-              </View>
-            </View>
-
-            {/* Trust Indicators */}
-            <View style={styles.trustContainer}>
-              <View style={styles.trustItem}>
-                <Text style={styles.trustNumber}>50K+</Text>
-                <Text style={styles.trustLabel}>Designs Created</Text>
-              </View>
-              <View style={styles.trustItem}>
-                <Text style={styles.trustNumber}>4.9★</Text>
-                <Text style={styles.trustLabel}>User Rating</Text>
-              </View>
-              <View style={styles.trustItem}>
-                <Text style={styles.trustNumber}>98%</Text>
-                <Text style={styles.trustLabel}>Satisfaction</Text>
-              </View>
-            </View>
-
-            {/* Testimonials and social proof moved to screen 4 */}
-          </Animated.View>
-        </ScrollView>
-
-        {/* Bottom Action */}
-        <Animated.View 
+        {/* Bottom Copy */}
+        <Animated.View
           style={[
-            styles.bottomContainer,
+            styles.bottomCopy,
             {
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }]
             }
           ]}
         >
-          <View style={styles.ctaContainer}>
-            <Text style={styles.ctaTitle}>Professional-Grade AI Design</Text>
-            <Text style={styles.ctaSubtext}>
-              Experience millimeter-precise scanning and expert color matching
-            </Text>
-            <Text style={styles.ctaSubtext2}>
-              Trusted by architects, designers & real estate professionals
-            </Text>
+          <View style={styles.titleContainer}>
+            <Animated.Text
+              style={[
+                styles.title,
+                { opacity: titleOpacity, transform: [{ translateY: titleTranslate }] }
+              ]}
+            >
+              Transform your space with precision.
+            </Animated.Text>
           </View>
+          <Animated.Text
+            style={[
+              styles.subtitle,
+              { opacity: descOpacity, transform: [{ translateY: descTranslate }] }
+            ]}
+          >
+            Professional-level accuracy and artistic composition in every design. Compozit blends
+            meticulous measurement with a refined, modern aesthetic.
+          </Animated.Text>
+        </Animated.View>
 
+        {/* Bottom Action */}
+        <Animated.View
+          style={[
+            styles.bottomContainer,
+            {
+              opacity: ctaOpacity,
+              transform: [{ translateY: ctaTranslate }]
+            }
+          ]}
+        >
           <TouchableOpacity
-            style={styles.nextButton}
+            style={styles.continueButton}
             onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding4')}
             activeOpacity={0.9}
           >
-            <LinearGradient
-              colors={[tokens.colors.primary.light, tokens.colors.primary.DEFAULT]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.buttonText}>Continue</Text>
-              <Ionicons name="camera" size={20} color={tokens.colors.text.primary} />
-            </LinearGradient>
+            <View style={styles.continueButtonContent}>
+              <Text style={styles.continueButtonText}>Next</Text>
+              <Ionicons name="arrow-forward" size={20} color="#2D2B28" />
+            </View>
           </TouchableOpacity>
-          
-          <Text style={styles.skipText}>
-            No credit card required • Cancel anytime
-          </Text>
         </Animated.View>
       </View>
     </SafeAreaView>
@@ -265,107 +317,78 @@ const OnboardingScreen3: React.FC<OnboardingScreen3Props> = ({ onNext, onBack })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: tokens.colors.background.deep,
   },
   gradient: {
     flex: 1,
     position: 'relative',
   },
-  // Video background styles
-  videoBackground: {
+  hero: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a1a',
+    height: HERO_HEIGHT,
+    borderRadius: 0,
+    overflow: 'hidden',
   },
-  videoGradientOverlay: {
+  panningContainer: {
     position: 'absolute',
     top: 0,
+    bottom: 0,
+    left: 0,
+  },
+  heroSpacer: {
+    height: HERO_HEIGHT,
+  },
+  lowerBackground: {
+    position: 'absolute',
+    top: HERO_HEIGHT,
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: tokens.colors.background.deep,
   },
-  collaborationDemo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 40,
-    opacity: 0.4,
+  precisionOverlay: {
+    ...StyleSheet.absoluteFillObject,
   },
-  humanSide: {
-    alignItems: 'center',
-  },
-  aiSide: {
-    alignItems: 'center',
-  },
-  humanAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  aiAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(212, 165, 116, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  designElements: {
-    width: 80,
-    height: 100,
-  },
-  designElement: {
-    width: '100%',
-    height: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    marginBottom: 10,
-    borderRadius: 4,
-  },
-  designElement2: {
-    width: '70%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  precisionGrid: {
-    width: 80,
-    height: 100,
-    position: 'relative',
-  },
-  measurementLine: {
-    width: '100%',
-    height: 2,
-    backgroundColor: 'rgba(212, 165, 116, 0.6)',
-    marginBottom: 15,
-  },
-  measurementLine2: {
-    width: '60%',
-    backgroundColor: 'rgba(212, 165, 116, 0.4)',
-  },
-  accuracyIndicator: {
+  lineHorizontal: {
     position: 'absolute',
+    left: 0,
     right: 0,
-    top: 20,
-    width: 10,
-    height: 10,
-    backgroundColor: tokens.colors.primary.light,
-    borderRadius: 5,
+    height: 1,
+    backgroundColor: 'rgba(212, 165, 116, 0.25)',
+  },
+  lineVertical: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 1,
+    backgroundColor: 'rgba(212, 165, 116, 0.25)',
+  },
+  ruleMark: {
+    position: 'absolute',
+    right: tokens.spacing.md,
+    top: tokens.spacing.md,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(232, 221, 209, 0.55)',
+    backgroundColor: 'rgba(232, 221, 209, 0.08)',
   },
   header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: tokens.spacing.xl,
-    paddingTop: tokens.spacing.md,
-    paddingBottom: tokens.spacing.xl,
-    zIndex: 10,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingTop: tokens.spacing['2xl'],
+    paddingBottom: tokens.spacing.sm,
+    zIndex: 20,
   },
   backButton: {
     width: 40,
@@ -375,344 +398,67 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  progressContainer: {
-    flex: 1,
+  progressContainer: {},
+  progressBar: {},
+  progressFill: {},
+  progressText: {},
+  bottomCopy: {
     paddingHorizontal: tokens.spacing.xl,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    marginBottom: tokens.spacing.sm,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: tokens.colors.primary.light,
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: tokens.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    fontWeight: '500' as const,
+    marginTop: tokens.spacing['2xl'],
+    paddingBottom: Math.round(tokens.spacing['3xl'] * 0.75),
+    alignItems: 'center',
   },
   titleContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: tokens.borderRadius.lg,
-    paddingHorizontal: tokens.spacing.xl,
-    paddingVertical: tokens.spacing.lg,
-    marginBottom: tokens.spacing.lg,
-  },
-  subtitleContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    borderRadius: tokens.borderRadius.md,
-    paddingHorizontal: tokens.spacing.lg,
-    paddingVertical: tokens.spacing.md,
-    marginBottom: tokens.spacing['3xl'],
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: tokens.spacing['3xl'],
-    paddingBottom: tokens.spacing.xl,
-  },
-  badgeContainer: {
-    alignItems: 'center',
-    marginBottom: tokens.spacing['3xl'],
-  },
-  professionalBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: tokens.spacing.xl,
-    paddingVertical: tokens.spacing.md,
-    borderRadius: tokens.borderRadius.xxl,
-    backgroundColor: tokens.colors.background.secondary,
-    borderWidth: 1,
-    borderColor: `${tokens.color.brand}30`,
-    shadowColor: tokens.colors.primary.DEFAULT,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  badgeText: {
-    fontSize: tokens.typography.fontSize.base,
-    fontWeight: tokens.typography.fontWeight.bold as any,
-    color: tokens.color.textPrimary,
-    marginLeft: tokens.spacing.sm,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700' as const,
-    color: tokens.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: tokens.spacing.lg,
-    lineHeight: 38,
-  },
-  subtitle: {
-    fontSize: tokens.typography.body.fontSize,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: tokens.spacing['3xl'],
-    lineHeight: 26,
-    paddingHorizontal: tokens.spacing.md,
-  },
-  featuresContainer: {
-    marginBottom: tokens.spacing['3xl'],
-  },
-  professionalFeature: {
-    backgroundColor: tokens.colors.background.secondary,
-    borderRadius: tokens.borderRadius.xl,
-    padding: tokens.spacing.xl,
-    marginBottom: tokens.spacing.lg,
-    borderWidth: 1,
-    borderColor: tokens.colors.border.light,
-    ...tokens.shadows.elevation1,
-  },
-  featureHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: tokens.spacing.md,
+    maxWidth: 560,
+    width: '100%',
   },
-  featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: tokens.borderRadius.xxl,
-    backgroundColor: 'rgba(76, 175, 80, 0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: tokens.spacing.lg,
+  title: {
+    fontSize: 34,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    lineHeight: 40,
+    letterSpacing: -0.3,
+    marginBottom: tokens.spacing.md,
   },
-  featureTitle: {
+  subtitle: {
     fontSize: 18,
-    color: tokens.colors.text.primary,
-    fontWeight: '600' as const,
-    flex: 1,
-  },
-  featureDescription: {
-    fontSize: tokens.typography.small.fontSize,
-    color: tokens.colors.text.secondary,
-    lineHeight: 22,
-    paddingLeft: tokens.spacing['6xl'],
-  },
-  trustContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: tokens.colors.background.secondary,
-    borderRadius: tokens.borderRadius.xl,
-    paddingVertical: tokens.spacing.xl,
-    paddingHorizontal: tokens.spacing.md,
-    borderWidth: 1,
-    borderColor: tokens.colors.border.light,
-    ...tokens.shadows.elevation1,
-  },
-  trustItem: {
-    alignItems: 'center',
-  },
-  trustNumber: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: tokens.colors.primary.DEFAULT,
-    marginBottom: tokens.spacing.xs,
-  },
-  trustLabel: {
-    fontSize: 12,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-  },
-  bottomContainer: {
-    paddingHorizontal: tokens.spacing['3xl'],
-    paddingBottom: tokens.spacing['4xl'],
-    backgroundColor: tokens.colors.background.primary,
-    borderTopWidth: 1,
-    borderTopColor: tokens.colors.border.light,
-  },
-  ctaContainer: {
-    alignItems: 'center',
-    marginTop: tokens.spacing.xl,
-    marginBottom: tokens.spacing['2xl'],
-  },
-  ctaTitle: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: tokens.colors.text.primary,
-    marginBottom: tokens.spacing.sm,
-  },
-  ctaSubtext: {
-    fontSize: tokens.typography.small.fontSize,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: tokens.spacing.xs,
-  },
-  ctaSubtext2: {
-    fontSize: tokens.typography.fontSize.xs,
-    color: tokens.colors.text.tertiary,
-    textAlign: 'center',
-    lineHeight: 19,
-  },
-
-  // Testimonial and Social Proof Styles
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: tokens.spacing.xl,
-    paddingHorizontal: tokens.spacing.lg,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: tokens.colors.border.light,
-  },
-  dividerText: {
-    fontSize: tokens.typography.small.fontSize,
-    fontWeight: '500' as const,
-    color: tokens.colors.text.secondary,
-    marginHorizontal: tokens.spacing.lg,
-  },
-  testimonialContainer: {
-    paddingHorizontal: tokens.spacing.lg,
-    marginBottom: tokens.spacing.xl,
-  },
-  testimonialCard: {
-    backgroundColor: tokens.colors.background.secondary,
-    borderRadius: tokens.borderRadius.xl,
-    padding: tokens.spacing.lg,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: tokens.colors.border.light,
-  },
-  stars: {
-    flexDirection: 'row',
-    marginBottom: tokens.spacing.sm,
-  },
-  testimonialText: {
-    fontSize: tokens.typography.body.fontSize,
-    color: tokens.colors.text.primary,
+    color: 'rgba(255, 255, 255, 0.92)',
     textAlign: 'center',
     lineHeight: 26,
-    marginBottom: tokens.spacing.sm,
-    fontStyle: 'italic',
+    maxWidth: 560,
   },
-  testimonialAuthor: {
-    fontSize: tokens.typography.fontSize.sm,
-    color: tokens.color.textSecondary,
-    fontWeight: '500' as const,
+  bottomContainer: {
+    position: 'absolute',
+    left: tokens.spacing.xl,
+    right: tokens.spacing.xl,
+    bottom: tokens.spacing['2xl'],
+    backgroundColor: 'transparent',
   },
-  impactStatsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: tokens.spacing.lg,
-    marginBottom: tokens.spacing.xl,
-  },
-  impactStat: {
-    flex: 1,
-    alignItems: 'center',
-    marginHorizontal: tokens.spacing.xs,
-  },
-  impactIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: tokens.colors.background.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: tokens.spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  impactNumber: {
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: tokens.colors.text.primary,
-    marginBottom: tokens.spacing.xs,
-  },
-  impactLabel: {
-    fontSize: tokens.typography.small.fontSize,
-    fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  impactDetail: {
-    fontSize: 12,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-  },
-  finalStatsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: tokens.spacing.lg,
-    marginBottom: tokens.spacing.xl,
-    backgroundColor: tokens.colors.background.secondary,
-    marginHorizontal: tokens.spacing.lg,
-    borderRadius: tokens.borderRadius.xl,
-    paddingVertical: tokens.spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  finalStat: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  finalStatNumber: {
-    fontSize: 20,
-    fontWeight: '700' as const,
-    color: tokens.colors.primary.DEFAULT,
-    marginBottom: 2,
-  },
-  finalStatLabel: {
-    fontSize: 12,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: tokens.colors.border.light,
-  },
-
-  nextButton: {
-    borderRadius: tokens.borderRadius.xxl,
-    overflow: 'hidden',
-    marginBottom: tokens.spacing.lg,
-    shadowColor: tokens.colors.primary.DEFAULT,
+  continueButton: {
+    backgroundColor: 'rgba(212, 165, 116, 0.9)',
+    borderRadius: 28,
+    height: 56,
+    shadowColor: '#000000',
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
     elevation: 6,
   },
-  buttonGradient: {
+  continueButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: tokens.spacing.lg,
-    paddingHorizontal: tokens.spacing['3xl'],
-    borderRadius: tokens.borderRadius.xxl,
+    height: 56,
+    paddingHorizontal: tokens.spacing.xl,
+    gap: tokens.spacing.sm,
   },
-  buttonText: {
+  continueButtonText: {
     fontSize: 18,
     fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-    marginRight: tokens.spacing.sm,
-  },
-  skipText: {
-    fontSize: tokens.typography.small.fontSize,
-    color: tokens.colors.text.tertiary,
-    textAlign: 'center',
+    color: '#2D2B28',
   },
 });
 

@@ -40,24 +40,68 @@ const ProfileScreen = ({ navigation }: any) => {
     );
   };
 
-  const libraryItems = [
-    { id: 'referenceLibrary', title: 'Reference Library', icon: 'images-outline', screen: 'referenceLibrary' },
-    { id: 'myPalettes', title: 'My Color Palettes', icon: 'color-palette-outline', screen: 'myPalettes' },
+  const accountMenuItems = [
+    { id: 'personal-info', title: 'Personal Information', icon: 'person-outline' },
+    { id: 'business-profile', title: 'Business Profile', icon: 'business-outline' },
+    { id: 'subscription', title: 'Subscription & Billing', icon: 'card-outline' },
   ];
 
-  const menuItems = [
-    { id: 'account', title: 'Account Information', icon: 'person-outline' },
-    { id: 'preferences', title: 'Preferences', icon: 'settings-outline' },
+  const preferencesItems = [
+    { id: 'app-settings', title: 'App Settings', icon: 'settings-outline' },
+    { id: 'notifications', title: 'Notifications', icon: 'notifications-outline' },
+    { id: 'dark-mode', title: 'Dark Mode', icon: 'moon-outline', toggle: true },
+  ];
+
+  const professionalItems = [
+    { id: 'portfolio', title: 'Portfolio Settings', icon: 'briefcase-outline' },
+    { id: 'team', title: 'Team Management', icon: 'people-outline' },
+    { id: 'analytics', title: 'Usage Analytics', icon: 'analytics-outline' },
+  ];
+
+  const supportItems = [
     { id: 'help', title: 'Help & Support', icon: 'help-circle-outline' },
     { id: 'about', title: 'About', icon: 'information-circle-outline' },
+    { id: 'bug-report', title: 'Report Issue', icon: 'bug-outline' },
   ];
 
-  const handleLibraryPress = (screen: string) => {
-    navigation.navigate(screen);
-  };
-
   const handleMenuPress = (itemId: string) => {
-    Alert.alert('Coming Soon', `The "${itemId}" section will be available soon`);
+    switch (itemId) {
+      case 'personal-info':
+        console.log('Navigate to personal information');
+        break;
+      case 'business-profile':
+        console.log('Navigate to business profile');
+        break;
+      case 'subscription':
+        console.log('Navigate to subscription settings');
+        break;
+      case 'app-settings':
+        console.log('Navigate to app settings');
+        break;
+      case 'notifications':
+        console.log('Navigate to notification settings');
+        break;
+      case 'portfolio':
+        console.log('Navigate to portfolio settings');
+        break;
+      case 'team':
+        console.log('Navigate to team management');
+        break;
+      case 'analytics':
+        console.log('Navigate to usage analytics');
+        break;
+      case 'help':
+        console.log('Navigate to help & support');
+        break;
+      case 'about':
+        console.log('Navigate to about');
+        break;
+      case 'bug-report':
+        console.log('Navigate to bug report');
+        break;
+      default:
+        Alert.alert('Coming Soon', `The "${itemId}" section will be available soon`);
+    }
   };
 
   return (
@@ -81,11 +125,17 @@ const ProfileScreen = ({ navigation }: any) => {
             {user?.email || 'email@example.com'}
           </Text>
           
-          {/* Informations sur les tokens et le plan */}
+          {/* Professional Stats */}
           <View style={styles.userStats}>
             <View style={styles.statItem}>
+              <Ionicons name="briefcase-outline" size={24} color="#D4A574" />
+              <Text style={styles.statValue}>12</Text>
+              <Text style={styles.statLabel}>Projects</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
               <Ionicons name="diamond-outline" size={24} color="#D4A574" />
-              <Text style={styles.statValue}>{user?.nbToken || 0}</Text>
+              <Text style={styles.statValue}>{user?.nbToken || 450}</Text>
               <Text style={styles.statLabel}>Credits</Text>
             </View>
             <View style={styles.statDivider} />
@@ -94,19 +144,19 @@ const ProfileScreen = ({ navigation }: any) => {
               onPress={() => navigation.navigate('plans')}
             >
               <Ionicons name="card-outline" size={24} color="#D4A574" />
-              <Text style={[styles.statValue, styles.planValue]}>{user?.currentPlan || 'free'}</Text>
-              <Text style={styles.statLabel}>Plan • Upgrade ›</Text>
+              <Text style={[styles.statValue, styles.planValue]}>{user?.currentPlan || 'Pro'}</Text>
+              <Text style={styles.statLabel}>Plan</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Library</Text>
-          {libraryItems.map((item) => (
+          <Text style={styles.sectionTitle}>Account</Text>
+          {accountMenuItems.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.menuItem}
-              onPress={() => handleLibraryPress(item.screen)}
+              onPress={() => handleMenuPress(item.id)}
             >
               <View style={styles.menuItemLeft}>
                 <Ionicons name={item.icon as any} size={20} color="#D4A574" style={styles.menuIcon} />
@@ -118,8 +168,51 @@ const ProfileScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
-          {menuItems.map((item) => (
+          <Text style={styles.sectionTitle}>Preferences</Text>
+          {preferencesItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.menuItem}
+              onPress={() => handleMenuPress(item.id)}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name={item.icon as any} size={20} color="#D4A574" style={styles.menuIcon} />
+                <Text style={styles.menuTitle}>{item.title}</Text>
+              </View>
+              {item.toggle ? (
+                <View style={styles.toggleContainer}>
+                  {/* TODO: Add actual toggle functionality */}
+                  <View style={styles.toggleOff}>
+                    <View style={styles.toggleThumb} />
+                  </View>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Professional</Text>
+          {professionalItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.menuItem}
+              onPress={() => handleMenuPress(item.id)}
+            >
+              <View style={styles.menuItemLeft}>
+                <Ionicons name={item.icon as any} size={20} color="#D4A574" style={styles.menuIcon} />
+                <Text style={styles.menuTitle}>{item.title}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Support</Text>
+          {supportItems.map((item) => (
             <TouchableOpacity
               key={item.id}
               style={styles.menuItem}
@@ -147,7 +240,8 @@ const ProfileScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Compozit Vision v1.0.0</Text>
+          <Text style={styles.footerText}>Compozit Vision v1.0.0 • Professional Edition</Text>
+          <Text style={styles.footerSubtext}>Made for interior design professionals</Text>
         </View>
         </ScrollView>
       </View>
@@ -303,6 +397,39 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: '#8B7F73',
+    textAlign: 'center',
+  },
+  footerSubtext: {
+    fontSize: 11,
+    color: '#8B7F73',
+    textAlign: 'center',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  toggleContainer: {
+    marginRight: 4,
+  },
+  toggleOff: {
+    width: 40,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#E6DDD1',
+    padding: 2,
+    justifyContent: 'center',
+  },
+  toggleThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });
 

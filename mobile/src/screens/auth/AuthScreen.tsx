@@ -207,7 +207,25 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ navigation, route }) => {
     // Check if we came from paywall with specific routing instructions
     const routeParams = route?.params;
     const fromPaywall = routeParams?.from === 'paywall';
+    const fromGeneration = routeParams?.from === 'generation';
     const nextScreen = routeParams?.nextScreen;
+    
+    // Handle generation flow specifically
+    if (fromGeneration && nextScreen) {
+      const preservedData = routeParams?.preserveGeneration;
+      console.log('🎨 Generation → Auth → Resume Generation flow');
+      
+      if (preservedData) {
+        // Pass generation data back to Create screen
+        navigation.navigate(nextScreen, {
+          resumeGeneration: preservedData
+        });
+      } else {
+        // No preserved data, just go back to Create screen
+        navigation.navigate(nextScreen);
+      }
+      return;
+    }
     
     if (fromPaywall && nextScreen) {
       // User completed payment and authentication, proceed to intended destination

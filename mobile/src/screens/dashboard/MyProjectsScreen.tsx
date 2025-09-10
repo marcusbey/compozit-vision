@@ -9,6 +9,8 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Image,
+  FlatList,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -102,6 +104,19 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
   };
 
   const renderProjectCard = (project: any) => {
+    const formatRelativeTime = (dateString: string) => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInMs = now.getTime() - date.getTime();
+      const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+      
+      if (diffInDays === 0) return 'Today';
+      if (diffInDays === 1) return 'Yesterday';
+      if (diffInDays < 7) return `${diffInDays} days ago`;
+      if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+      return `${Math.floor(diffInDays / 30)} months ago`;
+    };
+
     return (
       <TouchableOpacity
         key={project.id}
@@ -109,51 +124,68 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
         onPress={() => handleProjectPress(project)}
         activeOpacity={0.8}
       >
-        <View style={styles.projectImage}>
-          <LinearGradient
-            colors={getProjectGradient(project.roomType)}
-            style={styles.projectImageGradient}
-          >
-            {renderProjectIllustration(project.roomType, project.style)}
-          </LinearGradient>
+        {/* Hero Image */}
+        <View style={styles.cardHero}>
+          {project.capturedImage ? (
+            <Image style={styles.heroImage} source={{uri: project.capturedImage}} />
+          ) : (
+            <LinearGradient
+              colors={getProjectGradient(project.roomType)}
+              style={styles.projectImageGradient}
+            >
+              {renderProjectIllustration(project.roomType, project.style)}
+            </LinearGradient>
+          )}
           
-          {/* Status badge */}
-          <View style={[
-            styles.statusBadge,
-            project.status === 'completed' ? styles.statusCompleted : styles.statusInProgress
-          ]}>
-            <Text style={styles.statusText}>
-              {project.status === 'completed' ? 'Completed' : 'In Progress'}
-            </Text>
+          {/* Status Badge */}
+          <View style={[styles.statusBadge, getStatusBadgeStyle(project.status)]}>
+            <Text style={styles.statusText}>{project.status.toUpperCase()}</Text>
           </View>
         </View>
 
-        <View style={styles.projectInfo}>
-          <View style={styles.projectHeader}>
-            <Text style={styles.projectName}>{project.name}</Text>
-            <TouchableOpacity style={styles.projectMenu}>
-              <Ionicons name="chevron-forward" size={20} color="#8B7F73" />
-            </TouchableOpacity>
+        {/* Project Info */}
+        <View style={styles.cardContent}>
+          <Text style={styles.projectName}>{project.name}</Text>
+          <Text style={styles.roomType}>{project.roomType}</Text>
+          
+          {/* Progress Bar */}
+          <View style={styles.progressContainer}>
+            <View style={[styles.progressBar, {width: `${project.progress}%`}]} />
           </View>
+          <Text style={styles.progressText}>{project.progress}% Complete</Text>
           
-          <Text style={styles.projectSubtitle}>{project.subtitle}</Text>
-          
-          {project.status === 'in_progress' && (
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBar}>
-                <View 
-                  style={[
-                    styles.progressFill, 
-                    { width: `${project.progress}%` }
-                  ]} 
-                />
-              </View>
-              <Text style={styles.progressText}>{project.progress}%</Text>
-            </View>
-          )}
+          {/* Last Modified */}
+          <Text style={styles.lastModified}>
+            Modified {formatRelativeTime(project.updatedAt)}
+          </Text>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.cardActions}>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="pencil" size={16} color="#D4A574" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="share" size={16} color="#D4A574" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="ellipsis-horizontal" size={16} color="#666666" />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
+  };
+
+  const getStatusBadgeStyle = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return { backgroundColor: '#D4A574' };
+      case 'in_progress':
+      case 'active':
+        return { backgroundColor: '#FFA500' };
+      default:
+        return { backgroundColor: '#D4A574' };
+    }
   };
 
   const getProjectGradient = (roomType: string): [string, string] => {
@@ -187,54 +219,67 @@ const MyProjectsScreen: React.FC<MyProjectsScreenProps> = ({ navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#FBF9F4" translucent={false} />
       
       <View style={styles.gradient}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Projects</Text>
-          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('profile')}>
-            <Ionicons name="ellipsis-vertical" size={22} color="#D4A574" />
+        {/* Professional Header */}
+        <View style={styles.headerSection}>
+          <Text style={styles.welcomeText}>Your Projects</Text>
+          <Text style={styles.statusSummary}>
+            {projects.filter(p => p.status === 'active' || p.status === 'in_progress').length} Active • {projects.filter(p => p.status === 'completed').length} Completed
+          </Text>
+        </View>
+
+        {/* Quick Action Bar */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity style={styles.primaryAction} onPress={handleCreateProject}>
+            <Text style={styles.primaryActionText}>+ New Project</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryAction}>
+            <Text style={styles.secondaryActionText}>Import</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Contenu principal */}
           <View style={styles.content}>
-            {/* Stats */}
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{projects.length}</Text>
-                <Text style={styles.statLabel}>Total Projects</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{projects.filter(p => p.status === 'completed').length}</Text>
-                <Text style={styles.statLabel}>Completed</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{projects.filter(p => p.status === 'in_progress').length}</Text>
-                <Text style={styles.statLabel}>In Progress</Text>
-              </View>
-            </View>
-
-            {/* Projects List */}
-            <View style={styles.projectsList}>
-              {projects.map(renderProjectCard)}
-            </View>
-
-            {/* Empty state ou bouton d'ajout */}
-            <TouchableOpacity
-              style={styles.newProjectCard}
-              onPress={handleCreateProject}
-              activeOpacity={0.8}
-            >
-              <View style={styles.newProjectContent}>
-                <View style={styles.newProjectIcon}>
-                  <Ionicons name="add-circle" size={40} color="#D4A574" />
-                </View>
-                <Text style={styles.newProjectText}>Start New Project</Text>
-                <Text style={styles.newProjectSubtext}>
-                  Transform another room with AI
+            {/* Project Status Tabs */}
+            <View style={styles.statusTabs}>
+              <TouchableOpacity style={[styles.statusTab, styles.activeStatusTab]}>
+                <Text style={[styles.statusTabText, styles.activeStatusTabText]}>
+                  Active ({projects.filter(p => p.status === 'active' || p.status === 'in_progress').length})
                 </Text>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.statusTab}>
+                <Text style={styles.statusTabText}>
+                  Completed ({projects.filter(p => p.status === 'completed').length})
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.statusTab}>
+                <Text style={styles.statusTabText}>
+                  Archived (0)
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Projects Grid */}
+            <View style={styles.projectsContainer}>
+              {projects.map(renderProjectCard)}
+              
+              {/* New Project Card */}
+              <TouchableOpacity
+                style={styles.newProjectCard}
+                onPress={handleCreateProject}
+                activeOpacity={0.8}
+              >
+                <View style={styles.newProjectContent}>
+                  <View style={styles.newProjectIcon}>
+                    <Ionicons name="add-circle" size={40} color="#D4A574" />
+                  </View>
+                  <Text style={styles.newProjectText}>Start New Project</Text>
+                  <Text style={styles.newProjectSubtext}>
+                    Transform another room with AI
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -458,30 +503,33 @@ const styles = StyleSheet.create({
     minWidth: 35,
   },
   newProjectCard: {
-    backgroundColor: 'rgba(212, 165, 116, 0.05)',
-    borderRadius: 20,
+    backgroundColor: '#F6F3EF',
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: 'rgba(212, 165, 116, 0.2)',
+    borderColor: '#E8DDD1',
     borderStyle: 'dashed',
     marginBottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 160,
   },
   newProjectContent: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 20,
     paddingHorizontal: 20,
   },
   newProjectIcon: {
-    marginBottom: 15,
+    marginBottom: 12,
   },
   newProjectText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#D4A574',
-    marginBottom: 8,
+    color: '#0A0A0A',
+    marginBottom: 6,
   },
   newProjectSubtext: {
     fontSize: 14,
-    color: '#8B7F73',
+    color: '#666666',
     textAlign: 'center',
   },
 });

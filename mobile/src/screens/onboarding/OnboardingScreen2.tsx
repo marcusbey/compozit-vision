@@ -1,32 +1,25 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { tokens } from '@theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback, useRef, useState } from 'react';
 import {
-  View,
+  Animated,
+  Dimensions,
+  Easing,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Animated,
-  ScrollView,
-  Dimensions,
-  Image,
+  View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { useJourneyStore } from '../../stores/journeyStore';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import showcaseMasonryImages from '../../assets/masonry/galleryShowcase';
+import StableMasonryGallery from '../../components/StableMasonryGallery';
 import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
-import { tokens } from '@theme';
+import { useJourneyStore } from '../../stores/journeyStore';
 
 const { width, height } = Dimensions.get('window');
-
-interface StyleOption {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-}
-
-// Remove hardcoded styles - now using database-driven content
 
 interface OnboardingScreen2Props {
   onNext?: () => void;
@@ -35,331 +28,171 @@ interface OnboardingScreen2Props {
   route?: any;
 }
 
-// Design showcase data
-const designExamples = [
-  {
-    id: 1,
-    title: 'Modern Living Room',
-    style: 'Clean lines, minimalist furniture',
-    image: '🛋️',
-    backgroundColor: '#F5F1E8',
-  },
-  {
-    id: 2,
-    title: 'Cozy Bedroom',
-    style: 'Warm colors, soft textures',
-    image: '🛏️',
-    backgroundColor: '#E8F2F5',
-  },
-  {
-    id: 3,
-    title: 'Elegant Kitchen',
-    style: 'Smart layouts, premium finishes',
-    image: '🍽️',
-    backgroundColor: '#F0F8F0',
-  },
-  {
-    id: 4,
-    title: 'Home Office',
-    style: 'Productive workspace design',
-    image: '💻',
-    backgroundColor: '#FFF4E6',
-  },
-];
-
-const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack }) => {
-  const [currentDesignIndex, setCurrentDesignIndex] = useState(0);
+const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack, route }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const aiPulseAnim = useRef(new Animated.Value(1)).current;
-  const pointingAnim = useRef(new Animated.Value(0)).current;
-  const designSlideAnim = useRef(new Animated.Value(0)).current;
-  
+  const overlayAnim = useRef(new Animated.Value(1)).current; // full overlay at start
+  const [overlayHidden, setOverlayHidden] = useState<boolean>(false);
+  const [focusKey, setFocusKey] = useState<number>(0);
+  const isFocused = useIsFocused();
+  const progressRef = useRef<number>(0);
+
   const journeyStore = useJourneyStore();
 
-  useEffect(() => {
-    // Initial animation
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-    ]).start();
+  useFocusEffect(
+    useCallback(() => {
+      const hideOverlay = !!(route && route.params && route.params.hideOverlay);
 
-    // AI assistant pulse animation
-    const pulseAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(aiPulseAnim, {
-          toValue: 1.1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(aiPulseAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulseAnimation.start();
+      // Reset values on focus so animation always runs
+      setFocusKey((k) => k + 1);
+      overlayAnim.stopAnimation();
+      fadeAnim.stopAnimation();
+      slideAnim.stopAnimation();
 
-    // Pointing gesture animation
-    const pointingAnimation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pointingAnim, {
+      overlayAnim.setValue(hideOverlay ? 0 : 1);
+      setOverlayHidden(hideOverlay);
+      fadeAnim.setValue(0);
+      slideAnim.setValue(50);
+
+      const sequences: Animated.CompositeAnimation[] = [
+        Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 1000,
+          duration: 900,
+          delay: 250,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.timing(pointingAnim, {
+        Animated.timing(slideAnim, {
           toValue: 0,
-          duration: 1000,
+          duration: 900,
+          delay: 250,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-      ])
-    );
-    pointingAnimation.start();
+      ];
 
-    // Auto-slide design examples
-    const slideTimer = setInterval(() => {
-      setCurrentDesignIndex((prev) => (prev + 1) % designExamples.length);
-    }, 3000);
+      if (!hideOverlay) {
+        // Fade away the full-screen overlay to reveal the gradient + gallery
+        sequences.push(
+          Animated.timing(overlayAnim, {
+            toValue: 0,
+            duration: 2000,
+            delay: 500,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          })
+        );
+      }
 
-    return () => {
-      pulseAnimation.stop();
-      pointingAnimation.stop();
-      clearInterval(slideTimer);
-    };
-  }, []);
+      const animation = Animated.parallel(sequences);
 
-  // Animate design transitions
-  useEffect(() => {
-    Animated.spring(designSlideAnim, {
-      toValue: currentDesignIndex * -width * 0.8,
-      useNativeDriver: true,
-      tension: 100,
-      friction: 8,
-    }).start();
-  }, [currentDesignIndex]);
+      animation.start(() => {
+        if (!hideOverlay) setOverlayHidden(true);
+      });
+
+      // Cleanup on blur: stop any running animations and ensure overlay is opaque again
+      return () => {
+        overlayAnim.stopAnimation(() => overlayAnim.setValue(hideOverlay ? 0 : 1));
+        fadeAnim.stopAnimation(() => fadeAnim.setValue(0));
+        slideAnim.stopAnimation(() => slideAnim.setValue(50));
+        setOverlayHidden(hideOverlay);
+      };
+    }, [route])
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView edges={['left','right']} style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="rgba(0,0,0,0.3)" translucent />
-      
+
       <View style={styles.gradient}>
-        {/* Video Background */}
-        <View style={styles.videoBackground}>
-          <LinearGradient
-            colors={[
-              'rgba(45, 43, 40, 0.8)',
-              'rgba(45, 43, 40, 0.6)',
-              'rgba(45, 43, 40, 0.9)'
-            ]}
-            locations={[0, 0.5, 1]}
-            style={styles.videoGradientOverlay}
-          />
-        </View>
 
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => onBack ? onBack() : NavigationHelpers.navigateToScreen('onboarding1')} style={styles.backButton} testID="back-button">
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '50%' }]} />
-            </View>
-            <Text style={styles.progressText}>2 of 4</Text>
-          </View>
           <View style={{ width: 40 }} />
         </View>
 
-        {/* Content */}
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-        >
-          <Animated.View 
+        {/* Main Content Container */}
+        <View style={styles.mainContent}>
+          {/* Full-screen dynamic Masonry */}
+          <Animated.View
             style={[
-              styles.content,
+              styles.gallerySection,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }]
               }
             ]}
           >
-            {/* Credits Introduction */}
-            <View style={styles.creditsIntro}>
-              <View style={styles.creditsIcon}>
-                <Ionicons name="star" size={24} color={tokens.colors.primary.DEFAULT} />
-              </View>
-              <Text style={styles.creditsText}>
-                You get <Text style={styles.creditsHighlight}>3 free designs</Text> to start
-              </Text>
+            {/* Remount key to fix back/forward bug resetting state */}
+            <StableMasonryGallery
+              key={`masonry-${focusKey}`}
+              autoPlay={true}
+              showLabels={true}
+              maxImages={40}
+              images={showcaseMasonryImages}
+              animationDuration={60000}
+              isActive={isFocused}
+              initialProgress={progressRef.current}
+              onProgressChange={(v) => (progressRef.current = v)}
+              height={height}
+            />
+            <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+              <LinearGradient
+                colors={[ 'transparent', tokens.colors.overlay.medium, tokens.colors.overlay.heavy ]}
+                locations={[0, 0.5, 1]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              {/* Startup overlay: fully opaque then fades out to reveal gradient */}
+              {!overlayHidden && (
+                <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tokens.colors.overlay.solid, opacity: overlayAnim }]} />
+              )}
             </View>
-
-            <Text style={styles.title}>Meet Your AI Design Assistant</Text>
-            
-            <Text style={styles.subtitle}>
-              Our AI analyzes your space and creates personalized interior designs in any style you love.
-            </Text>
-
-            {/* AI Assistant and Design Showcase */}
-            <View style={styles.showcaseContainer}>
-              {/* AI Assistant Portrait */}
-              <Animated.View 
-                style={[
-                  styles.aiAssistant,
-                  {
-                    transform: [{ scale: aiPulseAnim }]
-                  }
-                ]}
-              >
-                <LinearGradient
-                  colors={[tokens.colors.primary.light, tokens.colors.primary.DEFAULT]}
-                  style={styles.aiAvatarGradient}
-                >
-                  <Ionicons name="sparkles" size={40} color={tokens.colors.text.primary} />
-                </LinearGradient>
-                
-                {/* Pointing Gesture */}
-                <Animated.View
-                  style={[
-                    styles.pointingArrow,
-                    {
-                      opacity: pointingAnim,
-                      transform: [
-                        { 
-                          translateX: pointingAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, 20]
-                          })
-                        }
-                      ]
-                    }
-                  ]}
-                >
-                  <Ionicons name="arrow-forward" size={24} color={tokens.colors.primary.DEFAULT} />
-                </Animated.View>
-              </Animated.View>
-
-              {/* Design Examples Showcase */}
-              <View style={styles.designShowcase}>
-                <View style={styles.showcaseImageContainer}>
-                  <View style={styles.mockInteriorImage}>
-                    {/* Using Unsplash-style interior design placeholder */}
-                    <LinearGradient
-                      colors={['#F5F1E8', '#E8DDD1']}
-                      style={styles.interiorGradient}
-                    >
-                      <View style={styles.roomElements}>
-                        <View style={[styles.window, { backgroundColor: '#D4A574' }]} />
-                        <View style={[styles.sofa, { backgroundColor: tokens.colors.primary.DEFAULT }]} />
-                        <View style={[styles.table, { backgroundColor: '#B8935F' }]} />
-                        <View style={[styles.plant, { backgroundColor: '#7FB069' }]} />
-                      </View>
-                    </LinearGradient>
-                    
-                    {/* Floating design tag */}
-                    <View style={styles.designTag}>
-                      <Text style={styles.designTagText}>Modern Living</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Style indicators */}
-                <View style={styles.styleIndicators}>
-                  {designExamples.map((design, index) => (
-                    <View
-                      key={design.id}
-                      style={[
-                        styles.styleChip,
-                        currentDesignIndex === index && styles.styleChipActive
-                      ]}
-                    >
-                      <Text style={[
-                        styles.styleChipText,
-                        currentDesignIndex === index && styles.styleChipTextActive
-                      ]}>
-                        {design.title}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-
-            {/* Enhanced Capabilities Section */}
-            <View style={styles.capabilitiesContainer}>
-              <Text style={styles.capabilitiesTitle}>What I can do for you</Text>
-              
-              <View style={styles.capabilitiesList}>
-                <View style={styles.capabilityCard}>
-                  <View style={styles.capabilityIcon}>
-                    <Ionicons name="scan" size={24} color={tokens.colors.status.success} />
-                  </View>
-                  <View style={styles.capabilityContent}>
-                    <Text style={styles.capabilityTitle}>Smart Analysis</Text>
-                    <Text style={styles.capabilityDescription}>
-                      Analyze your room's layout and lighting conditions
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.capabilityCard}>
-                  <View style={styles.capabilityIcon}>
-                    <Ionicons name="color-palette" size={24} color={tokens.colors.primary.DEFAULT} />
-                  </View>
-                  <View style={styles.capabilityContent}>
-                    <Text style={styles.capabilityTitle}>Style Matching</Text>
-                    <Text style={styles.capabilityDescription}>
-                      Match colors and design styles to your personal taste
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.capabilityCard}>
-                  <View style={styles.capabilityIcon}>
-                    <Ionicons name="storefront" size={24} color={tokens.colors.text.secondary} />
-                  </View>
-                  <View style={styles.capabilityContent}>
-                    <Text style={styles.capabilityTitle}>Budget Planning</Text>
-                    <Text style={styles.capabilityDescription}>
-                      Find furniture and decor that fits your budget perfectly
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </View>
+            {/* Removed lower gradient overlay */}
           </Animated.View>
-        </ScrollView>
 
-        {/* Enhanced Bottom Action */}
-        <Animated.View 
+          {/* Bottom Half: Engaging Content */}
+          <Animated.View
+            style={[
+              styles.contentSection,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }]
+              }
+            ]}
+          >
+            {/* Creative Headline */}
+            <Animated.Text style={[
+              styles.creativeTitle,
+              { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+            ]}>Explore Endless Styles</Animated.Text>
+
+            <Animated.Text style={[
+              styles.engagingSubtitle,
+              { opacity: fadeAnim, transform: [{ translateY: Animated.add(slideAnim, new Animated.Value(10)) }] }
+            ]}>
+              Compozit's AI transforms any space into your dream aesthetic — from modern minimalism to cozy bohemian vibes.
+            </Animated.Text>
+
+            {/* removed highlights */}
+
+            {/* removed extra blocks to keep layout clean */}
+
+            {/* Text only; button is positioned absolutely to match Screen 1 */}
+          </Animated.View>
+        </View>
+
+        {/* Floating button positioned like Screen 1 */}
+        <Animated.View
           style={[
-            styles.bottomContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }]
-            }
+            styles.buttonFloating,
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
           ]}
         >
-          {/* Call to Action Message */}
-          <View style={styles.ctaSection}>
-            <Text style={styles.ctaTitle}>Ready to Transform Your Space?</Text>
-            <Text style={styles.ctaSubtitle}>
-              Let's create your first AI-powered design together
-            </Text>
-          </View>
-
-          {/* Enhanced Continue Button */}
           <TouchableOpacity
             style={styles.continueButton}
             onPress={() => onNext ? onNext() : NavigationHelpers.navigateToScreen('onboarding3')}
@@ -370,10 +203,7 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
               <Ionicons name="arrow-forward" size={20} color="#2D2B28" />
             </View>
           </TouchableOpacity>
-          
-          <Text style={styles.progressHint}>
-            Step 2 of 4 • Discover the magic!
-          </Text>
+          {/* Removed progress hint */}
         </Animated.View>
       </View>
     </SafeAreaView>
@@ -383,216 +213,61 @@ const OnboardingScreen2: React.FC<OnboardingScreen2Props> = ({ onNext, onBack })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a', // Dark background like other screens
+    backgroundColor: tokens.colors.background.deep,
   },
   gradient: {
     flex: 1,
     position: 'relative',
   },
-  // Video background styles
-  videoBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a1a',
-  },
-  videoGradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
   header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: tokens.spacing.lg,
-    paddingTop: tokens.spacing.md,
-    paddingBottom: tokens.spacing.lg,
-    zIndex: 10,
+    paddingTop: tokens.spacing['2xl'],
+    paddingBottom: tokens.spacing.sm,
+    zIndex: 20,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: tokens.borderRadius.xl,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  progressContainer: {
-    flex: 1,
-    paddingHorizontal: tokens.spacing.lg,
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    marginBottom: tokens.spacing.sm,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: tokens.colors.primary.light,
-    borderRadius: 2,
-  },
-  progressText: {
-    fontSize: tokens.typography.caption.fontSize,
-    lineHeight: tokens.typography.caption.lineHeight,
-    fontWeight: tokens.typography.caption.fontWeight,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    paddingHorizontal: tokens.spacing.xl,
-    paddingBottom: tokens.spacing.lg,
-  },
-  creditsIntro: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(212, 165, 116, 0.08)',
-    borderRadius: tokens.borderRadius.lg,
-    padding: tokens.spacing.md,
-    marginBottom: tokens.spacing.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 165, 116, 0.15)',
-    ...tokens.shadows.elevation1,
-  },
-  creditsIcon: {
-    marginRight: tokens.spacing.sm,
-  },
-  creditsText: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: '500' as const,
-    color: tokens.colors.text.primary,
-  },
-  creditsHighlight: {
-    color: tokens.colors.primary.DEFAULT,
-    fontWeight: '700' as const,
-  },
-  title: {
-    fontSize: tokens.typography.heading.h1.fontSize,
-    lineHeight: tokens.typography.heading.h1.lineHeight,
-    fontWeight: tokens.typography.heading.h1.fontWeight,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: tokens.spacing.md,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  subtitle: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: tokens.typography.body.fontWeight,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    marginBottom: tokens.spacing.xxl,
-    paddingHorizontal: tokens.spacing.md,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  styleGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  loadingContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: tokens.spacing.xxl,
-  },
-  loadingText: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: tokens.typography.body.fontWeight,
-    color: tokens.colors.text.tertiary,
-    textAlign: 'center',
-  },
-  styleOption: {
-    width: (width - (tokens.spacing.xl * 2) - tokens.spacing.md) / 2,
-    backgroundColor: tokens.colors.background.secondary,
-    borderRadius: tokens.borderRadius.lg,
-    padding: tokens.spacing.lg,
-    marginBottom: tokens.spacing.md,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: tokens.colors.border.light,
-    position: 'relative',
-    ...tokens.shadows.elevation2,
-  },
-  styleOptionSelected: {
-    borderColor: tokens.colors.primary.DEFAULT,
-    backgroundColor: 'rgba(212, 165, 116, 0.05)',
-  },
-  checkmark: {
+  progressContainer: {},
+  progressBar: {},
+  progressFill: {},
+  progressText: {},
+  mainContent: {
     position: 'absolute',
-    top: tokens.spacing.sm,
-    right: tokens.spacing.sm,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: tokens.colors.primary.DEFAULT,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-    ...tokens.shadows.elevation2,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
   },
-  styleIconContainer: {
-    marginBottom: tokens.spacing.md,
+  gallerySection: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
-  styleIcon: {
-    fontSize: 32,
-  },
-  styleName: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-    marginBottom: tokens.spacing.xs,
-    textAlign: 'center',
-  },
-  styleDescription: {
-    fontSize: tokens.typography.small.fontSize,
-    lineHeight: tokens.typography.small.lineHeight,
-    fontWeight: tokens.typography.small.fontWeight,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-  },
-  selectionCounter: {
-    alignItems: 'center',
-    marginTop: tokens.spacing.lg,
-    marginBottom: tokens.spacing.lg,
-  },
-  counterText: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: '600' as const,
-    color: tokens.colors.primary.DEFAULT,
-    marginBottom: tokens.spacing.xs,
-  },
-  counterNote: {
-    fontSize: tokens.typography.caption.fontSize,
-    lineHeight: tokens.typography.caption.lineHeight,
-    fontWeight: tokens.typography.caption.fontWeight,
-    color: tokens.colors.text.secondary,
-    textAlign: 'center',
-  },
-  bottomContainer: {
+  contentSection: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: tokens.spacing['5xl'],
     paddingHorizontal: tokens.spacing.xl,
-    paddingBottom: tokens.spacing.xxl,
-    backgroundColor: tokens.colors.background.primary,
-    borderTopWidth: 1,
-    borderTopColor: tokens.colors.border.light,
+    paddingVertical: tokens.spacing.xl,
   },
+  // Removed duplicate bottomContainer (kept the styled translucent one below)
   nextButtonContainer: {
     marginBottom: tokens.spacing.md,
     marginTop: tokens.spacing.lg,
@@ -631,190 +306,13 @@ const styles = StyleSheet.create({
     color: tokens.colors.text.tertiary,
     textAlign: 'center',
   },
-  // New showcase styles
-  showcaseContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: tokens.spacing.xxl,
-    paddingHorizontal: tokens.spacing.md,
-  },
-  aiAssistant: {
-    alignItems: 'center',
-    marginRight: tokens.spacing.xl,
-  },
-  aiAvatarGradient: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: tokens.spacing.md,
-    ...tokens.shadows.elevation3,
-  },
-  pointingArrow: {
-    position: 'absolute',
-    right: -30,
-    top: 35,
-  },
-  designShowcase: {
-    flex: 1,
-    marginLeft: tokens.spacing.xl,
-  },
-  showcaseImageContainer: {
-    width: width * 0.55,
-    height: 180,
-  },
-  mockInteriorImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: tokens.borderRadius.xl,
-    overflow: 'hidden',
-    position: 'relative',
-    ...tokens.shadows.elevation3,
-  },
-  interiorGradient: {
-    flex: 1,
-    padding: tokens.spacing.lg,
-    justifyContent: 'space-between',
-  },
-  roomElements: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  window: {
-    width: '60%',
-    height: 30,
-    borderRadius: tokens.borderRadius.sm,
-    alignSelf: 'center',
-    opacity: 0.9,
-  },
-  sofa: {
-    width: '80%',
-    height: 40,
-    borderRadius: tokens.borderRadius.md,
-    alignSelf: 'flex-start',
-    marginLeft: tokens.spacing.md,
-    opacity: 0.8,
-  },
-  table: {
-    width: '40%',
-    height: 25,
-    borderRadius: tokens.borderRadius.sm,
-    alignSelf: 'center',
-    opacity: 0.7,
-  },
-  plant: {
-    width: 20,
-    height: 35,
-    borderRadius: tokens.borderRadius.sm,
-    alignSelf: 'flex-end',
-    marginRight: tokens.spacing.lg,
-    opacity: 0.9,
-  },
-  designTag: {
-    position: 'absolute',
-    bottom: tokens.spacing.md,
-    left: tokens.spacing.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    paddingHorizontal: tokens.spacing.md,
-    paddingVertical: tokens.spacing.sm,
-    borderRadius: tokens.borderRadius.pill,
-    ...tokens.shadows.elevation2,
-  },
-  designTagText: {
-    fontSize: tokens.typography.caption.fontSize,
-    lineHeight: tokens.typography.caption.lineHeight,
-    fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-  },
-  styleIndicators: {
-    marginTop: tokens.spacing.lg,
-    gap: tokens.spacing.sm,
-  },
-  styleChip: {
-    backgroundColor: 'rgba(212, 165, 116, 0.1)',
-    paddingHorizontal: tokens.spacing.md,
-    paddingVertical: tokens.spacing.sm,
-    borderRadius: tokens.borderRadius.pill,
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 165, 116, 0.2)',
-  },
-  styleChipActive: {
-    backgroundColor: tokens.colors.primary.DEFAULT,
-    borderColor: tokens.colors.primary.DEFAULT,
-  },
-  styleChipText: {
-    fontSize: tokens.typography.small.fontSize,
-    lineHeight: tokens.typography.small.lineHeight,
-    fontWeight: '500' as const,
-    color: tokens.colors.primary.DEFAULT,
-  },
-  styleChipTextActive: {
-    color: tokens.colors.text.primary,
-    fontWeight: '600' as const,
-  },
-  // Enhanced capabilities styles
-  capabilitiesContainer: {
-    marginBottom: tokens.spacing.xxl,
-  },
-  capabilitiesTitle: {
-    fontSize: tokens.typography.heading.h2.fontSize,
-    lineHeight: tokens.typography.heading.h2.lineHeight,
-    fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-    textAlign: 'center',
-    marginBottom: tokens.spacing.xl,
-  },
-  capabilitiesList: {
-    gap: tokens.spacing.lg,
-  },
-  capabilityCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: tokens.colors.background.secondary,
-    borderRadius: tokens.borderRadius.lg,
-    padding: tokens.spacing.lg,
-    borderWidth: 1,
-    borderColor: tokens.colors.border.light,
-    ...tokens.shadows.elevation1,
-  },
-  capabilityIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: tokens.borderRadius.md,
-    backgroundColor: 'rgba(212, 165, 116, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: tokens.spacing.lg,
-  },
-  capabilityContent: {
-    flex: 1,
-    paddingTop: tokens.spacing.xs,
-  },
-  capabilityTitle: {
-    fontSize: tokens.typography.body.fontSize,
-    lineHeight: tokens.typography.body.lineHeight,
-    fontWeight: '600' as const,
-    color: tokens.colors.text.primary,
-    marginBottom: tokens.spacing.xs,
-  },
-  capabilityDescription: {
-    fontSize: tokens.typography.caption.fontSize,
-    lineHeight: 18,
-    fontWeight: tokens.typography.caption.fontWeight,
-    color: tokens.colors.text.secondary,
-  },
-  // Enhanced bottom section styles
   bottomContainer: {
     paddingHorizontal: tokens.spacing.xl,
     paddingTop: tokens.spacing.xl,
-    paddingBottom: tokens.spacing.xxxl, // Extra padding for safe area
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
-    zIndex: 10,
+    paddingBottom: tokens.spacing.xxxl,
+    backgroundColor: 'transparent',
   },
+  lowerGradient: {},
   ctaSection: {
     alignItems: 'center',
     marginBottom: tokens.spacing.xl,
@@ -870,6 +368,85 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
+  },
+  buttonFloating: {
+    position: 'absolute',
+    left: tokens.spacing.xl,
+    right: tokens.spacing.xl,
+    bottom: tokens.spacing.xl,
+  },
+  blurScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
+  // New Creative Content Styles
+  creativeTitle: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    textAlign: 'left',
+    marginBottom: tokens.spacing.sm,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  engagingSubtitle: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '400' as const,
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'left',
+    marginBottom: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.xl,
+  },
+  styleHighlights: {
+    alignItems: 'center',
+    marginBottom: tokens.spacing.xxl,
+  },
+  highlightRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: tokens.spacing.md,
+    gap: tokens.spacing.sm,
+  },
+  highlightChip: {
+    backgroundColor: 'rgba(212, 165, 116, 0.2)',
+    paddingHorizontal: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.sm,
+    borderRadius: tokens.borderRadius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 165, 116, 0.4)',
+  },
+  highlightText: {
+    color: tokens.colors.primary.light,
+    fontSize: tokens.typography.small.fontSize,
+    fontWeight: '600' as const,
+    textAlign: 'center',
+  },
+  transformationPromise: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(212, 165, 116, 0.1)',
+    borderRadius: tokens.borderRadius.lg,
+    paddingHorizontal: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 165, 116, 0.2)',
+  },
+  promiseIcon: {
+    marginRight: tokens.spacing.md,
+  },
+  promiseText: {
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontSize: tokens.typography.body.fontSize,
+    fontWeight: '500' as const,
+    textAlign: 'center',
   },
 });
 
