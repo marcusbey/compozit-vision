@@ -2,18 +2,28 @@ import { Ionicons } from '@expo/vector-icons';
 import { tokens } from '@theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { masonryImages } from '../../assets/masonryImages';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+const SAMPLE_IMAGES = [
+  { id: 's1', source: masonryImages[0].source, label: 'Living Room' },
+  { id: 's2', source: masonryImages[2].source, label: 'Cozy Bedr...' },
+  { id: 's3', source: masonryImages[1].source, label: 'Kitchen In...' },
+  { id: 's4', source: masonryImages[3].source, label: 'Office Sp...' },
+];
 
 interface InitialPanelProps {
   onTakePhoto: () => void;
   onImportPhoto: () => void;
+  onSampleSelect: (uri: string) => void;
 }
 
 export const InitialPanel: React.FC<InitialPanelProps> = ({
   onTakePhoto,
-  onImportPhoto
+  onImportPhoto,
+  onSampleSelect,
 }) => {
   return (
     <View style={styles.container}>
@@ -24,8 +34,25 @@ export const InitialPanel: React.FC<InitialPanelProps> = ({
         </Text>
       </View>
 
-      <View style={styles.actionSection}>
-        {/* Primary Action - Take Photo */}
+      {/* Sample Carousel */}
+      <View style={styles.carouselSection}>
+        <Text style={styles.carouselTitle}>Or choose from examples</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carouselRow}>
+          {SAMPLE_IMAGES.map(sample => (
+            <TouchableOpacity key={sample.id} style={styles.sampleCard} onPress={() => onSampleSelect(sample.source)}>
+              <Image
+                source={sample.source}
+                style={styles.sampleImage}
+                resizeMode="cover"
+              />
+              <Text style={styles.sampleLabel} numberOfLines={1}>{sample.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Bottom CTA Section */}
+      <View style={styles.ctaSection}>
         <TouchableOpacity style={styles.primaryActionContainer} onPress={onTakePhoto}>
           <LinearGradient
             colors={[tokens.color.brand, tokens.color.brandHover]}
@@ -37,33 +64,17 @@ export const InitialPanel: React.FC<InitialPanelProps> = ({
               <View style={styles.iconContainer}>
                 <Ionicons name="camera" size={28} color={tokens.color.textInverse} />
               </View>
-              <Text style={styles.primaryButtonText}>Take Photo</Text>
+              <Text style={styles.primaryButtonText}>Take a Photo</Text>
             </View>
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* Secondary Actions Row */}
-        <View style={styles.secondaryRow}>
-          <TouchableOpacity style={styles.secondaryButton} onPress={onImportPhoto}>
-            <View style={styles.secondaryButtonContent}>
-              <Ionicons name="image-outline" size={20} color={tokens.color.brand} />
-              <Text style={styles.secondaryButtonText}>Upload photo</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.linkButton} onPress={onImportPhoto}>
-            <Text style={styles.linkButtonText}>Select from gallery</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Tips Section */}
-      <View style={styles.tipsSection}>
-        <View style={styles.tipItem}>
-          <Ionicons name="bulb-outline" size={16} color={tokens.color.brand} />
-          <Text style={styles.tipText}>
-            Good lighting and clear angles produce the best AI results
-          </Text>
-        </View>
+        <TouchableOpacity style={styles.secondaryButton} onPress={onImportPhoto}>
+          <View style={styles.secondaryButtonContent}>
+            <Ionicons name="cloud-upload-outline" size={20} color={tokens.color.brand} />
+            <Text style={styles.secondaryButtonText}>Upload a Photo</Text>
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -95,9 +106,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.sm,
   },
   actionSection: {
-    flex: 1,
-    justifyContent: 'center',
-    gap: tokens.spacing.lg,
+    flex: 0,
   },
   primaryActionContainer: {
     borderRadius: tokens.radius.lg,
@@ -138,10 +147,7 @@ const styles = StyleSheet.create({
     ...tokens.shadow.e1,
   },
   secondaryRow: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: tokens.spacing.md,
   },
   secondaryButtonContent: {
     flexDirection: 'row',
@@ -155,20 +161,60 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  linkButton: {
-    paddingVertical: tokens.spacing.lg,
-    paddingHorizontal: tokens.spacing.md,
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: tokens.spacing.sm,
+    marginVertical: tokens.spacing.xs,
   },
-  linkButtonText: {
-    ...tokens.type.body,
-    color: tokens.color.textSecondary,
-    textDecorationLine: 'underline',
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: tokens.color.borderSoft,
+  },
+  dividerText: {
+    ...tokens.type.caption,
+    color: tokens.color.textMuted,
+    paddingHorizontal: tokens.spacing.sm,
   },
   tipsSection: {
     marginTop: tokens.spacing.xl,
     paddingTop: tokens.spacing.md,
     borderTopWidth: 1,
     borderTopColor: tokens.color.borderSoft,
+  },
+  carouselSection: {
+    marginTop: tokens.spacing.lg,
+  },
+  carouselTitle: {
+    ...tokens.type.body,
+    color: tokens.color.textPrimary,
+    fontWeight: '600',
+    marginBottom: tokens.spacing.sm,
+  },
+  carouselRow: {
+    flexDirection: 'row',
+    gap: tokens.spacing.sm,
+    paddingRight: tokens.spacing.lg,
+  },
+  sampleCard: {
+    width: (screenWidth - tokens.spacing.xl * 2 - tokens.spacing.sm * 3) / 3.5,
+    borderRadius: tokens.radius.md,
+    backgroundColor: tokens.color.surface,
+    borderWidth: 1,
+    borderColor: tokens.color.borderSoft,
+    overflow: 'hidden',
+  },
+  sampleImage: {
+    width: '100%',
+    aspectRatio: 1.2,
+    backgroundColor: tokens.color.placeholder,
+  },
+  sampleLabel: {
+    ...tokens.type.small,
+    color: tokens.color.textSecondary,
+    paddingHorizontal: tokens.spacing.sm,
+    paddingVertical: tokens.spacing.xs,
   },
   tipItem: {
     flexDirection: 'row',
@@ -182,5 +228,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     flex: 1,
     fontStyle: 'italic',
+  },
+  ctaSection: {
+    marginTop: tokens.spacing.lg,
+    gap: tokens.spacing.sm,
   },
 });
