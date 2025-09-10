@@ -55,7 +55,7 @@ npm start
 The app uses these environment variables from `.env`:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xmkkhdxhzopgfophlyjd.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
 ## 🐛 Troubleshooting
