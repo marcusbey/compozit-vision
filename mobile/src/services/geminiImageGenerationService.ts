@@ -1,9 +1,11 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// SECURITY UPDATE: Migrating to secure backend API
+// Direct Gemini API calls expose API keys in client bundle
+// See MIGRATION_TO_SECURE_API.md for details
 
 /**
- * Gemini Image Generation Service
- * Uses Google's new Gemini 2.5 Flash Image Preview model for text-to-image generation
- * Perfect for interior design transformations with your existing Gemini setup!
+ * Gemini Image Generation Service (SECURE VERSION)
+ * Uses backend proxy to hide API keys from client
+ * TODO: Implement /api/gemini/generate-image endpoint in backend
  */
 
 export interface GeminiImageRequest {
@@ -32,20 +34,12 @@ export interface GeminiImageResult {
 
 export class GeminiImageGenerationService {
   private static instance: GeminiImageGenerationService;
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private apiBaseUrl: string;
 
   private constructor() {
-    const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
-    if (!apiKey) {
-      throw new Error('Gemini API key not found - required for image generation');
-    }
-    
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    // Use the new image generation model
-    this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-2.5-flash-image-preview' 
-    });
+    // Use secure backend API instead of exposed client-side API key
+    this.apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
+    console.log('GeminiImageGenerationService: Using secure backend API');
   }
 
   public static getInstance(): GeminiImageGenerationService {
@@ -56,22 +50,42 @@ export class GeminiImageGenerationService {
   }
 
   /**
-   * Generate interior design image using Gemini 2.5 Flash Image Preview
+   * Generate interior design image using secure backend API
+   * TODO: Implement /api/gemini/generate-image endpoint in backend
    */
   async generateInteriorDesign(request: GeminiImageRequest): Promise<GeminiImageResult> {
     const startTime = Date.now();
     
     try {
-      console.log('🎨 Generating interior design with Gemini 2.5...', request.prompt.substring(0, 100) + '...');
+      console.log('🎨 [SECURE] Generating interior design via backend...', request.prompt.substring(0, 100) + '...');
       
-      // Enhance prompt specifically for interior design
-      const enhancedPrompt = this.enhanceForInteriorDesign(request.prompt, request.style, request.qualityLevel);
+      // TODO: Implement backend endpoint for image generation
+      console.warn('⚠️ Image generation backend endpoint not yet implemented');
+      console.log('📝 TODO: Add POST /api/gemini/generate-image endpoint to backend-vercel/api/gemini/');
       
-      // Prepare the content array
-      const contentParts = [enhancedPrompt];
+      // For now, return a fallback response
+      return this.getFallbackImageResult(request, startTime);
       
-      // If original image provided, include it for reference
-      if (request.originalImageUrl) {
+      /* TODO: Implement backend API call when endpoint is ready
+      const response = await fetch(`${this.apiBaseUrl}/gemini/generate-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: request.prompt,
+          style: request.style,
+          qualityLevel: request.qualityLevel,
+          originalImageUrl: request.originalImageUrl,
+          aspectRatio: request.aspectRatio,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Image generation failed');
+      }
+
+      return result.data;
+      */
         try {
           const rawImageData = await this.fetchImageAsBase64(request.originalImageUrl);
           
@@ -163,6 +177,26 @@ export class GeminiImageGenerationService {
         }
       };
     }
+  }
+
+  /**
+   * Fallback response when backend endpoint is not available
+   */
+  private getFallbackImageResult(request: GeminiImageRequest, startTime: number): GeminiImageResult {
+    return {
+      imageUrl: '', // No image generated
+      base64Data: '',
+      prompt: request.prompt,
+      generationTime: Date.now() - startTime,
+      model: 'fallback-mode',
+      success: false,
+      watermarked: true,
+      metadata: {
+        modelUsed: 'backend-not-implemented',
+        promptLength: request.prompt.length,
+        hasOriginalImage: !!request.originalImageUrl
+      }
+    };
   }
 
   /**

@@ -101,6 +101,24 @@ export const useWizardLogic = () => {
     }
   }, [userStore.user]);
 
+  const handleSampleSelect = useCallback((imageSource: any) => {
+    if (!userStore.user) {
+      Alert.alert(
+        'Sign In Required',
+        'Please sign in to use sample images and create AI-generated designs.',
+        [
+          { text: 'Sign In', onPress: () => setPanelMode('auth') },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    // Store the require() source directly - React Native Image can handle this
+    setCapturedImage(imageSource);
+    setPanelMode('prompt');
+  }, [userStore.user]);
+
   const handleAddCustomReference = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -455,6 +473,7 @@ export const useWizardLogic = () => {
     // Functions
     handleTakePhoto,
     handleImportPhoto,
+    handleSampleSelect,
     handleAddCustomReference,
     handleProcessImage,
     resetProject,

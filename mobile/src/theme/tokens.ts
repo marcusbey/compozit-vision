@@ -20,6 +20,7 @@ export const tokens = {
       primary: '#FDFBF7',
       secondary: '#FFFFFF',
       tertiary: '#F5F5F5',
+      deep: '#0A0908',
     },
 
     // Text colors
@@ -49,9 +50,10 @@ export const tokens = {
 
     // Overlay colors
     overlay: {
-      light: 'rgba(28, 28, 28, 0.45)',
-      medium: 'rgba(28, 28, 28, 0.65)',
-      heavy: 'rgba(28, 28, 28, 0.85)',
+      light: 'rgba(10, 9, 8, 0.45)',
+      medium: 'rgba(10, 9, 8, 0.65)',
+      heavy: 'rgba(10, 9, 8, 0.85)',
+      solid: '#0A0908',
     }
   },
 

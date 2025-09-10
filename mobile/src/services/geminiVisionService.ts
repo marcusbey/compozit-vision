@@ -1,4 +1,7 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+// SECURITY UPDATE: Migrating to secure backend API
+// Direct Gemini API calls are being replaced with backend proxy calls
+// See MIGRATION_TO_SECURE_API.md for details
+import { SecureGeminiService } from './secureGeminiService';
 
 // Types
 export interface ImageAnalysisResult {
@@ -58,18 +61,12 @@ export interface GeminiVisionOptions {
  */
 export class GeminiVisionService {
   private static instance: GeminiVisionService;
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private secureService: SecureGeminiService;
 
   private constructor() {
-    // Initialize with API key from environment
-    const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
-    if (!apiKey) {
-      console.warn('Gemini API key not found. Vision analysis will be limited.');
-    }
-    
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Using secure backend service instead of direct API calls
+    this.secureService = SecureGeminiService.getInstance();
+    console.log('GeminiVisionService: Using secure backend API');
   }
 
   public static getInstance(): GeminiVisionService {

@@ -1,12 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
-import { tokens } from '@theme';
-import { SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 import { CameraSection } from '@components/camera/CameraSection';
+import { SlidingBottomPanel } from '@components/panels/SlidingBottomPanel';
 import { ImageDisplayArea } from '@components/wizard/ImageDisplayArea';
 import { PanelRouter } from '@components/wizard/PanelRouter';
-import { SlidingBottomPanel } from '@components/panels/SlidingBottomPanel';
+import { Ionicons } from '@expo/vector-icons';
+import { tokens } from '@theme';
+import { SafeAreaView, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { NavigationHelpers } from '../../navigation/SafeJourneyNavigator';
 import { useWizardLogic } from './hooks/useWizardLogic';
 
 interface UnifiedProjectScreenProps {
@@ -42,6 +42,7 @@ export default function UnifiedProjectScreen({ navigation, route }: UnifiedProje
     // Functions
     handleTakePhoto,
     handleImportPhoto,
+    handleSampleSelect,
     handleProcessImage,
     resetProject,
   } = useWizardLogic();
@@ -86,15 +87,18 @@ export default function UnifiedProjectScreen({ navigation, route }: UnifiedProje
           resultImage={resultImage}
           onBack={handleBack}
           onReset={resetProject}
+          onTakePhoto={handleTakePhoto}
+          onImportPhoto={handleImportPhoto}
         />
       </View>
 
-      {/* Always Visible Bottom Panel */}
+      {/* Bottom Panel + Compact Prompt (when not in prompt mode) */}
       <SlidingBottomPanel height={panelHeight} opacity={panelOpacity}>
         <PanelRouter
           panelMode={panelMode}
           onTakePhoto={handleTakePhoto}
           onImportPhoto={handleImportPhoto}
+          onSampleSelect={handleSampleSelect}
           userPrompt={userPrompt}
           onPromptChange={setUserPrompt}
           onProcess={handleProcessImage}
@@ -104,27 +108,30 @@ export default function UnifiedProjectScreen({ navigation, route }: UnifiedProje
           isProcessing={isProcessing}
           onBack={handleBack}
         />
-      </SlidingBottomPanel>
 
-      {/* Minimal Lower Navigation */}
-      <View style={[styles.lowerNav, { paddingBottom: insets.bottom + 8 }]}>
-        <View style={styles.navContainer}>
-          <TouchableOpacity style={styles.navButton} onPress={() => NavigationHelpers.navigateToScreen('tools')}>
-            <Ionicons name="construct-outline" size={20} color={tokens.colors.text.secondary} />
-            <Text style={styles.navLabel}>Tools</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.navButton, styles.activeNavButton]}>
-            <View style={styles.activeIndicator}>
-              <Ionicons name="add" size={22} color={tokens.colors.primary.DEFAULT} />
-            </View>
-            <Text style={[styles.navLabel, styles.activeNavLabel]}>Create</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navButton} onPress={() => NavigationHelpers.navigateToScreen('profile')}>
-            <Ionicons name="person-circle-outline" size={20} color={tokens.colors.text.secondary} />
-            <Text style={styles.navLabel}>Profile</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        {panelMode === 'prompt' && capturedImage && (
+          <View style={[styles.promptContainer, { marginBottom: insets.bottom + tokens.spacing.sm }]}>
+            <TextInput
+              style={styles.promptInput}
+              value={userPrompt}
+              onChangeText={setUserPrompt}
+              placeholder="Describe your goal (e.g., modern cozy living room)"
+              placeholderTextColor={tokens.colors.text.muted}
+              multiline
+              numberOfLines={2}
+              returnKeyType="send"
+              onSubmitEditing={() => !isProcessing && userPrompt.trim() && handleProcessImage()}
+            />
+            <TouchableOpacity
+              style={[styles.sendButton, (!userPrompt?.trim() || isProcessing) && styles.sendButtonDisabled]}
+              onPress={handleProcessImage}
+              disabled={!userPrompt?.trim() || isProcessing}
+            >
+              <Ionicons name="send" size={18} color={(!userPrompt?.trim() || isProcessing) ? tokens.colors.text.muted : tokens.colors.background.secondary} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </SlidingBottomPanel>
     </SafeAreaView>
   );
 }
@@ -149,6 +156,38 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: tokens.colors.border.light,
     ...tokens.shadows.elevation2,
+  },
+  promptContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: tokens.colors.background.secondary,
+    borderRadius: tokens.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: tokens.colors.border.light,
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.xs,
+    marginHorizontal: tokens.spacing.lg,
+    marginBottom: tokens.spacing.sm,
+    ...tokens.shadows.elevation1,
+  },
+  promptInput: {
+    flex: 1,
+    minHeight: 44,
+    maxHeight: 92,
+    color: tokens.colors.text.primary,
+    paddingVertical: tokens.spacing.xs,
+    paddingRight: tokens.spacing.md,
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: tokens.colors.primary.DEFAULT,
+  },
+  sendButtonDisabled: {
+    backgroundColor: tokens.colors.border.light,
   },
   navContainer: {
     flexDirection: 'row',
@@ -187,8 +226,6 @@ const styles = StyleSheet.create({
     fontWeight: tokens.typography.caption.fontWeight,
     color: tokens.colors.text.secondary,
     marginTop: 2,
-    fontWeight: '500',
-    fontSize: 10,
   },
   activeNavLabel: {
     color: tokens.colors.primary.DEFAULT,

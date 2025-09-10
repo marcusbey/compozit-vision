@@ -1,6 +1,9 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+// SECURITY UPDATE: Migrating to secure backend API
+// Direct Gemini API calls expose API keys in client bundle
+// See MIGRATION_TO_SECURE_API.md for details
 import * as ImageManipulator from 'expo-image-manipulator';
 import { ImageAnalysisResult, StyleAnalysis, MoodAnalysis, ObjectDetection } from './geminiVisionService';
+import { SecureGeminiService } from './secureGeminiService';
 
 // Enhanced types for Gemini 2.5
 export interface EnhancedImageAnalysisOptions {
@@ -50,9 +53,7 @@ export interface EnhancedAnalysisResult extends ImageAnalysisResult {
  */
 export class EnhancedGeminiVisionService {
   private static instance: EnhancedGeminiVisionService;
-  private genAI: GoogleGenerativeAI;
-  private model: any;
-  private flashModel: any; // For faster operations
+  private secureService: SecureGeminiService;
   
   // Performance tracking
   private performanceMetrics = {
@@ -63,12 +64,8 @@ export class EnhancedGeminiVisionService {
   };
 
   private constructor() {
-    const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
-    if (!apiKey) {
-      throw new Error('Gemini API key is required for enhanced vision processing');
-    }
-    
-    this.genAI = new GoogleGenerativeAI(apiKey);
+    console.log('EnhancedGeminiVisionService: Using secure backend API');
+    this.secureService = SecureGeminiService.getInstance();
     
     // Use Gemini 2.5 Pro for maximum accuracy
     this.model = this.genAI.getGenerativeModel({ 

@@ -11,7 +11,14 @@ export type FeatureId =
   | 'furniture' 
   | 'location' 
   | 'materials' 
-  | 'texture';
+  | 'texture'
+  | 'cultural'
+  | 'lighting'
+  | 'kitchen'
+  | 'bathroom'
+  | 'landscape'
+  | 'outdoorFurniture'
+  | 'fantasy';
 
 export interface ContextAnalysis {
   primaryContext: ProjectContext;
