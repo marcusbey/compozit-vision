@@ -1,58 +1,62 @@
 {
   "designSystem": {
-    "name": "Compozit Vision – Minimal Warm Modern",
-    "version": "1.0.0",
+    "name": "Compozit Vision – Prestigious Authority Design",
+    "version": "2.0.0",
     "meta": {
-      "description": "Warm, minimalist mobile design tokens and component specs aligned to the images and theme provided.",
-      "brandKeywords": ["warm", "cozy", "minimal", "stone", "wood", "matte-black", "soft-glow"]
+      "description": "Chic, authoritative, and prestigious design system emphasizing precision, artistic creation, and luxury aesthetics.",
+      "brandKeywords": ["prestigious", "chic", "authority", "precision", "artistic", "luxury", "matte-black", "sophisticated"]
     },
 
     "colors": {
       "core": {
-        "primary":   { "name": "Warm Beige",   "value": "#E8E2D8" },
-        "secondary": { "name": "Soft Sand",    "value": "#D6CBBE" },
-        "accent":    { "name": "Matte Black",  "value": "#1C1C1C" },
-        "highlight": { "name": "Warm White",   "value": "#FDFBF7" },
-        "detail":    { "name": "Natural Oak",  "value": "#C9A98C" },
-        "light":     { "name": "Soft Glow",    "value": "#F5E9D7" },
-        "effect":    { "name": "Iridescent",   "value": "#D7C1E3" }
+        "primary":   { "name": "Authority Black", "value": "#0A0A0A" },
+        "secondary": { "name": "Charcoal Elite", "value": "#1A1A1A" },
+        "deep":      { "name": "Deep Void", "value": "#0A0908" },
+        "accent":    { "name": "Platinum Gold", "value": "#D4A574" },
+        "highlight": { "name": "Pure White",    "value": "#FFFFFF" },
+        "detail":    { "name": "Warm Bronze",   "value": "#B8935F" },
+        "light":     { "name": "Soft Cream",    "value": "#FAF8F4" },
+        "effect":    { "name": "Luxury Shimmer", "value": "#E8DDD1" }
       },
       "semantic": {
         "bg": {
-          "app":        "#FDFBF7",
+          "app":        "#FAF8F4",
           "surface":    "#FFFFFF",
-          "subsurface": "#F7F3ED",
-          "elevated":   "#FFFFFF"
+          "subsurface": "#F6F3EF",
+          "elevated":   "#FFFFFF",
+          "deep":       "#0A0908"
         },
         "text": {
-          "primary":   "#1C1C1C",
-          "secondary": "#4A4A4A",
-          "muted":     "#7A7A7A",
-          "inverse":   "#FDFBF7",
-          "link":      "#1C1C1C"
+          "primary":   "#0A0A0A",
+          "secondary": "#1A1A1A",
+          "muted":     "#666666",
+          "inverse":   "#FFFFFF",
+          "link":      "#0A0A0A"
         },
         "border": {
-          "soft":  "#E8E2D8",
-          "hard":  "#D6CBBE",
-          "focus": "#C9A98C"
+          "soft":  "#E8DDD1",
+          "hard":  "#D4A574",
+          "focus": "#B8935F"
         },
         "states": {
-          "brand":        "#C9A98C",
-          "brandHover":   "#B9906F",
-          "brandPressed": "#A77E60",
-          "success":      "#6BAF7B",
-          "warning":      "#D9A441",
-          "danger":       "#C05746",
-          "info":         "#8BA7B3"
+          "brand":        "#D4A574",
+          "brandHover":   "#C7956A",
+          "brandPressed": "#B8935F",
+          "success":      "#22C55E",
+          "warning":      "#F59E0B",
+          "danger":       "#EF4444",
+          "info":         "#3B82F6"
         },
         "overlays": {
-          "scrim": "rgba(28,28,28,0.45)",
-          "focusRing": "rgba(201,169,140,0.5)"
+          "scrim": "rgba(10,9,8,0.85)",
+          "deepScrim": "rgba(10,9,8,1)",
+          "focusRing": "rgba(212,165,116,0.6)"
         }
       },
       "gradients": {
-        "warmLight": ["#FDFBF7", "#F5E9D7"],
-        "iridescentAccent": ["#F6C7D0","#E7E1B9","#C1E3D0","#D7C1E3"]
+        "luxuryGlow": ["#FAF8F4", "#E8DDD1"],
+        "prestigeAccent": ["#D4A574", "#B8935F", "#A77E60"],
+        "authorityDepth": ["#0A0A0A", "#1A1A1A", "#2A2A2A"]
       }
     },
 
@@ -104,9 +108,14 @@
     },
 
     "icons": {
-      "stroke": 1.75,
-      "color": "#1C1C1C",
-      "size": { "sm": 16, "md": 20, "lg": 24 }
+      "stroke": 2,
+      "color": "#0A0A0A",
+      "accent": "#D4A574",
+      "size": { "sm": 16, "md": 20, "lg": 24 },
+      "prestige": {
+        "weight": "bold",
+        "precision": "sharp-edges"
+      }
     },
 
     "components": {
@@ -118,34 +127,46 @@
         },
         "variants": {
           "primary": {
-            "bg": "#1C1C1C",
-            "fg": "#FDFBF7",
+            "bg": "#0A0A0A",
+            "fg": "#FFFFFF",
             "border": "transparent",
-            "hoverBg": "#2E2E2E",
-            "pressedBg": "#121212",
-            "focusRing": "rgba(201,169,140,0.6)"
+            "hoverBg": "#1A1A1A",
+            "pressedBg": "#000000",
+            "focusRing": "rgba(212,165,116,0.8)",
+            "shadow": "0 4px 16px rgba(0,0,0,0.25)"
+          },
+          "authority": {
+            "bg": "#1A1A1A",
+            "fg": "#FFFFFF",
+            "border": "1px solid #D4A574",
+            "hoverBg": "#2A2A2A",
+            "pressedBg": "#0A0A0A",
+            "focusRing": "rgba(212,165,116,0.8)",
+            "shadow": "0 6px 20px rgba(0,0,0,0.3)"
           },
           "brand": {
-            "bg": "#C9A98C",
-            "fg": "#1C1C1C",
-            "hoverBg": "#B9906F",
-            "pressedBg": "#A77E60",
-            "focusRing": "rgba(28,28,28,0.35)"
+            "bg": "#D4A574",
+            "fg": "#0A0A0A",
+            "hoverBg": "#C7956A",
+            "pressedBg": "#B8935F",
+            "focusRing": "rgba(10,10,10,0.4)",
+            "shadow": "0 4px 16px rgba(212,165,116,0.25)"
           },
           "ghost": {
             "bg": "transparent",
-            "fg": "#1C1C1C",
-            "hoverBg": "rgba(232,226,216,0.6)",
-            "pressedBg": "rgba(232,226,216,0.9)",
-            "border": "1px solid #E8E2D8"
+            "fg": "#0A0A0A",
+            "hoverBg": "rgba(232,221,209,0.4)",
+            "pressedBg": "rgba(232,221,209,0.7)",
+            "border": "1px solid #E8DDD1"
           },
           "link": {
-            "fg": "#1C1C1C",
-            "underline": true
+            "fg": "#0A0A0A",
+            "underline": true,
+            "hoverFg": "#D4A574"
           },
           "disabled": {
-            "bg": "#E8E2D8",
-            "fg": "#A3A3A3",
+            "bg": "#E8DDD1",
+            "fg": "#999999",
             "border": "transparent"
           }
         }
@@ -153,18 +174,19 @@
 
       "inputs": {
         "height": 48,
-        "padX": 14,
+        "padX": 16,
         "radius": "md",
         "bg": "#FFFFFF",
-        "text": "#1C1C1C",
-        "placeholder": "#7A7A7A",
-        "border": "1px solid #E8E2D8",
-        "focusBorder": "1.5px solid #C9A98C",
-        "prefixIcon": { "size": 20, "color": "#7A7A7A" },
+        "text": "#0A0A0A",
+        "placeholder": "#666666",
+        "border": "1px solid #E8DDD1",
+        "focusBorder": "2px solid #D4A574",
+        "prefixIcon": { "size": 20, "color": "#666666" },
+        "shadow": "0 2px 8px rgba(0,0,0,0.06)",
         "states": {
-          "errorBorder": "1.5px solid #C05746",
-          "successBorder": "1.5px solid #6BAF7B",
-          "disabledBg": "#F7F3ED"
+          "errorBorder": "2px solid #EF4444",
+          "successBorder": "2px solid #22C55E",
+          "disabledBg": "#F6F3EF"
         }
       },
 
@@ -237,23 +259,48 @@
     },
 
     "effects": {
-      "iridescentAccentUsage": {
-        "intent": "sparingly",
-        "appliesTo": ["progressTrack", "selectionHighlight", "premiumBadge"],
-        "gradient": "iridescentAccent",
-        "opacity": 0.5,
-        "blur": 24
+      "luxuryAccentUsage": {
+        "intent": "sparingly-for-premium-elements",
+        "appliesTo": ["progressTrack", "selectionHighlight", "premiumBadge", "ctaButtons"],
+        "gradient": "prestigeAccent",
+        "opacity": 0.6,
+        "blur": 20
       },
-      "ambientGlow": {
-        "shadow": "0 0 0 1px rgba(232,226,216,0.6), 0 12px 40px rgba(201,169,140,0.25)"
+      "authorityGlow": {
+        "shadow": "0 0 0 1px rgba(212,165,116,0.4), 0 16px 48px rgba(10,10,10,0.15)"
+      },
+      "prestigeShadow": {
+        "subtle": "0 2px 8px rgba(0,0,0,0.08)",
+        "elevated": "0 8px 24px rgba(0,0,0,0.12)",
+        "dramatic": "0 16px 48px rgba(0,0,0,0.2)"
+      }
+    },
+
+    "prestigeDesignPrinciples": {
+      "chic": {
+        "principle": "Maintain sophisticated simplicity with bold contrast",
+        "implementation": ["high-contrast-text", "ample-whitespace", "selective-color-usage"]
+      },
+      "authority": {
+        "principle": "Use deep blacks and strategic gold accents to convey power and precision",
+        "implementation": ["dominant-black-buttons", "gold-accent-highlights", "strong-typography"]
+      },
+      "artisticCreation": {
+        "principle": "Present content with gallery-like precision and attention to detail",
+        "implementation": ["full-bleed-imagery", "careful-alignment", "purposeful-spacing"]
+      },
+      "consistency": {
+        "principle": "Maintain unwavering design standards across all touchpoints",
+        "implementation": ["consistent-button-styles", "uniform-spacing", "predictable-interactions"]
       }
     },
 
     "a11y": {
       "minContrast": 4.5,
-      "primaryButtonContrast": { "bg": "#1C1C1C", "fg": "#FDFBF7", "ratio": 12.6 },
-      "brandButtonContrast":   { "bg": "#C9A98C", "fg": "#1C1C1C", "ratio": 6.9 },
-      "focusVisible": { "ring": { "color": "rgba(201,169,140,0.6)", "width": 2, "offset": 2 } },
+      "primaryButtonContrast": { "bg": "#0A0A0A", "fg": "#FFFFFF", "ratio": 19.2 },
+      "brandButtonContrast":   { "bg": "#D4A574", "fg": "#0A0A0A", "ratio": 8.7 },
+      "authorityButtonContrast": { "bg": "#1A1A1A", "fg": "#FFFFFF", "ratio": 16.4 },
+      "focusVisible": { "ring": { "color": "rgba(212,165,116,0.8)", "width": 2, "offset": 2 } },
       "tapTargets": { "minSize": 44, "minSpacing": 8 }
     },
 
@@ -265,21 +312,43 @@
       },
       "images": {
         "corner": "lg",
-        "placeholderBg": "#F7F3ED"
+        "placeholderBg": "#F6F3EF"
+      },
+      "fullScreenCoverage": {
+        "principle": "Always ensure backgrounds and hero images cover the entire screen or designated area without white borders",
+        "heroImages": {
+          "coverage": "full-width",
+          "aspectRatio": "maintain",
+          "positioning": "cover",
+          "margins": "none",
+          "borders": "none"
+        },
+        "backgrounds": {
+          "videoBackgrounds": "full-screen-coverage",
+          "imageBackgrounds": "edge-to-edge",
+          "gradientOverlays": "full-coverage"
+        },
+        "prestige": {
+          "principle": "Maintain authoritative and chic appearance through consistent full-coverage visuals",
+          "avoidWhiteBorders": true,
+          "ensureEdgeToEdge": true
+        }
       }
     },
 
     "modes": {
       "light": "default",
       "dark": {
-        "bg":    { "app": "#121212", "surface": "#181818", "subsurface": "#1E1E1E", "elevated": "#212121" },
-        "text":  { "primary": "#F5F2EC", "secondary": "#D6D0C6", "muted": "#A79E93" },
-        "border": { "soft": "#2A2A2A", "hard": "#3A3A3A", "focus": "#A77E60" },
+        "bg":    { "app": "#0A0A0A", "surface": "#1A1A1A", "subsurface": "#2A2A2A", "elevated": "#1A1A1A" },
+        "text":  { "primary": "#FFFFFF", "secondary": "#E8DDD1", "muted": "#B8935F" },
+        "border": { "soft": "#2A2A2A", "hard": "#3A3A3A", "focus": "#D4A574" },
         "button": {
-          "primaryBg": "#F5F2EC",
-          "primaryFg": "#1C1C1C",
-          "brandBg": "#A77E60",
-          "brandFg": "#121212"
+          "primaryBg": "#FFFFFF",
+          "primaryFg": "#0A0A0A",
+          "brandBg": "#D4A574",
+          "brandFg": "#0A0A0A",
+          "authorityBg": "#2A2A2A",
+          "authorityFg": "#FFFFFF"
         }
       }
     }
