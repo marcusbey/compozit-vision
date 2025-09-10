@@ -1,0 +1,99 @@
+{
+  "generated": "2025-01-07T10:00:00.000Z",
+  "totalImages": 13,
+  "successful": 13,
+  "failed": 0,
+  "images": [
+    {
+      "filename": "interior-modern.svg",
+      "category": "interior",
+      "style": "modern",
+      "prompt": "Ultra-modern interior living room with floor-to-ceiling windows, minimalist white furniture, polished concrete floors, and dramatic natural lighting. Professional architectural photography, photorealistic, high resolution, magazine quality",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "interior-scandinavian.svg",
+      "category": "interior",
+      "style": "scandinavian",
+      "prompt": "Cozy Scandinavian living room with white walls, light wood floors, comfortable grey sofa, soft knit throws, potted plants, and warm natural light. Hygge atmosphere, professional interior photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "interior-industrial.svg",
+      "category": "interior",
+      "style": "industrial",
+      "prompt": "Industrial loft living space with exposed brick walls, metal beam ceiling, concrete floors, vintage leather furniture, Edison bulb lighting. Urban warehouse conversion, professional photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "interior-bohemian.svg",
+      "category": "interior",
+      "style": "bohemian",
+      "prompt": "Bohemian bedroom with layered textiles, macrame wall hangings, vintage rugs, plants everywhere, warm earth tones, eclectic furniture mix. Cozy artistic atmosphere, professional interior photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "interior-minimalist.svg",
+      "category": "interior",
+      "style": "minimalist",
+      "prompt": "Ultra-minimalist bedroom with platform bed, white walls, hidden storage, single piece of art, maximum negative space. Zen-like serenity, professional architectural photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "exterior-modern.svg",
+      "category": "exterior",
+      "style": "modern",
+      "prompt": "Modern house exterior with flat roof, glass walls, minimalist landscaping, concrete and wood materials. Dusk with architectural lighting, professional photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "exterior-mediterranean.svg",
+      "category": "exterior",
+      "style": "mediterranean",
+      "prompt": "Mediterranean villa exterior with white stucco walls, terracotta roof tiles, arched windows, bougainvillea climbing walls. Golden hour light, professional architectural photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "garden-japanese.svg",
+      "category": "garden",
+      "style": "japanese",
+      "prompt": "Serene Japanese zen garden with raked gravel patterns, carefully placed stones, small bridge over koi pond, pruned trees. Morning mist, professional landscape photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "garden-modern.svg",
+      "category": "garden",
+      "style": "modern",
+      "prompt": "Modern minimalist garden with geometric planters, structured hedges, water feature, outdoor sculpture, clean lines throughout. Professional landscape photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "hotels-luxury.svg",
+      "category": "hotels",
+      "style": "luxury",
+      "prompt": "Luxury hotel lobby with double-height ceiling, marble floors, crystal chandelier, velvet seating, grand staircase. Evening ambiance with warm lighting, professional hospitality photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "hotels-boutique.svg",
+      "category": "hotels",
+      "style": "boutique",
+      "prompt": "Boutique hotel room with designer furniture, statement lighting, luxury bedding, curated art, city views through large windows. Sophisticated modern style, professional photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "commercial-modern.svg",
+      "category": "commercial",
+      "style": "modern",
+      "prompt": "Modern retail store interior with minimalist display systems, polished concrete floors, track lighting, open layout. Apple store aesthetic, professional commercial photography",
+      "isPlaceholder": true
+    },
+    {
+      "filename": "commercial-restaurant.svg",
+      "category": "commercial",
+      "style": "restaurant",
+      "prompt": "Trendy restaurant interior with exposed ceiling, mixed seating areas, warm lighting, open kitchen concept, industrial-chic design. Evening atmosphere, professional photography",
+      "isPlaceholder": true
+    }
+  ]
+}

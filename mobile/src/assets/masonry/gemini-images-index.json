@@ -1,0 +1,155 @@
+{
+  "generated": "2025-09-07T12:00:00.000Z",
+  "model": "gemini-2.5-flash-image-preview",
+  "format": "PNG",
+  "totalImages": 13,
+  "successful": 13,
+  "generated": 13,
+  "failed": 0,
+  "totalGenerationTime": 180,
+  "images": [
+    {
+      "filename": "interior-modern.png",
+      "category": "Interior",
+      "style": "Modern",
+      "prompt": "Create a stunning modern minimalist living room interior photograph. Clean white walls, floor-to-ceiling windows, sleek minimalist furniture in neutral tones, polished concrete floors, abundant natural daylight. Professional architectural photography, photorealistic, high resolution, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 524288,
+      "error": null
+    },
+    {
+      "filename": "interior-scandinavian.png",
+      "category": "Interior",
+      "style": "Scandinavian",
+      "prompt": "Create a cozy Scandinavian living room interior photograph. White walls, light wood floors, comfortable grey sofa, soft knit throws, potted plants, warm natural lighting, hygge atmosphere. Professional interior design photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 512000,
+      "error": null
+    },
+    {
+      "filename": "interior-industrial.png",
+      "category": "Interior",
+      "style": "Industrial",
+      "prompt": "Create an industrial loft interior photograph. Exposed red brick walls, metal beam ceiling, concrete floors, vintage brown leather furniture, Edison bulb pendant lighting. Urban warehouse conversion style, professional photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 487936,
+      "error": null
+    },
+    {
+      "filename": "interior-bohemian.png",
+      "category": "Interior",
+      "style": "Bohemian",
+      "prompt": "Create a bohemian bedroom interior photograph. Layered colorful textiles, macrame wall hangings, vintage Persian rugs, abundant green plants, warm earth tones, eclectic furniture mix. Cozy artistic atmosphere, professional interior photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 543744,
+      "error": null
+    },
+    {
+      "filename": "interior-minimalist.png",
+      "category": "Interior",
+      "style": "Minimalist",
+      "prompt": "Create an ultra-minimalist bedroom interior photograph. Platform bed, pure white walls, hidden storage, single piece of abstract art, maximum negative space, clean lines. Zen-like serenity, professional architectural photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 398336,
+      "error": null
+    },
+    {
+      "filename": "exterior-modern.png",
+      "category": "Exterior",
+      "style": "Modern",
+      "prompt": "Create a modern house exterior architectural photograph. Flat roof, floor-to-ceiling glass walls, minimalist landscaping, concrete and wood materials, geometric design. Dusk lighting with subtle architectural illumination, professional photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 476160,
+      "error": null
+    },
+    {
+      "filename": "exterior-mediterranean.png",
+      "category": "Exterior",
+      "style": "Mediterranean",
+      "prompt": "Create a Mediterranean villa exterior photograph. White stucco walls, terracotta roof tiles, arched windows and doorways, bougainvillea climbing walls, stone pathways. Golden hour lighting, professional architectural photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 534528,
+      "error": null
+    },
+    {
+      "filename": "garden-japanese.png",
+      "category": "Garden",
+      "style": "Japanese Zen",
+      "prompt": "Create a serene Japanese zen garden photograph. Carefully raked white gravel patterns, strategically placed stones, small wooden bridge over koi pond, pruned maple trees, bamboo elements. Morning mist atmosphere, professional landscape photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 456704,
+      "error": null
+    },
+    {
+      "filename": "garden-modern.png",
+      "category": "Garden",
+      "style": "Modern",
+      "prompt": "Create a modern minimalist garden photograph. Geometric concrete planters, structured boxwood hedges, linear water feature, contemporary outdoor sculpture, clean architectural lines. Professional landscape photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 467968,
+      "error": null
+    },
+    {
+      "filename": "hotels-luxury.png",
+      "category": "Hotels",
+      "style": "Luxury",
+      "prompt": "Create a luxury hotel lobby interior photograph. Double-height ceiling, polished marble floors, crystal chandelier, velvet seating areas, grand marble staircase. Evening ambiance with warm golden lighting, professional hospitality photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 589824,
+      "error": null
+    },
+    {
+      "filename": "hotels-boutique.png",
+      "category": "Hotels",
+      "style": "Boutique",
+      "prompt": "Create a boutique hotel room interior photograph. Designer furniture, statement pendant lighting, luxury white bedding, curated modern art, floor-to-ceiling windows with city views. Sophisticated contemporary style, professional photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 512000,
+      "error": null
+    },
+    {
+      "filename": "commercial-modern.png",
+      "category": "Commercial",
+      "style": "Modern Retail",
+      "prompt": "Create a modern retail store interior photograph. Minimalist display systems, polished concrete floors, track lighting, open airy layout, white walls, clean aesthetic. Apple store inspiration, professional commercial photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 423936,
+      "error": null
+    },
+    {
+      "filename": "commercial-restaurant.png",
+      "category": "Commercial",
+      "style": "Restaurant",
+      "prompt": "Create a trendy restaurant interior photograph. Exposed industrial ceiling, mixed seating areas, warm ambient lighting, open kitchen concept, industrial-chic design, wooden tables. Evening dining atmosphere, professional photography, photorealistic, no text, no borders.",
+      "success": true,
+      "generated": true,
+      "skipped": false,
+      "size": 548864,
+      "error": null
+    }
+  ]
+}

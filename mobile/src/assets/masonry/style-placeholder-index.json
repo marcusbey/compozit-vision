@@ -1,0 +1,1150 @@
+{
+  "generated": "2025-09-07T09:40:06.114Z",
+  "totalImages": 176,
+  "styles": [
+    {
+      "style": "Modern",
+      "category": "contemporary",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "contemporary-modern-living-room.png",
+          "fileSize": 124332
+        },
+        {
+          "room": "kitchen",
+          "filename": "contemporary-modern-kitchen.png",
+          "fileSize": 124332
+        },
+        {
+          "room": "bedroom",
+          "filename": "contemporary-modern-bedroom.png",
+          "fileSize": 124332
+        },
+        {
+          "room": "bathroom",
+          "filename": "contemporary-modern-bathroom.png",
+          "fileSize": 124332
+        }
+      ]
+    },
+    {
+      "style": "Tropical",
+      "category": "themed",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "themed-tropical-living-room.png",
+          "fileSize": 101058
+        },
+        {
+          "room": "bathroom",
+          "filename": "themed-tropical-bathroom.png",
+          "fileSize": 101058
+        },
+        {
+          "room": "bedroom",
+          "filename": "themed-tropical-bedroom.png",
+          "fileSize": 101058
+        },
+        {
+          "room": "patio",
+          "filename": "themed-tropical-patio.png",
+          "fileSize": 101058
+        }
+      ]
+    },
+    {
+      "style": "Minimalistic",
+      "category": "contemporary",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "contemporary-minimalistic-living-room.png",
+          "fileSize": 122770
+        },
+        {
+          "room": "kitchen",
+          "filename": "contemporary-minimalistic-kitchen.png",
+          "fileSize": 122770
+        },
+        {
+          "room": "bedroom",
+          "filename": "contemporary-minimalistic-bedroom.png",
+          "fileSize": 122770
+        },
+        {
+          "room": "office",
+          "filename": "contemporary-minimalistic-office.png",
+          "fileSize": 122770
+        }
+      ]
+    },
+    {
+      "style": "Bohemian",
+      "category": "artistic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "artistic-bohemian-living-room.png",
+          "fileSize": 158138
+        },
+        {
+          "room": "bedroom",
+          "filename": "artistic-bohemian-bedroom.png",
+          "fileSize": 158138
+        },
+        {
+          "room": "office",
+          "filename": "artistic-bohemian-office.png",
+          "fileSize": 158138
+        },
+        {
+          "room": "studio",
+          "filename": "artistic-bohemian-studio.png",
+          "fileSize": 158138
+        }
+      ]
+    },
+    {
+      "style": "Rustic",
+      "category": "natural",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "natural-rustic-kitchen.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "living-room",
+          "filename": "natural-rustic-living-room.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "bedroom",
+          "filename": "natural-rustic-bedroom.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "dining",
+          "filename": "natural-rustic-dining.png",
+          "fileSize": 95454
+        }
+      ]
+    },
+    {
+      "style": "Vintage",
+      "category": "classic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "classic-vintage-living-room.png",
+          "fileSize": 108906
+        },
+        {
+          "room": "bedroom",
+          "filename": "classic-vintage-bedroom.png",
+          "fileSize": 108906
+        },
+        {
+          "room": "office",
+          "filename": "classic-vintage-office.png",
+          "fileSize": 108906
+        },
+        {
+          "room": "library",
+          "filename": "classic-vintage-library.png",
+          "fileSize": 108906
+        }
+      ]
+    },
+    {
+      "style": "Baroque",
+      "category": "luxury",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "luxury-baroque-living-room.png",
+          "fileSize": 177223
+        },
+        {
+          "room": "dining",
+          "filename": "luxury-baroque-dining.png",
+          "fileSize": 177223
+        },
+        {
+          "room": "bedroom",
+          "filename": "luxury-baroque-bedroom.png",
+          "fileSize": 177223
+        },
+        {
+          "room": "study",
+          "filename": "luxury-baroque-study.png",
+          "fileSize": 177223
+        }
+      ]
+    },
+    {
+      "style": "Mediterranean",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-mediterranean-living-room.png",
+          "fileSize": 120686
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-mediterranean-kitchen.png",
+          "fileSize": 120686
+        },
+        {
+          "room": "patio",
+          "filename": "cultural-mediterranean-patio.png",
+          "fileSize": 120686
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-mediterranean-bedroom.png",
+          "fileSize": 120686
+        }
+      ]
+    },
+    {
+      "style": "Italian",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "cultural-italian-kitchen.png",
+          "fileSize": 116533
+        },
+        {
+          "room": "dining",
+          "filename": "cultural-italian-dining.png",
+          "fileSize": 116533
+        },
+        {
+          "room": "living-room",
+          "filename": "cultural-italian-living-room.png",
+          "fileSize": 116533
+        },
+        {
+          "room": "terrace",
+          "filename": "cultural-italian-terrace.png",
+          "fileSize": 116533
+        }
+      ]
+    },
+    {
+      "style": "Spanish",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "courtyard",
+          "filename": "cultural-spanish-courtyard.png",
+          "fileSize": 110876
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-spanish-kitchen.png",
+          "fileSize": 110876
+        },
+        {
+          "room": "living-room",
+          "filename": "cultural-spanish-living-room.png",
+          "fileSize": 110876
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-spanish-bedroom.png",
+          "fileSize": 110876
+        }
+      ]
+    },
+    {
+      "style": "Provence",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "cultural-provence-kitchen.png",
+          "fileSize": 127168
+        },
+        {
+          "room": "dining",
+          "filename": "cultural-provence-dining.png",
+          "fileSize": 127168
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-provence-bedroom.png",
+          "fileSize": 127168
+        },
+        {
+          "room": "garden",
+          "filename": "cultural-provence-garden.png",
+          "fileSize": 127168
+        }
+      ]
+    },
+    {
+      "style": "Scandinavian",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-scandinavian-living-room.png",
+          "fileSize": 140658
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-scandinavian-bedroom.png",
+          "fileSize": 140658
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-scandinavian-kitchen.png",
+          "fileSize": 140658
+        },
+        {
+          "room": "office",
+          "filename": "cultural-scandinavian-office.png",
+          "fileSize": 140658
+        }
+      ]
+    },
+    {
+      "style": "Industrial",
+      "category": "urban",
+      "rooms": [
+        {
+          "room": "loft",
+          "filename": "urban-industrial-loft.png",
+          "fileSize": 128712
+        },
+        {
+          "room": "kitchen",
+          "filename": "urban-industrial-kitchen.png",
+          "fileSize": 128712
+        },
+        {
+          "room": "office",
+          "filename": "urban-industrial-office.png",
+          "fileSize": 128712
+        },
+        {
+          "room": "bathroom",
+          "filename": "urban-industrial-bathroom.png",
+          "fileSize": 128712
+        }
+      ]
+    },
+    {
+      "style": "Art Deco",
+      "category": "luxury",
+      "rooms": [
+        {
+          "room": "lobby",
+          "filename": "luxury-art-deco-lobby.png",
+          "fileSize": 89814
+        },
+        {
+          "room": "living-room",
+          "filename": "luxury-art-deco-living-room.png",
+          "fileSize": 89814
+        },
+        {
+          "room": "bedroom",
+          "filename": "luxury-art-deco-bedroom.png",
+          "fileSize": 89814
+        },
+        {
+          "room": "bar",
+          "filename": "luxury-art-deco-bar.png",
+          "fileSize": 89814
+        }
+      ]
+    },
+    {
+      "style": "Japanese Zen",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-japanese-zen-living-room.png",
+          "fileSize": 103947
+        },
+        {
+          "room": "bathroom",
+          "filename": "cultural-japanese-zen-bathroom.png",
+          "fileSize": 103947
+        },
+        {
+          "room": "meditation",
+          "filename": "cultural-japanese-zen-meditation.png",
+          "fileSize": 103947
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-japanese-zen-bedroom.png",
+          "fileSize": 103947
+        }
+      ]
+    },
+    {
+      "style": "Moroccan",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-moroccan-living-room.png",
+          "fileSize": 158578
+        },
+        {
+          "room": "bathroom",
+          "filename": "cultural-moroccan-bathroom.png",
+          "fileSize": 158578
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-moroccan-bedroom.png",
+          "fileSize": 158578
+        },
+        {
+          "room": "courtyard",
+          "filename": "cultural-moroccan-courtyard.png",
+          "fileSize": 158578
+        }
+      ]
+    },
+    {
+      "style": "French Country",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "cultural-french-country-kitchen.png",
+          "fileSize": 120929
+        },
+        {
+          "room": "living-room",
+          "filename": "cultural-french-country-living-room.png",
+          "fileSize": 120929
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-french-country-bedroom.png",
+          "fileSize": 120929
+        },
+        {
+          "room": "dining",
+          "filename": "cultural-french-country-dining.png",
+          "fileSize": 120929
+        }
+      ]
+    },
+    {
+      "style": "English Country",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-english-country-living-room.png",
+          "fileSize": 117422
+        },
+        {
+          "room": "library",
+          "filename": "cultural-english-country-library.png",
+          "fileSize": 117422
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-english-country-bedroom.png",
+          "fileSize": 117422
+        },
+        {
+          "room": "conservatory",
+          "filename": "cultural-english-country-conservatory.png",
+          "fileSize": 117422
+        }
+      ]
+    },
+    {
+      "style": "Contemporary",
+      "category": "modern",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "modern-contemporary-living-room.png",
+          "fileSize": 116917
+        },
+        {
+          "room": "kitchen",
+          "filename": "modern-contemporary-kitchen.png",
+          "fileSize": 116917
+        },
+        {
+          "room": "office",
+          "filename": "modern-contemporary-office.png",
+          "fileSize": 116917
+        },
+        {
+          "room": "bedroom",
+          "filename": "modern-contemporary-bedroom.png",
+          "fileSize": 116917
+        }
+      ]
+    },
+    {
+      "style": "Transitional",
+      "category": "classic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "classic-transitional-living-room.png",
+          "fileSize": 123739
+        },
+        {
+          "room": "dining",
+          "filename": "classic-transitional-dining.png",
+          "fileSize": 123739
+        },
+        {
+          "room": "bedroom",
+          "filename": "classic-transitional-bedroom.png",
+          "fileSize": 123739
+        },
+        {
+          "room": "office",
+          "filename": "classic-transitional-office.png",
+          "fileSize": 123739
+        }
+      ]
+    },
+    {
+      "style": "Coastal",
+      "category": "themed",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "themed-coastal-living-room.png",
+          "fileSize": 128717
+        },
+        {
+          "room": "bedroom",
+          "filename": "themed-coastal-bedroom.png",
+          "fileSize": 128717
+        },
+        {
+          "room": "bathroom",
+          "filename": "themed-coastal-bathroom.png",
+          "fileSize": 128717
+        },
+        {
+          "room": "deck",
+          "filename": "themed-coastal-deck.png",
+          "fileSize": 128717
+        }
+      ]
+    },
+    {
+      "style": "Luxury Modern",
+      "category": "luxury",
+      "rooms": [
+        {
+          "room": "penthouse",
+          "filename": "luxury-luxury-modern-penthouse.png",
+          "fileSize": 179920
+        },
+        {
+          "room": "master-suite",
+          "filename": "luxury-luxury-modern-master-suite.png",
+          "fileSize": 179920
+        },
+        {
+          "room": "wine-cellar",
+          "filename": "luxury-luxury-modern-wine-cellar.png",
+          "fileSize": 179920
+        },
+        {
+          "room": "spa",
+          "filename": "luxury-luxury-modern-spa.png",
+          "fileSize": 179920
+        }
+      ]
+    },
+    {
+      "style": "Mid-Century Modern",
+      "category": "vintage",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "vintage-mid-century-modern-living-room.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "den",
+          "filename": "vintage-mid-century-modern-den.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "kitchen",
+          "filename": "vintage-mid-century-modern-kitchen.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "office",
+          "filename": "vintage-mid-century-modern-office.png",
+          "fileSize": 106388
+        }
+      ]
+    },
+    {
+      "style": "Shabby Chic",
+      "category": "vintage",
+      "rooms": [
+        {
+          "room": "bedroom",
+          "filename": "vintage-shabby-chic-bedroom.png",
+          "fileSize": 113267
+        },
+        {
+          "room": "craft-room",
+          "filename": "vintage-shabby-chic-craft-room.png",
+          "fileSize": 113267
+        },
+        {
+          "room": "kitchen",
+          "filename": "vintage-shabby-chic-kitchen.png",
+          "fileSize": 113267
+        },
+        {
+          "room": "nursery",
+          "filename": "vintage-shabby-chic-nursery.png",
+          "fileSize": 113267
+        }
+      ]
+    },
+    {
+      "style": "Lodge",
+      "category": "rustic",
+      "rooms": [
+        {
+          "room": "great-room",
+          "filename": "rustic-lodge-great-room.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "cabin-bedroom",
+          "filename": "rustic-lodge-cabin-bedroom.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "kitchen",
+          "filename": "rustic-lodge-kitchen.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "deck",
+          "filename": "rustic-lodge-deck.png",
+          "fileSize": 95454
+        }
+      ]
+    },
+    {
+      "style": "Greek Island",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "terrace",
+          "filename": "cultural-greek-island-terrace.png",
+          "fileSize": 138229
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-greek-island-bedroom.png",
+          "fileSize": 138229
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-greek-island-kitchen.png",
+          "fileSize": 138229
+        },
+        {
+          "room": "courtyard",
+          "filename": "cultural-greek-island-courtyard.png",
+          "fileSize": 138229
+        }
+      ]
+    },
+    {
+      "style": "Portuguese",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "cultural-portuguese-kitchen.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "bathroom",
+          "filename": "cultural-portuguese-bathroom.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "living-room",
+          "filename": "cultural-portuguese-living-room.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "patio",
+          "filename": "cultural-portuguese-patio.png",
+          "fileSize": 113243
+        }
+      ]
+    },
+    {
+      "style": "Swiss Chalet",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-swiss-chalet-living-room.png",
+          "fileSize": 104274
+        },
+        {
+          "room": "bedroom",
+          "filename": "cultural-swiss-chalet-bedroom.png",
+          "fileSize": 104274
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-swiss-chalet-kitchen.png",
+          "fileSize": 104274
+        },
+        {
+          "room": "balcony",
+          "filename": "cultural-swiss-chalet-balcony.png",
+          "fileSize": 104274
+        }
+      ]
+    },
+    {
+      "style": "Dutch Modern",
+      "category": "cultural",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "cultural-dutch-modern-living-room.png",
+          "fileSize": 113897
+        },
+        {
+          "room": "kitchen",
+          "filename": "cultural-dutch-modern-kitchen.png",
+          "fileSize": 113897
+        },
+        {
+          "room": "office",
+          "filename": "cultural-dutch-modern-office.png",
+          "fileSize": 113897
+        },
+        {
+          "room": "loft",
+          "filename": "cultural-dutch-modern-loft.png",
+          "fileSize": 113897
+        }
+      ]
+    },
+    {
+      "style": "Austrian Imperial",
+      "category": "luxury",
+      "rooms": [
+        {
+          "room": "salon",
+          "filename": "luxury-austrian-imperial-salon.png",
+          "fileSize": 99557
+        },
+        {
+          "room": "dining",
+          "filename": "luxury-austrian-imperial-dining.png",
+          "fileSize": 99557
+        },
+        {
+          "room": "bedroom",
+          "filename": "luxury-austrian-imperial-bedroom.png",
+          "fileSize": 99557
+        },
+        {
+          "room": "library",
+          "filename": "luxury-austrian-imperial-library.png",
+          "fileSize": 99557
+        }
+      ]
+    },
+    {
+      "style": "Irish Cottage",
+      "category": "rustic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "rustic-irish-cottage-living-room.png",
+          "fileSize": 113336
+        },
+        {
+          "room": "kitchen",
+          "filename": "rustic-irish-cottage-kitchen.png",
+          "fileSize": 113336
+        },
+        {
+          "room": "bedroom",
+          "filename": "rustic-irish-cottage-bedroom.png",
+          "fileSize": 113336
+        },
+        {
+          "room": "garden",
+          "filename": "rustic-irish-cottage-garden.png",
+          "fileSize": 113336
+        }
+      ]
+    },
+    {
+      "style": "Scottish Highland",
+      "category": "rustic",
+      "rooms": [
+        {
+          "room": "great-hall",
+          "filename": "rustic-scottish-highland-great-hall.png",
+          "fileSize": 95402
+        },
+        {
+          "room": "bedroom",
+          "filename": "rustic-scottish-highland-bedroom.png",
+          "fileSize": 95402
+        },
+        {
+          "room": "library",
+          "filename": "rustic-scottish-highland-library.png",
+          "fileSize": 95402
+        },
+        {
+          "room": "whisky-room",
+          "filename": "rustic-scottish-highland-whisky-room.png",
+          "fileSize": 95402
+        }
+      ]
+    },
+    {
+      "style": "California Casual",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "regional-california-casual-living-room.png",
+          "fileSize": 126837
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-california-casual-kitchen.png",
+          "fileSize": 126837
+        },
+        {
+          "room": "patio",
+          "filename": "regional-california-casual-patio.png",
+          "fileSize": 126837
+        },
+        {
+          "room": "pool-house",
+          "filename": "regional-california-casual-pool-house.png",
+          "fileSize": 126837
+        }
+      ]
+    },
+    {
+      "style": "Southern Charm",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "porch",
+          "filename": "regional-southern-charm-porch.png",
+          "fileSize": 123015
+        },
+        {
+          "room": "living-room",
+          "filename": "regional-southern-charm-living-room.png",
+          "fileSize": 123015
+        },
+        {
+          "room": "dining",
+          "filename": "regional-southern-charm-dining.png",
+          "fileSize": 123015
+        },
+        {
+          "room": "bedroom",
+          "filename": "regional-southern-charm-bedroom.png",
+          "fileSize": 123015
+        }
+      ]
+    },
+    {
+      "style": "New England Colonial",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "regional-new-england-colonial-living-room.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-new-england-colonial-kitchen.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "study",
+          "filename": "regional-new-england-colonial-study.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "bedroom",
+          "filename": "regional-new-england-colonial-bedroom.png",
+          "fileSize": 119308
+        }
+      ]
+    },
+    {
+      "style": "Southwestern Adobe",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "courtyard",
+          "filename": "regional-southwestern-adobe-courtyard.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "living-room",
+          "filename": "regional-southwestern-adobe-living-room.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-southwestern-adobe-kitchen.png",
+          "fileSize": 106388
+        },
+        {
+          "room": "bedroom",
+          "filename": "regional-southwestern-adobe-bedroom.png",
+          "fileSize": 106388
+        }
+      ]
+    },
+    {
+      "style": "Pacific Northwest",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "regional-pacific-northwest-living-room.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-pacific-northwest-kitchen.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "office",
+          "filename": "regional-pacific-northwest-office.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "deck",
+          "filename": "regional-pacific-northwest-deck.png",
+          "fileSize": 104202
+        }
+      ]
+    },
+    {
+      "style": "Texas Ranch",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "great-room",
+          "filename": "regional-texas-ranch-great-room.png",
+          "fileSize": 100492
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-texas-ranch-kitchen.png",
+          "fileSize": 100492
+        },
+        {
+          "room": "master-suite",
+          "filename": "regional-texas-ranch-master-suite.png",
+          "fileSize": 100492
+        },
+        {
+          "room": "porch",
+          "filename": "regional-texas-ranch-porch.png",
+          "fileSize": 100492
+        }
+      ]
+    },
+    {
+      "style": "Colorado Mountain",
+      "category": "regional",
+      "rooms": [
+        {
+          "room": "great-room",
+          "filename": "regional-colorado-mountain-great-room.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "kitchen",
+          "filename": "regional-colorado-mountain-kitchen.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "bedroom",
+          "filename": "regional-colorado-mountain-bedroom.png",
+          "fileSize": 95454
+        },
+        {
+          "room": "ski-room",
+          "filename": "regional-colorado-mountain-ski-room.png",
+          "fileSize": 95454
+        }
+      ]
+    },
+    {
+      "style": "Art Nouveau",
+      "category": "artistic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "artistic-art-nouveau-living-room.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "bedroom",
+          "filename": "artistic-art-nouveau-bedroom.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "study",
+          "filename": "artistic-art-nouveau-study.png",
+          "fileSize": 104202
+        },
+        {
+          "room": "conservatory",
+          "filename": "artistic-art-nouveau-conservatory.png",
+          "fileSize": 104202
+        }
+      ]
+    },
+    {
+      "style": "Maximalist",
+      "category": "artistic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "artistic-maximalist-living-room.png",
+          "fileSize": 104055
+        },
+        {
+          "room": "bedroom",
+          "filename": "artistic-maximalist-bedroom.png",
+          "fileSize": 104055
+        },
+        {
+          "room": "office",
+          "filename": "artistic-maximalist-office.png",
+          "fileSize": 104055
+        },
+        {
+          "room": "library",
+          "filename": "artistic-maximalist-library.png",
+          "fileSize": 104055
+        }
+      ]
+    },
+    {
+      "style": "Eclectic",
+      "category": "artistic",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "artistic-eclectic-living-room.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "studio",
+          "filename": "artistic-eclectic-studio.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "bedroom",
+          "filename": "artistic-eclectic-bedroom.png",
+          "fileSize": 113243
+        },
+        {
+          "room": "library",
+          "filename": "artistic-eclectic-library.png",
+          "fileSize": 113243
+        }
+      ]
+    },
+    {
+      "style": "Glam",
+      "category": "luxury",
+      "rooms": [
+        {
+          "room": "living-room",
+          "filename": "luxury-glam-living-room.png",
+          "fileSize": 91250
+        },
+        {
+          "room": "bedroom",
+          "filename": "luxury-glam-bedroom.png",
+          "fileSize": 91250
+        },
+        {
+          "room": "dressing-room",
+          "filename": "luxury-glam-dressing-room.png",
+          "fileSize": 91250
+        },
+        {
+          "room": "bar",
+          "filename": "luxury-glam-bar.png",
+          "fileSize": 91250
+        }
+      ]
+    },
+    {
+      "style": "Farmhouse",
+      "category": "rustic",
+      "rooms": [
+        {
+          "room": "kitchen",
+          "filename": "rustic-farmhouse-kitchen.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "living-room",
+          "filename": "rustic-farmhouse-living-room.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "bedroom",
+          "filename": "rustic-farmhouse-bedroom.png",
+          "fileSize": 119308
+        },
+        {
+          "room": "porch",
+          "filename": "rustic-farmhouse-porch.png",
+          "fileSize": 119308
+        }
+      ]
+    }
+  ]
+}

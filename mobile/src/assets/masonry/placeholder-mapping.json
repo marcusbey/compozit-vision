@@ -1,0 +1,64 @@
+{
+  "mapping": [
+    {
+      "source": "../images/photography-consolidated/rooms/sample-modern-living.png",
+      "target": "modern-living-room.png",
+      "style": "Modern Minimalist",
+      "room": "Living Room"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/sample-contemporary-kitchen.png",
+      "target": "industrial-kitchen.png",
+      "style": "Industrial",
+      "room": "Kitchen"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/sample-cozy-bedroom.png",
+      "target": "bohemian-bedroom.png",
+      "style": "Bohemian",
+      "room": "Bedroom"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/sample-home-office.png",
+      "target": "vintage-workspace.png",
+      "style": "Vintage",
+      "room": "Workspace"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/living-room-example.png",
+      "target": "scandinavian-living-room.png",
+      "style": "Scandinavian",
+      "room": "Living Room"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/bedroom-example.png",
+      "target": "minimalist-bedroom.png",
+      "style": "Minimalist",
+      "room": "Bedroom"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/kitchen-example.png",
+      "target": "modern-kitchen-island.png",
+      "style": "Contemporary",
+      "room": "Kitchen"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/office-example.png",
+      "target": "industrial-workspace.png",
+      "style": "Industrial",
+      "room": "Workspace"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/sample-elegant-dining.png",
+      "target": "cozy-reading-nook.png",
+      "style": "Cozy Traditional",
+      "room": "Living Space"
+    },
+    {
+      "source": "../images/photography-consolidated/rooms/dining-example.png",
+      "target": "modern-dining-room.png",
+      "style": "Modern Contemporary",
+      "room": "Dining Room"
+    }
+  ]
+}

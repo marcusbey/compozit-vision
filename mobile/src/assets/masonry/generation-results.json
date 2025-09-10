@@ -1,0 +1,151 @@
+{
+  "generated": "2025-09-07T08:54:49.494Z",
+  "model": "gemini-2.0-flash-exp",
+  "results": [
+    {
+      "filename": "interior-modern.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "interior-scandinavian.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "interior-industrial.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "interior-bohemian.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "interior-minimalist.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "exterior-modern.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "exterior-mediterranean.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "garden-japanese.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "garden-modern.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "hotels-luxury.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "hotels-boutique.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "commercial-modern.png",
+      "success": true,
+      "type": "placeholder"
+    },
+    {
+      "filename": "commercial-restaurant.png",
+      "success": true,
+      "type": "placeholder"
+    }
+  ],
+  "specs": [
+    {
+      "filename": "interior-modern.png",
+      "prompt": "Create a photorealistic interior design image of a modern minimalist living room. Features: floor-to-ceiling windows, white walls, sleek grey furniture, polished concrete floors, natural daylight streaming in. Professional architectural photography style, high resolution, no text, no watermarks.",
+      "category": "Interior",
+      "style": "Modern"
+    },
+    {
+      "filename": "interior-scandinavian.png",
+      "prompt": "Create a photorealistic Scandinavian living room interior. Features: white walls, light oak wood floors, comfortable beige sofa, soft wool throws, green plants, cozy warm lighting. Hygge atmosphere, professional interior photography, high resolution, no text.",
+      "category": "Interior",
+      "style": "Scandinavian"
+    },
+    {
+      "filename": "interior-industrial.png",
+      "prompt": "Create a photorealistic industrial loft interior. Features: exposed red brick walls, black metal ceiling beams, concrete floors, brown leather sofa, Edison bulb pendant lights. Urban warehouse style, professional photography, high resolution, no text.",
+      "category": "Interior",
+      "style": "Industrial"
+    },
+    {
+      "filename": "interior-bohemian.png",
+      "prompt": "Create a photorealistic bohemian bedroom interior. Features: colorful layered textiles, macrame wall art, Persian rugs, many green plants, warm terracotta colors, eclectic furniture. Artistic cozy atmosphere, professional photography, high resolution, no text.",
+      "category": "Interior",
+      "style": "Bohemian"
+    },
+    {
+      "filename": "interior-minimalist.png",
+      "prompt": "Create a photorealistic ultra-minimalist bedroom. Features: all white walls, low platform bed with white bedding, one abstract art piece, hidden storage, maximum empty space. Zen serenity, professional architectural photography, high resolution, no text.",
+      "category": "Interior",
+      "style": "Minimalist"
+    },
+    {
+      "filename": "exterior-modern.png",
+      "prompt": "Create a photorealistic modern house exterior. Features: flat roof, floor-to-ceiling glass walls, minimalist landscaping, concrete and dark wood materials, geometric architecture. Evening with architectural lighting, professional photography, high resolution, no text.",
+      "category": "Exterior",
+      "style": "Modern"
+    },
+    {
+      "filename": "exterior-mediterranean.png",
+      "prompt": "Create a photorealistic Mediterranean villa exterior. Features: white stucco walls, terracotta clay roof tiles, arched windows and doorways, pink bougainvillea flowers, stone pathways. Golden sunset lighting, professional architectural photography, high resolution, no text.",
+      "category": "Exterior",
+      "style": "Mediterranean"
+    },
+    {
+      "filename": "garden-japanese.png",
+      "prompt": "Create a photorealistic Japanese zen garden. Features: carefully raked white gravel patterns, moss-covered stones, small wooden bridge, koi pond, pruned pine trees, bamboo fence. Serene morning light, professional landscape photography, high resolution, no text.",
+      "category": "Garden",
+      "style": "Japanese Zen"
+    },
+    {
+      "filename": "garden-modern.png",
+      "prompt": "Create a photorealistic modern minimalist garden. Features: geometric concrete planters, trimmed boxwood hedges, linear water feature, contemporary sculpture, clean architectural lines. Professional landscape photography, high resolution, no text.",
+      "category": "Garden",
+      "style": "Modern"
+    },
+    {
+      "filename": "hotels-luxury.png",
+      "prompt": "Create a photorealistic luxury hotel lobby interior. Features: double-height ceiling, polished marble floors, crystal chandelier, gold and velvet furniture, grand staircase. Elegant evening lighting, professional hospitality photography, high resolution, no text.",
+      "category": "Hotels",
+      "style": "Luxury"
+    },
+    {
+      "filename": "hotels-boutique.png",
+      "prompt": "Create a photorealistic boutique hotel room. Features: designer furniture, statement pendant lighting, luxury bedding in neutral tones, curated art pieces, floor-to-ceiling windows. Contemporary sophisticated style, professional photography, high resolution, no text.",
+      "category": "Hotels",
+      "style": "Boutique"
+    },
+    {
+      "filename": "commercial-modern.png",
+      "prompt": "Create a photorealistic modern retail store interior. Features: minimalist white display systems, polished concrete floors, track lighting, open spacious layout, clean aesthetic. Professional commercial photography, high resolution, no text.",
+      "category": "Commercial",
+      "style": "Modern Retail"
+    },
+    {
+      "filename": "commercial-restaurant.png",
+      "prompt": "Create a photorealistic trendy restaurant interior. Features: exposed black ceiling, mixed wood and metal furniture, warm pendant lighting, open kitchen view, industrial-chic design. Evening dining atmosphere, professional photography, high resolution, no text.",
+      "category": "Commercial",
+      "style": "Restaurant"
+    }
+  ]
+}

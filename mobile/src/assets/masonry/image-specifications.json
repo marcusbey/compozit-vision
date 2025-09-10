@@ -1,0 +1,103 @@
+{
+  "project": "Compozit Vision - Masonry Gallery Images",
+  "purpose": "Small showcase images for mobile app onboarding screen",
+  "totalImages": 10,
+  "requirements": {
+    "style": "Professional interior design photography",
+    "quality": "High resolution, clean aesthetic",
+    "sizes": "Multiple orientations for masonry layout",
+    "formats": "PNG format preferred"
+  },
+  "images": [
+    {
+      "filename": "modern-living-room.png",
+      "description": "A modern minimalist living room with clean lines, neutral colors, sleek furniture, and abundant natural light. Professional interior design photography.",
+      "style": "Modern Minimalist",
+      "room": "Living Room",
+      "dimensions": "320x240",
+      "orientation": "landscape",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "industrial-kitchen.png",
+      "description": "An industrial style kitchen with exposed brick walls, stainless steel appliances, concrete countertops, and Edison bulb lighting. Professional interior photography.",
+      "style": "Industrial",
+      "room": "Kitchen",
+      "dimensions": "256x256",
+      "orientation": "square",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "bohemian-bedroom.png",
+      "description": "A bohemian bedroom with warm earth tones, layered textiles, macrame wall hangings, plants, and cozy ambient lighting. Professional interior design photo.",
+      "style": "Bohemian",
+      "room": "Bedroom",
+      "dimensions": "240x320",
+      "orientation": "portrait",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "vintage-workspace.png",
+      "description": "A vintage home office with antique wooden desk, leather chair, bookshelves, typewriter, warm lighting, and classic decor. Professional interior photography.",
+      "style": "Vintage",
+      "room": "Workspace",
+      "dimensions": "320x240",
+      "orientation": "landscape",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "scandinavian-living-room.png",
+      "description": "A Scandinavian living room with white walls, light wood furniture, cozy textiles, hygge elements, and natural light. Professional interior design photography.",
+      "style": "Scandinavian",
+      "room": "Living Room",
+      "dimensions": "256x256",
+      "orientation": "square",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "minimalist-bedroom.png",
+      "description": "A minimalist bedroom with clean white linens, simple furniture, organized space, natural materials, and serene atmosphere. Professional interior photography.",
+      "style": "Minimalist",
+      "room": "Bedroom",
+      "dimensions": "240x320",
+      "orientation": "portrait",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "modern-kitchen-island.png",
+      "description": "A contemporary kitchen with marble island, pendant lights, white cabinets, stainless appliances, and modern design. Professional interior design photo.",
+      "style": "Contemporary",
+      "room": "Kitchen",
+      "dimensions": "320x240",
+      "orientation": "landscape",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "industrial-workspace.png",
+      "description": "An industrial workspace with metal furniture, exposed pipes, concrete floors, vintage equipment, and moody lighting. Professional interior photography.",
+      "style": "Industrial",
+      "room": "Workspace",
+      "dimensions": "240x320",
+      "orientation": "portrait",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "cozy-reading-nook.png",
+      "description": "A cozy reading nook with comfortable armchair, soft throw blanket, bookshelf, warm lamp, and peaceful atmosphere. Professional interior design photography.",
+      "style": "Cozy Traditional",
+      "room": "Living Space",
+      "dimensions": "256x256",
+      "orientation": "square",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    },
+    {
+      "filename": "modern-dining-room.png",
+      "description": "A modern dining room with sleek table, contemporary chairs, statement lighting, and sophisticated design. Professional interior design photography.",
+      "style": "Modern Contemporary",
+      "room": "Dining Room",
+      "dimensions": "320x240",
+      "orientation": "landscape",
+      "usage": "Masonry gallery showcase in onboarding flow"
+    }
+  ]
+}

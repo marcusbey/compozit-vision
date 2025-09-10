@@ -1,0 +1,143 @@
+{
+  "generated": "2025-09-07T04:05:53.401Z",
+  "format": "PNG",
+  "dimensions": {
+    "width": 512,
+    "height": 512
+  },
+  "totalImages": 13,
+  "successful": 13,
+  "failed": 0,
+  "images": [
+    {
+      "filename": "interior-modern.png",
+      "category": "Interior",
+      "style": "Modern",
+      "color": [
+        240,
+        240,
+        245
+      ]
+    },
+    {
+      "filename": "interior-scandinavian.png",
+      "category": "Interior",
+      "style": "Scandinavian",
+      "color": [
+        248,
+        246,
+        240
+      ]
+    },
+    {
+      "filename": "interior-industrial.png",
+      "category": "Interior",
+      "style": "Industrial",
+      "color": [
+        120,
+        120,
+        130
+      ]
+    },
+    {
+      "filename": "interior-bohemian.png",
+      "category": "Interior",
+      "style": "Bohemian",
+      "color": [
+        180,
+        140,
+        100
+      ]
+    },
+    {
+      "filename": "interior-minimalist.png",
+      "category": "Interior",
+      "style": "Minimalist",
+      "color": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "filename": "exterior-modern.png",
+      "category": "Exterior",
+      "style": "Modern",
+      "color": [
+        200,
+        210,
+        220
+      ]
+    },
+    {
+      "filename": "exterior-mediterranean.png",
+      "category": "Exterior",
+      "style": "Mediterranean",
+      "color": [
+        230,
+        200,
+        160
+      ]
+    },
+    {
+      "filename": "garden-japanese.png",
+      "category": "Garden",
+      "style": "Japanese Zen",
+      "color": [
+        200,
+        220,
+        200
+      ]
+    },
+    {
+      "filename": "garden-modern.png",
+      "category": "Garden",
+      "style": "Modern",
+      "color": [
+        180,
+        200,
+        180
+      ]
+    },
+    {
+      "filename": "hotels-luxury.png",
+      "category": "Hotels",
+      "style": "Luxury",
+      "color": [
+        150,
+        130,
+        100
+      ]
+    },
+    {
+      "filename": "hotels-boutique.png",
+      "category": "Hotels",
+      "style": "Boutique",
+      "color": [
+        200,
+        180,
+        160
+      ]
+    },
+    {
+      "filename": "commercial-modern.png",
+      "category": "Commercial",
+      "style": "Modern Retail",
+      "color": [
+        220,
+        220,
+        230
+      ]
+    },
+    {
+      "filename": "commercial-restaurant.png",
+      "category": "Commercial",
+      "style": "Restaurant",
+      "color": [
+        160,
+        140,
+        120
+      ]
+    }
+  ]
+}
