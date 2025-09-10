@@ -4,7 +4,8 @@
   "description": "Backend API for Compozit Vision mobile app",
   "main": "index.js",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "node server.js",
+    "vercel-dev": "vercel dev --listen 3000",
     "deploy": "vercel --prod"
   },
   "dependencies": {

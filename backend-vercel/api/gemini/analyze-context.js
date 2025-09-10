@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).setHeaders(corsHeaders).end();
@@ -69,3 +69,7 @@ Return only one word: interior, garden, exterior, mixed, or unknown.`;
       });
   }
 }
+
+// Export for both Vercel and local development
+module.exports = handler;
+export default handler;
