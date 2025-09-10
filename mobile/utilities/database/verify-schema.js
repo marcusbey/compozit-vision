@@ -4,9 +4,20 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
 
-const supabaseUrl = 'https://xmkkhdxhzopgfophlyjd.supabase.co';
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhta2toZHhoem9wZ2ZvcGhseWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mzk3MjUyOCwiZXhwIjoyMDU5NTQ4NTI4fQ.ot5D87Hkpumzj3BTWY8RvW5CfFEEl56p8M6h1hkuqNQ';
+// Load environment variables from mobile/.env
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+
+const supabaseUrl = process.env.SUPABASE_URL || 'https://xmkkhdxhzopgfophlyjd.supabase.co';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseServiceKey) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+  console.log('Please set it in mobile/.env file:');
+  console.log('SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here');
+  process.exit(1);
+}
 
 // Create admin client
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {

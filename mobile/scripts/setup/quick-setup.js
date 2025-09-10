@@ -6,10 +6,21 @@
  */
 
 const https = require('https');
+const path = require('path');
+
+// Load environment variables from mobile/.env
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 // Supabase configuration
-const SUPABASE_URL = 'https://xmkkhdxhzopgfophlyjd.supabase.co';
-const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhta2toZHhoem9wZ2ZvcGhseWpkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Mzk3MjUyOCwiZXhwIjoyMDU5NTQ4NTI4fQ.ot5D87Hkpumzj3BTWY8RvW5CfFEEl56p8M6h1hkuqNQ';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://xmkkhdxhzopgfophlyjd.supabase.co';
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SERVICE_ROLE_KEY) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+  console.log('Please set it in mobile/.env file:');
+  console.log('SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here');
+  process.exit(1);
+}
 
 // Complete database schema with proper UUID format
 const COMPLETE_SCHEMA = `
